@@ -9,7 +9,7 @@ const Home: NextPage = () => {
       <Navbar />
       <div className="flex flex-col items-center md:items-start">
         <h1 className="uppercase text-2xl font-semibold mb-5">Library</h1>
-        <div className="flex gap-10 flex-wrap justify-center md:justify-between md:after:flex-auto">
+        <div className="w-full grid gap-10 justify-center grid-cols-fill-267">
           <AnimeCard
             name="Jujutsu Kaisen"
             coverUrl="https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx113415-bbBWj4pEFseh.jpg"

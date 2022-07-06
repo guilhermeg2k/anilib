@@ -57,6 +57,9 @@ module.exports = {
       atkinson: ['Atkinson Hyperlegible', 'sans-serif'],
       roboto: ['Roboto', 'sans'],
     },
+    gridTemplateColumns: {
+      'fill-267': 'repeat(auto-fill, 267px)',
+    },
   },
   plugins: [require('@tailwindcss/forms')],
 };
