@@ -4,9 +4,9 @@ interface LogoProps {
 
 const Logo: React.FunctionComponent<LogoProps> = ({ className = '' }) => {
   return (
-    <h1 className={`uppercase ${className}`}>
+    <h1 className={`uppercase font-atkinson ${className}`}>
       <span className="text-white">ani</span>
-      <span className="text-rose-700 font-atkinson">lib</span>
+      <span className="text-rose-700 ">lib</span>
     </h1>
   );
 };
