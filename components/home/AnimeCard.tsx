@@ -10,7 +10,7 @@ const AnimeCard: React.FunctionComponent<AnimeCardProps> = ({
   coverUrl,
 }) => {
   return (
-    <button className="flex flex-col gap-2 text-center hover:scale-110 duration-300 max-w-[260px]">
+    <button className="flex flex-col gap-2 text-center focus:scale-110 hover:scale-110 duration-300 max-w-[260px] focus:outline-none">
       <div className="w-[260px]">
         <Image
           src={coverUrl}

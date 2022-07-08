@@ -9,7 +9,7 @@ const Page: React.FunctionComponent<PageProps> = ({
 }) => {
   return (
     <div
-      className={`${className} min-h-screen px-4 md:px-52 mt-[70px] md:mt-[96px] py-5`}
+      className={`${className} px-4 md:px-36 lg:px-52 mt-[70px] md:mt-[96px] py-5`}
     >
       {children}
     </div>
