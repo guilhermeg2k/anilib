@@ -1,5 +1,4 @@
 import Slider from '@components/core/Slider';
-
 import PauseIconOutlined from '@heroicons/react/outline/PauseIcon';
 import PlayIconOutlined from '@heroicons/react/outline/PlayIcon';
 import {
@@ -11,6 +10,7 @@ import {
   VolumeOffIcon,
   VolumeUpIcon,
 } from '@heroicons/react/solid';
+import { formatTime } from '@utils/timeUtils';
 import useEffectIf from 'hooks/useEffectIf';
 import React, {
   FunctionComponent,
@@ -19,32 +19,15 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { text } from 'stream/consumers';
 import FadeTransition from './FadeTransition';
 import MenuDropdown from './MenuDropDown';
-
-const formatTime = (timeInSeconds: number | undefined) => {
-  if (timeInSeconds) {
-    if (timeInSeconds < 3600) {
-      const formattedTime = new Date(timeInSeconds * 1000)
-        .toISOString()
-        .slice(14, 19);
-      return formattedTime;
-    }
-    const formattedTime = new Date(timeInSeconds * 1000)
-      .toISOString()
-      .slice(11, 19);
-    return formattedTime;
-  }
-  return '00:00';
-};
-interface PlayerButtonProps {
+interface PlayerControlButtonProps {
   className?: string;
   children: ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const PlayerButton: FunctionComponent<PlayerButtonProps> = ({
+const PlayerControlButton: FunctionComponent<PlayerControlButtonProps> = ({
   className = '',
   onClick,
   children,
@@ -58,8 +41,6 @@ const PlayerButton: FunctionComponent<PlayerButtonProps> = ({
     </button>
   );
 };
-
-interface VideoPlayerProps {}
 
 const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
   const [volume, setVolume] = useState(100);
@@ -183,65 +164,9 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     }
   };
 
-  const playButton = (
-    <button
-      className="absolute m-auto left-0 right-0 top-0 bottom-0 w-28 h-28 opacity-90 hover:opacity-100 duration-200 ease-in-out"
-      onClick={onPlayToggleHandler}
-    >
-      {isPlaying ? (
-        <FadeTransition show={shouldShowControls}>
-          <PauseIconOutlined className="h-full w-full" />
-        </FadeTransition>
-      ) : (
-        <FadeTransition show={!isPlaying}>
-          <PlayIconOutlined className="h-full w-full" />
-        </FadeTransition>
-      )}
-    </button>
-  );
-
-  const playButtonControl = (
-    <PlayerButton onClick={onPlayToggleHandler}>
-      {isPlaying ? (
-        <PauseIcon className="h-8 w-8" />
-      ) : (
-        <PlayIcon className="h-8 w-8" />
-      )}
-    </PlayerButton>
-  );
-
-  const timeBarControl = (
-    <>
-      <Slider
-        className={`${isOnStart && 'pl-2'} w-full`}
-        value={currentTime}
-        onChange={onTimeChangeHandler}
-      />
-      <span className="text-sm">
-        {videoCurrentTime}/{duration}
-      </span>
-    </>
-  );
-
-  const volumeControl = (
-    <div className="flex gap-1 w-[150px] items-center">
-      <PlayerButton onClick={onMuteToggleHandler}>
-        {isMuted ? (
-          <VolumeOffIcon className="h-5 w-5" />
-        ) : (
-          <VolumeUpIcon className="h-5 w-5" />
-        )}
-      </PlayerButton>
-      <Slider
-        className={`w-full ${isMuted && 'pl-2'} ${isMaxVolume && 'pr-2'}`}
-        value={volume}
-        onChange={onVolumeChangeHandler}
-      />
-    </div>
-  );
-
   const buildSubtitlesOptions = () => {
     const subtitles = Array<ReactNode>();
+
     const disableSubtitlesOption = (
       <button
         className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
@@ -268,6 +193,87 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
 
     return subtitles;
   };
+
+  const playButton = (
+    <button
+      className="absolute m-auto left-0 right-0 top-0 bottom-0 w-28 h-28 opacity-90 hover:opacity-100 duration-200 ease-in-out"
+      onClick={onPlayToggleHandler}
+    >
+      {isPlaying ? (
+        <FadeTransition show={shouldShowControls}>
+          <PauseIconOutlined className="h-full w-full" />
+        </FadeTransition>
+      ) : (
+        <FadeTransition show={!isPlaying}>
+          <PlayIconOutlined className="h-full w-full" />
+        </FadeTransition>
+      )}
+    </button>
+  );
+
+  const playButtonControl = (
+    <PlayerControlButton onClick={onPlayToggleHandler}>
+      {isPlaying ? (
+        <PauseIcon className="h-8 w-8" />
+      ) : (
+        <PlayIcon className="h-8 w-8" />
+      )}
+    </PlayerControlButton>
+  );
+
+  const timeBarControl = (
+    <>
+      <Slider
+        className={`${isOnStart && 'pl-2'} w-full`}
+        value={currentTime}
+        onChange={onTimeChangeHandler}
+      />
+      <span className="text-sm">
+        {videoCurrentTime}/{duration}
+      </span>
+    </>
+  );
+
+  const volumeControl = (
+    <div className="flex gap-1 w-[150px] items-center">
+      <PlayerControlButton onClick={onMuteToggleHandler}>
+        {isMuted ? (
+          <VolumeOffIcon className="h-5 w-5" />
+        ) : (
+          <VolumeUpIcon className="h-5 w-5" />
+        )}
+      </PlayerControlButton>
+      <Slider
+        className={`w-full ${isMuted && 'pl-2'} ${isMaxVolume && 'pr-2'}`}
+        value={volume}
+        onChange={onVolumeChangeHandler}
+      />
+    </div>
+  );
+
+  const subtitlesControl = (
+    <MenuDropdown
+      buttonClassName="flex items-center"
+      menuClassName="bottom-8 bg-neutral-900 opacity-90"
+      items={buildSubtitlesOptions()}
+    >
+      <PlayerControlButton>
+        <AnnotationIcon className="h-5 w-5" />
+      </PlayerControlButton>
+    </MenuDropdown>
+  );
+
+  const settingsControl = (
+    <PlayerControlButton>
+      <CogIcon className="h-5 w-5" />
+    </PlayerControlButton>
+  );
+
+  const fullScreenControl = (
+    <PlayerControlButton onClick={onFullscreenToggleHandler}>
+      <ArrowsExpandIcon className="h-5 w-5" />
+    </PlayerControlButton>
+  );
 
   useEffectIf(
     () => {
@@ -326,22 +332,9 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
           {playButtonControl}
           {timeBarControl}
           {volumeControl}
-          <MenuDropdown
-            buttonClassName="flex items-center"
-            menuClassName="bottom-8 bg-neutral-900 opacity-90"
-            items={buildSubtitlesOptions()}
-          >
-            <PlayerButton>
-              <AnnotationIcon className="h-5 w-5" />
-            </PlayerButton>
-          </MenuDropdown>
-
-          <PlayerButton>
-            <CogIcon className="h-5 w-5" />
-          </PlayerButton>
-          <PlayerButton onClick={onFullscreenToggleHandler}>
-            <ArrowsExpandIcon className="h-5 w-5" />
-          </PlayerButton>
+          {subtitlesControl}
+          {settingsControl}
+          {fullScreenControl}
         </div>
       </FadeTransition>
     </div>

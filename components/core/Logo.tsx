@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 interface LogoProps {
   className?: string;
 }
@@ -5,8 +7,12 @@ interface LogoProps {
 const Logo: React.FunctionComponent<LogoProps> = ({ className = '' }) => {
   return (
     <h1 className={`uppercase font-atkinson ${className}`}>
-      <span className="text-white">ani</span>
-      <span className="text-rose-700 ">lib</span>
+      <Link href="/">
+        <a>
+          <span className="text-white">ani</span>
+          <span className="text-rose-700 ">lib</span>
+        </a>
+      </Link>
     </h1>
   );
 };
