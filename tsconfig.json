@@ -6,7 +6,8 @@
     "paths": {
       "@components/*": ["components/*"],
       "@utils/*": ["utils/*"],
-      "@services/*": ["services/*"]
+      "@services/*": ["services/*"],
+      "@backend/*": ["backend/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,

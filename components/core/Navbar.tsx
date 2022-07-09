@@ -12,7 +12,11 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   open,
   onClose,
 }) => {
-  return <Modal title="Settings" open={open} onClose={onClose}></Modal>;
+  return (
+    <Modal title="Settings" open={open} onClose={onClose} disableBackdropClick>
+      Settings
+    </Modal>
+  );
 };
 
 interface NavbarButtonProps {
@@ -35,7 +39,7 @@ const NavbarButton: FunctionComponent<NavbarButtonProps> = ({
 };
 
 const Navbar: FunctionComponent = () => {
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(true);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const onSettingsModalToggleHandler = () => {
     setIsSettingsModalOpen(!isSettingsModalOpen);

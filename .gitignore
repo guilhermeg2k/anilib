@@ -35,3 +35,5 @@ yarn-error.log*
 *.tsbuildinfo
 
 .yarn.lock
+
+data.json
