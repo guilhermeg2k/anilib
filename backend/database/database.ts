@@ -1,15 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-import { Anime, DatabaseInterface, Episode, Subtitle } from './types';
+import { Anime, DatabaseData, Episode, Subtitle } from './types';
 const fsPromises = fs.promises;
 
 class Database {
   private dataFilePath: string = '';
-  private database: DatabaseInterface = {
+  private database: DatabaseData = {
     animes: [],
     episodes: [],
     subtitles: [],
+    watchDirectories: [],
   };
 
   constructor(fileName: string) {
@@ -61,12 +62,17 @@ class Database {
     return episodeSubtitles;
   }
 
+  getWatchDirectories() {
+    return this.database.watchDirectories;
+  }
+
   async insertAnime(anime: Anime) {
     const animeData = anime;
     const id = uuid();
     animeData.id = id;
     this.database.animes.push(animeData);
     await this.syncFile();
+    return animeData;
   }
 
   async insertEpisode(episode: Episode) {
@@ -75,13 +81,21 @@ class Database {
     episodeData.id = id;
     this.database.episodes.push(episodeData);
     await this.syncFile();
+    return episodeData;
   }
 
   async insertSubtitle(subtitle: Subtitle) {
-    const episodeData = subtitle;
+    const subtitleData = subtitle;
     const id = uuid();
-    episodeData.id = id;
-    this.database.subtitles.push(episodeData);
+    subtitleData.id = id;
+    this.database.subtitles.push(subtitleData);
+    await this.syncFile();
+    return subtitleData;
+  }
+
+  async insertWatchDirectory(directory: string) {
+    const watchDirectoryData = directory;
+    this.database.watchDirectories.push(watchDirectoryData);
     await this.syncFile();
   }
 }

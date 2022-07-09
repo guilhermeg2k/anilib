@@ -1,17 +1,25 @@
+interface ReleaseDate {
+  year: number;
+  month: number;
+  day: number;
+}
+
 export interface Anime {
   id?: string;
   title: string;
   coverUrl: string;
   description: string;
   folderPath: string;
-  numberOfEpisodes: number;
+  episodes: number;
+  releaseDate: Date;
   status: string;
-  categories: Array<string>;
+  genres: Array<string>;
+  format: string;
 }
 
 export interface Episode {
   id?: string;
-  fileName: string;
+  filePath: string;
   path: string;
   animeId: string;
   coverUrl: string;
@@ -19,12 +27,13 @@ export interface Episode {
 
 export interface Subtitle {
   id?: string;
-  fileName: string;
+  filePath: string;
   lang: string;
   episodeId: string;
 }
 
-export interface DatabaseInterface {
+export interface DatabaseData {
+  watchDirectories: Array<string>;
   animes: Array<Anime>;
   episodes: Array<Episode>;
   subtitles: Array<Subtitle>;
