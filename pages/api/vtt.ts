@@ -12,7 +12,7 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const filePath = '/home/guilhermeg2k/Downloads/perfect/file.vtt';
+  const filePath = '/home/guilhermeg2k/Workspace/video-streaming/file.vtt';
   var stat = fs.statSync(filePath);
 
   res.writeHead(200, {

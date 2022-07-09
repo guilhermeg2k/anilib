@@ -14,7 +14,7 @@ export default function handler(
   if (!range) {
     res.status(400).send({ msg: 'Requires Range header' });
   }
-  const videoPath = '/home/guilhermeg2k/Downloads/perfect/perfect.mp4';
+  const videoPath = '/home/guilhermeg2k/Workspace/video-streaming/jujutsu.mp4';
   const videoSize = fs.statSync(videoPath).size;
   const CHUNK_SIZE = 10 ** 6;
   const start = Number(range?.replace(/\D/g, ''));

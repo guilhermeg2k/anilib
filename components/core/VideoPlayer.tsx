@@ -1,6 +1,7 @@
 import Slider from '@components/core/Slider';
-import { Transition } from '@headlessui/react';
 
+import PauseIconOutlined from '@heroicons/react/outline/PauseIcon';
+import PlayIconOutlined from '@heroicons/react/outline/PlayIcon';
 import {
   AnnotationIcon,
   ArrowsExpandIcon,
@@ -10,38 +11,33 @@ import {
   VolumeOffIcon,
   VolumeUpIcon,
 } from '@heroicons/react/solid';
-import {
-  Fragment,
+import useEffectIf from 'hooks/useEffectIf';
+import React, {
   FunctionComponent,
+  KeyboardEvent,
   ReactNode,
-  useEffect,
   useRef,
   useState,
 } from 'react';
-
-const useVideoEffect = (
-  effect: () => void,
-  video: HTMLVideoElement | null,
-  deps: Array<any>
-) => {
-  useEffect(() => {
-    if (video) {
-      effect();
-    }
-  }, [deps, effect, video]);
-};
+import { text } from 'stream/consumers';
+import FadeTransition from './FadeTransition';
+import MenuDropdown from './MenuDropDown';
 
 const formatTime = (timeInSeconds: number | undefined) => {
   if (timeInSeconds) {
-    const date = new Date(timeInSeconds * 1000);
-    console.log(date, 'diso');
-    const minutes = date.getMinutes().toString();
-    const seconds = date.getSeconds().toString();
-    return `${minutes}:${seconds}`;
+    if (timeInSeconds < 3600) {
+      const formattedTime = new Date(timeInSeconds * 1000)
+        .toISOString()
+        .slice(14, 19);
+      return formattedTime;
+    }
+    const formattedTime = new Date(timeInSeconds * 1000)
+      .toISOString()
+      .slice(11, 19);
+    return formattedTime;
   }
   return '00:00';
 };
-
 interface PlayerButtonProps {
   className?: string;
   children: ReactNode;
@@ -67,18 +63,53 @@ interface VideoPlayerProps {}
 
 const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
   const [volume, setVolume] = useState(100);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [shouldShowControls, setShouldShowControls] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const videoPlayerRef = useRef<HTMLDivElement>(null);
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
+
   const video = videoRef.current;
-  const videoPlayer = videoContainerRef.current;
+  const videoPlayer = videoPlayerRef.current;
   const isMuted = volume === 0;
   const isMaxVolume = volume === 100;
+  const isOnStart = currentTime === 0;
   const duration = formatTime(video?.duration);
   const videoCurrentTime = formatTime(video?.currentTime);
+
+  const seekToTime = (timeInSeconds: number) => {
+    if (video) {
+      video.currentTime = timeInSeconds;
+    }
+  };
+
+  const updateCurrentTime = () => {
+    if (video) {
+      const currentTime = (video?.currentTime * 100) / video?.duration;
+      setCurrentTime(currentTime);
+    }
+  };
+
+  const onDisableSubtitlesHandler = () => {
+    if (video) {
+      Array.from(video.textTracks).forEach(
+        (textTrack) => (textTrack.mode = 'hidden')
+      );
+    }
+  };
+
+  const onToggleSubtitleHandler = (textTrackId: string) => {
+    if (video) {
+      Array.from(video.textTracks).forEach((textTrack) => {
+        if (textTrack.id !== textTrackId) {
+          textTrack.mode = 'hidden';
+        } else {
+          textTrack.mode = 'showing';
+        }
+      });
+    }
+  };
 
   const onPlayToggleHandler = () => {
     setIsPlaying(!isPlaying);
@@ -87,7 +118,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
   const onTimeChangeHandler = (time: number) => {
     if (video && time < 100) {
       const currentTimeOnSeconds = (video.duration * time) / 100;
-      video.currentTime = currentTimeOnSeconds;
+      seekToTime(currentTimeOnSeconds);
     }
   };
 
@@ -109,12 +140,22 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     }, 3500);
   };
 
-  const onVideoKeyUpHandler = (event) => {};
-
-  const updateCurrentTime = () => {
-    if (video) {
-      const currentTime = (video?.currentTime * 100) / video?.duration;
-      setCurrentTime(currentTime);
+  const onVideoKeyUpHandler = (event: KeyboardEvent) => {
+    event.preventDefault();
+    switch (event.code) {
+      case 'Space':
+        onPlayToggleHandler();
+        break;
+      case 'ArrowLeft':
+        if (video) {
+          seekToTime(video?.currentTime - 10);
+        }
+      case 'ArrowRight':
+        if (video) {
+          seekToTime(video?.currentTime + 10);
+        }
+      default:
+        break;
     }
   };
 
@@ -143,6 +184,23 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
   };
 
   const playButton = (
+    <button
+      className="absolute m-auto left-0 right-0 top-0 bottom-0 w-28 h-28 opacity-90 hover:opacity-100 duration-200 ease-in-out"
+      onClick={onPlayToggleHandler}
+    >
+      {isPlaying ? (
+        <FadeTransition show={shouldShowControls}>
+          <PauseIconOutlined className="h-full w-full" />
+        </FadeTransition>
+      ) : (
+        <FadeTransition show={!isPlaying}>
+          <PlayIconOutlined className="h-full w-full" />
+        </FadeTransition>
+      )}
+    </button>
+  );
+
+  const playButtonControl = (
     <PlayerButton onClick={onPlayToggleHandler}>
       {isPlaying ? (
         <PauseIcon className="h-8 w-8" />
@@ -152,10 +210,10 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     </PlayerButton>
   );
 
-  const timeBar = (
+  const timeBarControl = (
     <>
       <Slider
-        className="w-full"
+        className={`${isOnStart && 'pl-2'} w-full`}
         value={currentTime}
         onChange={onTimeChangeHandler}
       />
@@ -182,7 +240,36 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     </div>
   );
 
-  useVideoEffect(
+  const buildSubtitlesOptions = () => {
+    const subtitles = Array<ReactNode>();
+    const disableSubtitlesOption = (
+      <button
+        className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
+        onClick={onDisableSubtitlesHandler}
+      >
+        Disable
+      </button>
+    );
+    subtitles.push(disableSubtitlesOption);
+
+    if (video) {
+      const items = Array.from(video.textTracks).map((trackText) => (
+        <button
+          key={trackText.id}
+          onClick={() => onToggleSubtitleHandler(trackText.id)}
+          className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
+        >
+          {trackText.label}
+        </button>
+      ));
+      subtitles.push(...items);
+      return subtitles;
+    }
+
+    return subtitles;
+  };
+
+  useEffectIf(
     () => {
       if (isPlaying) {
         video!.play();
@@ -190,28 +277,28 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
         video!.pause();
       }
     },
-    video,
+    Boolean(video),
     [isPlaying, video]
   );
 
-  useVideoEffect(
+  useEffectIf(
     () => {
       video!.volume = volume / 100;
     },
-    video,
+    Boolean(video),
     [volume, video]
   );
 
-  useVideoEffect(
+  useEffectIf(
     () => video?.addEventListener('timeupdate', updateCurrentTime),
-    video,
+    Boolean(video),
     [video]
   );
 
   return (
     <div
       className={`${!shouldShowControls && 'cursor-none'} relative`}
-      ref={videoContainerRef}
+      ref={videoPlayerRef}
       onMouseLeave={onVideoMouseLeaveHandler}
       onMouseEnter={onVideoMouseEnterHandler}
       onMouseMove={onVideoMouseMoveHandler}
@@ -224,40 +311,39 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
         height="100%"
         onClick={onPlayToggleHandler}
       >
-        <source src="http://192.168.1.2:3000/api/video" type="video/mp4" />
+        <source src="/api/video" type="video/mp4" />
         <track
-          src="http://192.168.1.2:3000/api/vtt"
+          src="/api/vtt"
           srcLang="en"
           label="English"
           kind="subtitles"
           default
         />
       </video>
-      <Transition appear show={shouldShowControls} as={Fragment}>
-        <Transition.Child
-          enter="ease-in duration-300"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-300"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div className="h-9 bg-neutral-900 opacity-90 absolute bottom-0 w-full flex items-center gap-2 px-2">
-            {playButton}
-            {timeBar}
-            {volumeControl}
+      {playButton}
+      <FadeTransition show={shouldShowControls}>
+        <div className="h-9 bg-neutral-900 opacity-90 absolute bottom-0 w-full flex items-center gap-2 px-2">
+          {playButtonControl}
+          {timeBarControl}
+          {volumeControl}
+          <MenuDropdown
+            buttonClassName="flex items-center"
+            menuClassName="bottom-8 bg-neutral-900 opacity-90"
+            items={buildSubtitlesOptions()}
+          >
             <PlayerButton>
               <AnnotationIcon className="h-5 w-5" />
             </PlayerButton>
-            <PlayerButton>
-              <CogIcon className="h-5 w-5" />
-            </PlayerButton>
-            <PlayerButton onClick={onFullscreenToggleHandler}>
-              <ArrowsExpandIcon className="h-5 w-5" />
-            </PlayerButton>
-          </div>
-        </Transition.Child>
-      </Transition>
+          </MenuDropdown>
+
+          <PlayerButton>
+            <CogIcon className="h-5 w-5" />
+          </PlayerButton>
+          <PlayerButton onClick={onFullscreenToggleHandler}>
+            <ArrowsExpandIcon className="h-5 w-5" />
+          </PlayerButton>
+        </div>
+      </FadeTransition>
     </div>
   );
 };
