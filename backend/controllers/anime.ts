@@ -5,7 +5,9 @@ class AnimeController {
   async list(req: NextApiRequest, res: NextApiResponse) {
     try {
       const animes = Database.getAnimes();
-      res.json(animes);
+      const episodes = Database.getEpisodes();
+      const subtitles = Database.getSubtitles();
+      res.json({ animes, episodes, subtitles });
     } catch (error) {
       res.status(500).send('Failed get animes');
     }

@@ -22,16 +22,16 @@ export interface Anime {
 export interface Episode {
   id?: string;
   filePath: string;
-  path: string;
   animeId: string;
-  coverUrl: string;
+  coverUrl?: string;
 }
 
 export interface Subtitle {
   id?: string;
   filePath: string;
-  lang: string;
-  episodeId: string;
+  language: string;
+  label: string;
+  episodeId?: string;
 }
 
 export interface DatabaseData {

@@ -40,7 +40,18 @@ class Database {
     return anime;
   }
 
-  getAnimeEpisodes(animeId: string) {
+  getAnimeByPath(path: string) {
+    const anime = this.database.animes.find(
+      (anime) => anime.folderPath === path
+    );
+    return anime;
+  }
+
+  getEpisodes() {
+    return this.database.episodes;
+  }
+
+  getEpisodesByAnimeId(animeId: string) {
     const animeEpisodes = this.database.episodes.filter(
       (episode) => episode.animeId === animeId
     );
@@ -54,7 +65,18 @@ class Database {
     return episode;
   }
 
-  getEpisodeSubtitles(episodeId: string) {
+  getEpisodeByPath(path: string) {
+    const episode = this.database.episodes.find(
+      (episode) => episode.filePath === path
+    );
+    return episode;
+  }
+
+  getSubtitles() {
+    return this.database.episodes;
+  }
+
+  getSubtitlesByEpisodeId(episodeId: string) {
     const episodeSubtitles = this.database.subtitles.filter(
       (subtitle) => subtitle.episodeId === episodeId
     );

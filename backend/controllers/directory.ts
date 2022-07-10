@@ -16,9 +16,9 @@ class DirectoryController {
     try {
       const { directory } = req.body;
       await Database.insertDirectory(directory);
-      res.status(201).send('Watch directory created');
+      res.status(201).send('Directory added');
     } catch (error) {
-      res.status(500).send('Failed to create directory');
+      res.status(500).send('Failed to add directory');
     }
   }
 
