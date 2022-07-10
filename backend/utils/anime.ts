@@ -1,6 +1,6 @@
 import Database from '@backend/database';
 import { Anime } from '@backend/database/types';
-import { exec } from 'child_process';
+import { exec, ExecException } from 'child_process';
 import ffprobe from 'ffprobe';
 import ffprobeStatic from 'ffprobe-static';
 

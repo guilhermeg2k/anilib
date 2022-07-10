@@ -6,6 +6,8 @@ interface ReleaseDate {
 
 export interface Anime {
   id?: string;
+  anilistId: number;
+  number: string;
   title: string;
   coverUrl: string;
   description: string;
@@ -33,7 +35,7 @@ export interface Subtitle {
 }
 
 export interface DatabaseData {
-  watchDirectories: Array<string>;
+  directories: Array<string>;
   animes: Array<Anime>;
   episodes: Array<Episode>;
   subtitles: Array<Subtitle>;

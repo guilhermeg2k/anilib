@@ -53,6 +53,7 @@ export const getAnimeBySearch = async (search: string) => {
   releaseDate.setDate(anime.startDate.day);
 
   const animeParsed = <Anime>{
+    anilistId: anime.id,
     title: anime.title.romaji,
     coverUrl: anime.coverImage.extraLarge,
     description: anime.description,

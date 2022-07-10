@@ -1,7 +1,7 @@
-import WatchDirectoryController from '@backend/controllers/watchDirectory';
+import DirectoryController from '@backend/controllers/directory';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const watchDirectoryController = new WatchDirectoryController();
+const directoryController = new DirectoryController();
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'PUT':
-      watchDirectoryController.sync(req, res);
+      directoryController.sync(req, res);
       break;
     default:
       res.status(405).send('Method Not Allowed');

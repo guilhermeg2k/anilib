@@ -2,10 +2,10 @@ import Database from '@backend/database';
 import { syncAnimes } from '@backend/utils/anime';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-class WatchDirectoryController {
+class DirectoryController {
   async list(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const watchDirectories = Database.getWatchDirectories();
+      const watchDirectories = Database.getDirectories();
       res.json(watchDirectories);
     } catch (error) {
       res.status(500).send('Failed get directories');
@@ -15,7 +15,7 @@ class WatchDirectoryController {
   async create(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { directory } = req.body;
-      await Database.insertWatchDirectory(directory);
+      await Database.insertDirectory(directory);
       res.status(201).send('Watch directory created');
     } catch (error) {
       res.status(500).send('Failed to create directory');
@@ -24,9 +24,9 @@ class WatchDirectoryController {
 
   async sync(req: NextApiRequest, res: NextApiResponse) {
     res.send('Sync started');
-    const watchDirectories = Database.getWatchDirectories();
-    syncAnimes(watchDirectories);
+    const directories = Database.getDirectories();
+    syncAnimes(directories);
   }
 }
 
-export default WatchDirectoryController;
+export default DirectoryController;

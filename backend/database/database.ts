@@ -1,5 +1,4 @@
 import fs from 'fs';
-import path from 'path';
 import { v4 as uuid } from 'uuid';
 import { Anime, DatabaseData, Episode, Subtitle } from './types';
 const fsPromises = fs.promises;
@@ -10,7 +9,7 @@ class Database {
     animes: [],
     episodes: [],
     subtitles: [],
-    watchDirectories: [],
+    directories: [],
   };
 
   constructor(fileName: string) {
@@ -62,8 +61,8 @@ class Database {
     return episodeSubtitles;
   }
 
-  getWatchDirectories() {
-    return this.database.watchDirectories;
+  getDirectories() {
+    return this.database.directories;
   }
 
   async insertAnime(anime: Anime) {
@@ -93,9 +92,8 @@ class Database {
     return subtitleData;
   }
 
-  async insertWatchDirectory(directory: string) {
-    const watchDirectoryData = directory;
-    this.database.watchDirectories.push(watchDirectoryData);
+  async insertDirectory(directory: string) {
+    this.database.directories.push(directory);
     await this.syncFile();
   }
 }
