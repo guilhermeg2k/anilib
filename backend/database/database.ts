@@ -12,9 +12,8 @@ class Database {
     directories: [],
   };
 
-  constructor(fileName: string) {
-    const filePath = fileName;
-    this.dataFilePath = fileName;
+  constructor(filePath: string) {
+    this.dataFilePath = filePath;
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath);
       this.database = JSON.parse(fileData.toString());
@@ -35,52 +34,12 @@ class Database {
     return this.database.animes;
   }
 
-  getAnime(id: string) {
-    const anime = this.database.animes.find((anime) => anime.id === id);
-    return anime;
-  }
-
-  getAnimeByPath(path: string) {
-    const anime = this.database.animes.find(
-      (anime) => anime.folderPath === path
-    );
-    return anime;
-  }
-
   getEpisodes() {
     return this.database.episodes;
   }
 
-  getEpisodesByAnimeId(animeId: string) {
-    const animeEpisodes = this.database.episodes.filter(
-      (episode) => episode.animeId === animeId
-    );
-    return animeEpisodes;
-  }
-
-  getEpisode(id: string) {
-    const episode = this.database.episodes.find(
-      (episode) => episode.animeId === id
-    );
-    return episode;
-  }
-
-  getEpisodeByPath(path: string) {
-    const episode = this.database.episodes.find(
-      (episode) => episode.filePath === path
-    );
-    return episode;
-  }
-
   getSubtitles() {
     return this.database.subtitles;
-  }
-
-  getSubtitlesByEpisodeId(episodeId: string) {
-    const episodeSubtitles = this.database.subtitles.filter(
-      (subtitle) => subtitle.episodeId === episodeId
-    );
-    return episodeSubtitles;
   }
 
   getDirectories() {
@@ -115,7 +74,7 @@ class Database {
 
   async deleteDirectory(directory: string) {
     const directories = this.database.directories.filter(
-      (directory) => directory != directory
+      (dbDirectory) => dbDirectory != directory
     );
     this.database.directories = directories;
     await this.syncFile();

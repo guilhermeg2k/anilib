@@ -1,8 +1,5 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 type Data = {
   msg: string;

@@ -24,8 +24,9 @@ interface AnilistAnime {
   format: string;
 }
 
-export const getAnimeBySearch = async (search: string) => {
-  const queryResult = await client.request(gql`
+class AnilistService {
+  async getAnimeBySearch(search: string) {
+    const queryResult = await client.request(gql`
       {
         Media(search: "${search}", type: ANIME) {
           id
@@ -50,29 +51,26 @@ export const getAnimeBySearch = async (search: string) => {
         }
       }
     `);
-  const anime = queryResult.Media as AnilistAnime;
-  const releaseDate = new Date();
-  releaseDate.setFullYear(anime.startDate.year);
-  releaseDate.setMonth(anime.startDate.month);
-  releaseDate.setDate(anime.startDate.day);
+    const anime = queryResult.Media as AnilistAnime;
+    const releaseDate = new Date();
+    releaseDate.setFullYear(anime.startDate.year);
+    releaseDate.setMonth(anime.startDate.month);
+    releaseDate.setDate(anime.startDate.day);
 
-  const animeParsed = <Anime>{
-    anilistId: anime.id,
-    title: anime.title,
-    coverUrl: anime.coverImage.extraLarge,
-    description: anime.description,
-    episodes: anime.episodes,
-    releaseDate: releaseDate,
-    status: anime.status,
-    genres: anime.genres,
-    format: anime.format,
-  };
+    const animeParsed = <Anime>{
+      anilistId: anime.id,
+      title: anime.title,
+      coverUrl: anime.coverImage.extraLarge,
+      description: anime.description,
+      episodes: anime.episodes,
+      releaseDate: releaseDate,
+      status: anime.status,
+      genres: anime.genres,
+      format: anime.format,
+    };
 
-  return animeParsed;
-};
+    return animeParsed;
+  }
+}
 
-const anilistService = {
-  getAnimeBySearch,
-};
-
-export default anilistService;
+export default AnilistService;
