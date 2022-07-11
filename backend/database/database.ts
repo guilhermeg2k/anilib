@@ -73,7 +73,7 @@ class Database {
   }
 
   getSubtitles() {
-    return this.database.episodes;
+    return this.database.subtitles;
   }
 
   getSubtitlesByEpisodeId(episodeId: string) {

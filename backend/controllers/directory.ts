@@ -23,8 +23,8 @@ class DirectoryController {
 
   async delete(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const { directory } = req.body;
-      await Database.deleteDirectory(directory);
+      const { directory } = req.query;
+      await Database.deleteDirectory(String(directory));
       res.send('Directory removed');
     } catch (error) {
       res.status(500).send('Failed to remove directory');
