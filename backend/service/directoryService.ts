@@ -3,7 +3,7 @@ import DirectoryRepository from '@backend/repository/directoryRepository';
 const directoryRepository = new DirectoryRepository();
 
 class DirectoryService {
-  async list() {
+  list() {
     const directories = directoryRepository.list();
     return directories;
   }

@@ -1,14 +1,13 @@
 import { Anime, Episode } from '@backend/database/types';
 import EpisodeRepository from '@backend/repository/episodeRepository';
-import { convertMkvToMp4, extractVideoImageCover } from '@backend/utils/ffmpeg';
-import fileSystem from 'fs';
+import FileUtils from '@backend/utils/fileUtils';
+import VideoUtils from '@backend/utils/videoUtils';
 import path from 'path';
-import SubtitleService from './subtitleService';
 
 const episodeRepository = new EpisodeRepository();
-const subtitleService = new SubtitleService();
-const fs = fileSystem.promises;
-
+const videoUtils = new VideoUtils();
+const fileUtils = new FileUtils();
+const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 class EpisodeService {
   getById(id: string) {
     const episode = episodeRepository.getById(id);
@@ -25,41 +24,47 @@ class EpisodeService {
     return episodes;
   }
 
-  async createFromAnimeAndFilePath(anime: Anime, episodeFilePath: string) {
+  async createFromAnime(anime: Anime) {
+    const createdEpisodes = Array<Episode>();
+    const episodeFilePaths = await fileUtils.listFilesInFolderByExtensions(
+      anime.folderPath,
+      EPISODE_FILES_EXTENSIONS
+    );
+
+    for (const episodeFilePath of episodeFilePaths) {
+      const episodeAlreadyExists = Boolean(this.getByPath(episodeFilePath));
+      if (!episodeAlreadyExists) {
+        const createdEpisode = await this.createFromAnimeAndFilePath(
+          anime,
+          episodeFilePath
+        );
+        createdEpisodes.push(createdEpisode);
+      }
+    }
+
+    return createdEpisodes;
+  }
+
+  private async createFromAnimeAndFilePath(
+    anime: Anime,
+    episodeFilePath: string
+  ) {
     const episodeFileExt = path.extname(episodeFilePath);
-    const episodeCover = await extractVideoImageCover(episodeFilePath);
-    const episode = {
+    const episodeCover = await videoUtils.extractImageCover(episodeFilePath);
+
+    const newEpisode = {
       animeId: anime.id,
       filePath: episodeFilePath,
       coverUrl: episodeCover,
     } as Episode;
 
     if (episodeFileExt === '.mkv') {
-      const episodeFileMp4 = await convertMkvToMp4(episodeFilePath);
-      episode.filePath = episodeFileMp4;
+      const episodeFileMp4 = await videoUtils.convertMkvToMp4(episodeFilePath);
+      newEpisode.filePath = episodeFileMp4;
     }
 
-    const insertedEpisode = await episodeRepository.create(episode);
-    const createdEpisode = await subtitleService.createFromEpisode(
-      insertedEpisode
-    );
-    return createdEpisode;
-  }
-
-  async createFromAnimeAndFilePaths(
-    anime: Anime,
-    episodeFilesPaths: Array<string>
-  ) {
-    const createdEpisodesPromises = episodeFilesPaths.map(
-      async (episodeFilePath) => {
-        const episode = this.getByPath(episodeFilePath);
-        if (!episode) {
-          return this.createFromAnimeAndFilePath(anime, episodeFilePath);
-        }
-      }
-    );
-    const createdEpisodes = await Promise.all(createdEpisodesPromises);
-    return createdEpisodes;
+    const insertedEpisode = await episodeRepository.create(newEpisode);
+    return insertedEpisode;
   }
 }
 

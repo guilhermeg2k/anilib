@@ -1,7 +1,7 @@
 import database from '@backend/database/';
 
 class DirectoryRepository {
-  async list() {
+  list() {
     const directories = database.getDirectories();
     return directories;
   }

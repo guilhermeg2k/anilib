@@ -54,14 +54,14 @@ class Database {
   }
 
   async insertEpisode(episode: Episode) {
-    const newEpisode = { ...episode, id: uuid() };
+    const newEpisode = <Episode>{ ...episode, id: uuid() };
     this.database.episodes.push(newEpisode);
     await this.syncFile();
     return newEpisode;
   }
 
   async insertSubtitle(subtitle: Subtitle) {
-    const newSubtitle = { ...subtitle, id: uuid() };
+    const newSubtitle = <Subtitle>{ ...subtitle, id: uuid() };
     this.database.subtitles.push(newSubtitle);
     await this.syncFile();
     return newSubtitle;
