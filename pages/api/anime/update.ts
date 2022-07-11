@@ -1,7 +1,7 @@
-import DirectoryController from '@backend/controllers/directory';
+import AnimeController from '@backend/controllers/anime';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const directoryController = new DirectoryController();
+const animeController = new AnimeController();
 
 export default async function handler(
   req: NextApiRequest,
@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'PUT':
-      directoryController.sync(req, res);
+      animeController.update(req, res);
       break;
     default:
       res.status(405).send('Method Not Allowed');

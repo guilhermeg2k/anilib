@@ -1,5 +1,7 @@
 import Database from '@backend/database';
+import { processAnimes } from '@backend/utils/animeProcess';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 
 class AnimeController {
   async list(req: NextApiRequest, res: NextApiResponse) {
@@ -20,6 +22,16 @@ class AnimeController {
       res.json(animes);
     } catch (error) {
       res.status(500).send('Failed get animes');
+    }
+  }
+
+  async update(req: NextApiRequest, res: NextApiResponse) {
+    res.send('Update anime task has been started, this can take a while');
+    try {
+      const directories = Database.getDirectories();
+      await processAnimes(directories);
+    } catch (error) {
+      console.log(error);
     }
   }
 }

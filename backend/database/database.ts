@@ -23,11 +23,11 @@ class Database {
     }
   }
 
-  toString(): string {
+  private toString(): string {
     return JSON.stringify(this.database);
   }
 
-  async syncFile() {
+  private async syncFile() {
     await fsPromises.writeFile(this.dataFilePath, this.toString());
   }
 
@@ -88,34 +88,36 @@ class Database {
   }
 
   async insertAnime(anime: Anime) {
-    const animeData = anime;
-    const id = uuid();
-    animeData.id = id;
-    this.database.animes.push(animeData);
+    const newAnime = { ...anime, id: uuid() };
+    this.database.animes.push(newAnime);
     await this.syncFile();
-    return animeData;
+    return newAnime;
   }
 
   async insertEpisode(episode: Episode) {
-    const episodeData = episode;
-    const id = uuid();
-    episodeData.id = id;
-    this.database.episodes.push(episodeData);
+    const newEpisode = { ...episode, id: uuid() };
+    this.database.episodes.push(newEpisode);
     await this.syncFile();
-    return episodeData;
+    return newEpisode;
   }
 
   async insertSubtitle(subtitle: Subtitle) {
-    const subtitleData = subtitle;
-    const id = uuid();
-    subtitleData.id = id;
-    this.database.subtitles.push(subtitleData);
+    const newSubtitle = { ...subtitle, id: uuid() };
+    this.database.subtitles.push(newSubtitle);
     await this.syncFile();
-    return subtitleData;
+    return newSubtitle;
   }
 
   async insertDirectory(directory: string) {
     this.database.directories.push(directory);
+    await this.syncFile();
+  }
+
+  async deleteDirectory(directory: string) {
+    const directories = this.database.directories.filter(
+      (directory) => directory != directory
+    );
+    this.database.directories = directories;
     await this.syncFile();
   }
 }

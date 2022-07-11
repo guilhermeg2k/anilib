@@ -1,5 +1,4 @@
 import Database from '@backend/database';
-import { syncAnimes } from '@backend/utils/anime';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 class DirectoryController {
@@ -22,10 +21,14 @@ class DirectoryController {
     }
   }
 
-  async sync(req: NextApiRequest, res: NextApiResponse) {
-    res.send('Sync started');
-    const directories = Database.getDirectories();
-    syncAnimes(directories);
+  async delete(req: NextApiRequest, res: NextApiResponse) {
+    try {
+      const { directory } = req.body;
+      await Database.deleteDirectory(directory);
+      res.send('Directory removed');
+    } catch (error) {
+      res.status(500).send('Failed to remove directory');
+    }
   }
 }
 
