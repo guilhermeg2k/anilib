@@ -10,6 +10,11 @@ class SubtitleService {
     return subtitles;
   }
 
+  async create(subtitle: Subtitle) {
+    const createdSubtitle = await subtitleRepository.create(subtitle);
+    return createdSubtitle;
+  }
+
   async createFromEpisode(episode: Episode) {
     const createdSubtitles = [];
     const localEpisodeSubtitles = subtitleRepository.listByEpisodeId(
@@ -26,7 +31,7 @@ class SubtitleService {
           filePath: subtitle.filePath,
           episodeId: episode.id,
         };
-        const createdEpisode = await subtitleRepository.create(newEpisode);
+        const createdEpisode = await this.create(newEpisode);
         createdSubtitles.push(createdEpisode);
       }
     }

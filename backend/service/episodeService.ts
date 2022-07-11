@@ -9,6 +9,16 @@ const videoUtils = new VideoUtils();
 const fileUtils = new FileUtils();
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 class EpisodeService {
+  list() {
+    const episodes = episodeRepository.list();
+    return episodes;
+  }
+
+  listByAnimeId(animeId: string) {
+    const episodes = episodeRepository.listByAnimeId(animeId);
+    return episodes;
+  }
+
   getById(id: string) {
     const episode = episodeRepository.getById(id);
     return episode;
@@ -19,9 +29,9 @@ class EpisodeService {
     return episode;
   }
 
-  listByAnimeId(animeId: string) {
-    const episodes = episodeRepository.listByAnimeId(animeId);
-    return episodes;
+  private async create(episode: Episode) {
+    const createdEpisode = await episodeRepository.create(episode);
+    return createdEpisode;
   }
 
   async createFromAnime(anime: Anime) {
@@ -63,8 +73,8 @@ class EpisodeService {
       newEpisode.filePath = episodeFileMp4;
     }
 
-    const insertedEpisode = await episodeRepository.create(newEpisode);
-    return insertedEpisode;
+    const createdEpisode = await this.create(newEpisode);
+    return createdEpisode;
   }
 }
 
