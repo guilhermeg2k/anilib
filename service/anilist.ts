@@ -6,6 +6,8 @@ interface AnilistAnime {
   id: number;
   title: {
     romaji: string;
+    english: string;
+    native: string;
   };
   coverImage: {
     extraLarge: string;
@@ -29,6 +31,8 @@ export const getAnimeBySearch = async (search: string) => {
           id
           title {
             romaji
+            english
+            native
           }
           coverImage {
             extraLarge
@@ -54,7 +58,7 @@ export const getAnimeBySearch = async (search: string) => {
 
   const animeParsed = <Anime>{
     anilistId: anime.id,
-    title: anime.title.romaji,
+    title: anime.title,
     coverUrl: anime.coverImage.extraLarge,
     description: anime.description,
     episodes: anime.episodes,

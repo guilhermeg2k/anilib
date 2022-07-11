@@ -8,15 +8,19 @@ export interface Anime {
   id?: string;
   anilistId: number;
   number: string;
-  title: string;
+  title: {
+    romaji: string;
+    english: string;
+    native: string;
+  };
   coverUrl: string;
   description: string;
-  folderPath: string;
   episodes: number;
   releaseDate: Date;
   status: string;
   genres: Array<string>;
   format: string;
+  folderPath: string;
 }
 
 export interface Episode {
