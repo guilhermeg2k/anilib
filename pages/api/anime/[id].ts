@@ -1,4 +1,4 @@
-import AnimeController from '@backend/controllers/anime';
+import AnimeController from '@backend/controllers/animeController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const animeController = new AnimeController();
@@ -11,10 +11,10 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      animeController.listById(req, res);
+      animeController.getById(req, res);
       break;
     default:
-      res.status(405).send('Method Not Allowed');
+      res.status(405).end();
       break;
   }
 }

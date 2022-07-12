@@ -1,4 +1,4 @@
-import SubtitleController from '@backend/controllers/subtitle';
+import SubtitleController from '@backend/controllers/subtitleController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const subtitleController = new SubtitleController();
@@ -14,7 +14,7 @@ export default async function handler(
       subtitleController.listByEpisodeId(req, res);
       break;
     default:
-      res.status(405).send('Method Not Allowed');
+      res.status(405).end();
       break;
   }
 }
