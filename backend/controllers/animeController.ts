@@ -1,4 +1,3 @@
-import Database from '@backend/database';
 import AnimeService from '@backend/service/animeService';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -7,7 +6,7 @@ const animeService = new AnimeService();
 class AnimeController {
   list(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const animes = Database.getAnimes();
+      const animes = animeService.list();
       res.json(animes);
     } catch (error) {
       console.error(error);
