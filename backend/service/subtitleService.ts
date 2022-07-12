@@ -10,7 +10,12 @@ class SubtitleService {
     return subtitles;
   }
 
-  async create(subtitle: Subtitle) {
+  getById(id: string) {
+    const episode = subtitleRepository.getById(id);
+    return episode;
+  }
+
+  private async create(subtitle: Subtitle) {
     const createdSubtitle = await subtitleRepository.create(subtitle);
     return createdSubtitle;
   }

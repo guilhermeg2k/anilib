@@ -3,6 +3,13 @@ import dataBase from '@backend/database';
 import { Subtitle } from '@backend/database/types';
 
 class SubtitleRepository {
+  getById(id: string) {
+    const subtitle = dataBase
+      .getSubtitles()
+      .find((subtitle) => subtitle.id === id);
+    return subtitle;
+  }
+
   listByEpisodeId(episodeId: string) {
     const subtitles = dataBase
       .getSubtitles()
