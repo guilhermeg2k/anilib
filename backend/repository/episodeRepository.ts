@@ -19,10 +19,17 @@ class EpisodeRepository {
     return episode;
   }
 
-  getByPath(path: string) {
+  getByFilePath(path: string) {
     const episode = database
       .getEpisodes()
       .find((episode) => episode.filePath === path);
+    return episode;
+  }
+
+  getByOriginalFilePath(path: string) {
+    const episode = database
+      .getEpisodes()
+      .find((episode) => episode.originalFilePath === path);
     return episode;
   }
 

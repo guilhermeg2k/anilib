@@ -25,7 +25,12 @@ class EpisodeService {
   }
 
   getByPath(path: string) {
-    const episode = episodeRepository.getByPath(path);
+    const episode = episodeRepository.getByFilePath(path);
+    return episode;
+  }
+
+  getByOriginalPath(path: string) {
+    const episode = episodeRepository.getByOriginalFilePath(path);
     return episode;
   }
 
@@ -42,7 +47,9 @@ class EpisodeService {
     );
 
     for (const episodeFilePath of episodeFilePaths) {
-      const episodeAlreadyExists = Boolean(this.getByPath(episodeFilePath));
+      const episodeAlreadyExists =
+        this.getByPath(episodeFilePath) ||
+        this.getByOriginalPath(episodeFilePath);
       if (!episodeAlreadyExists) {
         const createdEpisode = await this.createFromAnimeAndFilePath(
           anime,
@@ -71,6 +78,7 @@ class EpisodeService {
     if (episodeFileExt === '.mkv') {
       const episodeFileMp4 = await videoUtils.convertMkvToMp4(episodeFilePath);
       newEpisode.filePath = episodeFileMp4;
+      newEpisode.originalFilePath = episodeFilePath;
     }
 
     const createdEpisode = await this.create(newEpisode);

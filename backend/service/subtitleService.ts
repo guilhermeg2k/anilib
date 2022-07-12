@@ -25,9 +25,9 @@ class SubtitleService {
     const localEpisodeSubtitles = subtitleRepository.listByEpisodeId(
       episode.id!
     );
-    if (localEpisodeSubtitles.length === 0) {
+    if (localEpisodeSubtitles.length === 0 && episode.originalFilePath) {
       const episodeSubtitles = await videoUtils.extractSubtitles(
-        episode.filePath
+        episode.originalFilePath
       );
       for (const subtitle of episodeSubtitles) {
         const newEpisode = <Subtitle>{

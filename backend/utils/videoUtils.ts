@@ -2,6 +2,7 @@ import ffprobe from 'ffprobe';
 import ffprobeStatic from 'ffprobe-static';
 import path from 'path';
 import util from 'util';
+import fs from 'fs';
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -14,10 +15,13 @@ interface Subtitle {
 class VideoUtils {
   convertMkvToMp4 = async (mkvFilePath: string) => {
     const mp4FilePath = mkvFilePath.replace('.mkv', '.mp4');
-    const ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -codec copy "${mp4FilePath}"`;
-    const { error } = await exec(ffmpegExecCommand);
-    if (error) {
-      throw new Error(`Failed to convert ${mkvFilePath} to mp4`);
+    const videoAlreadyExists = fs.existsSync(mp4FilePath);
+    if (!videoAlreadyExists) {
+      const ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -codec copy "${mp4FilePath}"`;
+      const { error } = await exec(ffmpegExecCommand);
+      if (error) {
+        throw new Error(`Failed to convert ${mkvFilePath} to mp4`);
+      }
     }
     return mp4FilePath;
   };
@@ -25,11 +29,17 @@ class VideoUtils {
   extractImageCover = async (videoFilePath: string) => {
     const fileExt = path.extname(videoFilePath);
     const coverImageFilePath = videoFilePath.replace(fileExt, '.jpg');
-    const ffmpegExecCommand = `ffmpeg -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${coverImageFilePath}"`;
-    const { error } = await exec(ffmpegExecCommand);
-    if (error) {
-      throw new Error(`Failed to extract image cover from ${videoFilePath}`);
+
+    const imageAlreadyExists = fs.existsSync(coverImageFilePath);
+
+    if (!imageAlreadyExists) {
+      const ffmpegExecCommand = `ffmpeg -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${coverImageFilePath}"`;
+      const { error } = await exec(ffmpegExecCommand);
+      if (error) {
+        throw new Error(`Failed to extract image cover from ${videoFilePath}`);
+      }
     }
+
     return coverImageFilePath;
   };
 
