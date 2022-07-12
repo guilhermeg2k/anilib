@@ -68,17 +68,21 @@ class EpisodeService {
   ) {
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeCover = await videoUtils.extractImageCover(episodeFilePath);
+    const episodeTitle = path
+      .basename(episodeFilePath)
+      .replace(episodeFileExt, '');
 
     const newEpisode = {
+      title: episodeTitle,
       animeId: anime.id,
-      filePath: episodeFilePath,
       coverUrl: episodeCover,
-    } as Episode;
+      filePath: episodeFilePath,
+      originalFilePath: episodeFilePath,
+    };
 
     if (episodeFileExt === '.mkv') {
       const episodeFileMp4 = await videoUtils.convertMkvToMp4(episodeFilePath);
       newEpisode.filePath = episodeFileMp4;
-      newEpisode.originalFilePath = episodeFilePath;
     }
 
     const createdEpisode = await this.create(newEpisode);

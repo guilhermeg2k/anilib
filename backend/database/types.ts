@@ -24,6 +24,7 @@ export interface Anime {
 
 export interface Episode {
   id?: string;
+  title: string;
   filePath: string;
   originalFilePath?: string;
   animeId: string;

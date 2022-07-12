@@ -1,4 +1,5 @@
 import DirectoryService from '@backend/service/directoryService';
+import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { resolve } from 'path';
 
@@ -22,7 +23,9 @@ class DirectoryController {
         const isDirectoryDuplicated = Boolean(
           await directoryService.get(directory)
         );
-        if (!isDirectoryDuplicated) {
+        const directoryExists = fs.existsSync(directory);
+
+        if (!isDirectoryDuplicated && directoryExists) {
           await directoryService.create(directory);
           res.status(201).send('Directory added');
         }
