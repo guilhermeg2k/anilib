@@ -17,6 +17,7 @@ import React, {
   FunctionComponent,
   KeyboardEvent,
   ReactNode,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -330,6 +331,8 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     [video]
   );
 
+  useEffect(() => video?.load(), [videoUrl]);
+
   return (
     <div
       className={`${!shouldShowControls && 'cursor-none'} relative`}
@@ -341,10 +344,13 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     >
       <video
         id="videoPlayer"
+        key={videoUrl}
         className="w-full"
         ref={videoRef}
         height="100%"
         onClick={onPlayToggleHandler}
+        autoPlay={false}
+        preload="auto"
       >
         <source src={videoUrl} type="video/mp4" />
         {subtitles}

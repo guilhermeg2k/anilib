@@ -74,7 +74,7 @@ class EpisodeService {
 
     const newEpisode = {
       title: episodeTitle,
-      animeId: anime.id,
+      animeId: anime.id!,
       coverUrl: episodeCover,
       filePath: episodeFilePath,
       originalFilePath: episodeFilePath,
