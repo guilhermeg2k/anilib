@@ -1,3 +1,4 @@
+import { Subtitle } from '@backend/database/types';
 import Slider from '@components/core/Slider';
 import PauseIconOutlined from '@heroicons/react/outline/PauseIcon';
 import PlayIconOutlined from '@heroicons/react/outline/PlayIcon';
@@ -42,7 +43,15 @@ const PlayerControlButton: FunctionComponent<PlayerControlButtonProps> = ({
   );
 };
 
-const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
+interface VideoPlayerProps {
+  videoUrl: string;
+  subtitlesList: Array<Subtitle>;
+}
+
+const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
+  videoUrl,
+  subtitlesList,
+}) => {
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -156,7 +165,9 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     if (video && document) {
       if (document.fullscreenElement) {
         document.exitFullscreen();
+        // @ts-ignore
       } else if (document.webkitFullscreenElement) {
+        // @ts-ignore
         document.webkitExitFullscreen();
       } else {
         videoPlayer!.requestFullscreen();
@@ -169,6 +180,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
 
     const disableSubtitlesOption = (
       <button
+        key="disable-option"
         className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
         onClick={onDisableSubtitlesHandler}
       >
@@ -178,15 +190,17 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     subtitles.push(disableSubtitlesOption);
 
     if (video) {
-      const items = Array.from(video.textTracks).map((trackText) => (
-        <button
-          key={trackText.id}
-          onClick={() => onToggleSubtitleHandler(trackText.id)}
-          className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
-        >
-          {trackText.label}
-        </button>
-      ));
+      const items = Array.from(video.textTracks).map((trackText) => {
+        return (
+          <button
+            key={trackText.id}
+            onClick={() => onToggleSubtitleHandler(trackText.id)}
+            className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
+          >
+            {trackText.label}
+          </button>
+        );
+      });
       subtitles.push(...items);
       return subtitles;
     }
@@ -275,6 +289,21 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
     </PlayerControlButton>
   );
 
+  const subtitles = subtitlesList.map((subtitle) => {
+    const isSubtitleDefault = subtitle.language === 'por';
+    return (
+      <track
+        id={subtitle.id}
+        key={subtitle.id}
+        src={`/api/subtitle/vtt-file/${subtitle.id}`}
+        srcLang={subtitle.language}
+        label={subtitle.label}
+        kind="subtitles"
+        default={isSubtitleDefault}
+      />
+    );
+  });
+
   useEffectIf(
     () => {
       if (isPlaying) {
@@ -317,14 +346,8 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = () => {
         height="100%"
         onClick={onPlayToggleHandler}
       >
-        <source src="/api/video" type="video/mp4" />
-        <track
-          src="/api/vtt"
-          srcLang="en"
-          label="English"
-          kind="subtitles"
-          default
-        />
+        <source src={videoUrl} type="video/mp4" />
+        {subtitles}
       </video>
       {playButton}
       <FadeTransition show={shouldShowControls}>

@@ -5,7 +5,7 @@ import VideoUtils from '@backend/utils/videoUtils';
 const subtitleRepository = new SubtitleRepository();
 const videoUtils = new VideoUtils();
 class SubtitleService {
-  getByEpisodeId(episodeId: string) {
+  listByEpisodeId(episodeId: string) {
     const subtitles = subtitleRepository.listByEpisodeId(episodeId);
     return subtitles;
   }

@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      subtitleController.listByEpisodeId(req, res);
+      await subtitleController.listByEpisodeId(req, res);
       break;
     default:
       res.status(405).end();

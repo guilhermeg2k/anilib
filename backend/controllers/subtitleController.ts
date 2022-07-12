@@ -7,9 +7,9 @@ const subtitleService = new SubtitleService();
 class SubtitleController {
   listByEpisodeId(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const { episodeId } = req.body;
-      if (episodeId) {
-        const subtitles = subtitleService.getByEpisodeId(episodeId);
+      const { episodeId } = req.query;
+      if (episodeId && typeof episodeId === 'string') {
+        const subtitles = subtitleService.listByEpisodeId(episodeId);
         res.json(subtitles);
         return;
       }

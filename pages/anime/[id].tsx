@@ -1,29 +1,33 @@
+import { Anime, Episode } from '@backend/database/types';
 import Badge from '@components/core/Badge';
 import Button from '@components/core/Button';
-import Episode from '@components/core/Episode';
+import EpisodeCard from '@components/core/EpisodeCard';
 import Navbar from '@components/core/Navbar';
 import Page from '@components/core/Page';
-import type { NextPage } from 'next';
+import AnimeService from '@services/animeService';
+import EpisodeService from '@services/episodeService';
+import StringUtils from '@utils/stringUtils';
+import type { GetServerSideProps, NextPage } from 'next';
 import Image from 'next/image';
 
-const animeCategories = [
-  { id: 1, name: 'action' },
-  { id: 2, name: 'drama' },
-  { id: 3, name: 'fantasy' },
-  { id: 4, name: 'mistery' },
-];
+const animeService = new AnimeService();
+const episodeService = new EpisodeService();
+const stringUtils = new StringUtils();
 
-const animeEpisodes = [
-  { id: 1, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-  { id: 2, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-  { id: 3, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-  { id: 5, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-  { id: 6, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-  { id: 7, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-  { id: 8, name: '[Shingeki no Kyojin Final Season] Episode 83 - Pride' },
-];
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const id = params?.id as string;
+  const anime = await animeService.getById(id);
+  const animeEpisodes = await episodeService.listByAnimeId(id);
+  const animeProps: AnimeProps = { anime, episodesList: animeEpisodes };
+  return { props: animeProps };
+};
 
-const Anime: NextPage = () => {
+interface AnimeProps {
+  anime: Anime;
+  episodesList: Array<Episode>;
+}
+
+const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
   const getCategoryColorClass = (colorSeed: number) => {
     const colorIndex = (colorSeed + 1) % 4;
     switch (colorIndex) {
@@ -41,26 +45,33 @@ const Anime: NextPage = () => {
     }
   };
 
+  const description = stringUtils.removeHTMLTags(anime.description);
+
   const imageCover = (
     <Image
-      src="https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx110277-qDRIhu50PXzz.jpg"
-      alt="Anime Cover Image"
+      src={anime.coverUrl}
+      alt={`${anime.title.native} Cover Image`}
       layout="intrinsic"
       width={415}
       height={588}
     />
   );
 
-  const categories = animeCategories.map((category, index) => (
-    <Badge key={category.id} className={`${getCategoryColorClass(index)}`}>
-      {category.name}
+  const genrers = anime.genres.map((genre, index) => (
+    <Badge key={genre} className={`${getCategoryColorClass(index)}`}>
+      {genre}
     </Badge>
   ));
 
-  const episodes = animeEpisodes.map((episode) => (
-    <Episode className="w-full" key={episode.id}>
-      {episode.name}
-    </Episode>
+  const releaseYear = new Date(anime.releaseDate).getFullYear();
+  const releaseMonth = new Date(anime.releaseDate).toLocaleString('default', {
+    month: 'long',
+  });
+
+  const episodes = episodesList.map((episode) => (
+    <EpisodeCard className="w-full" key={episode.id} episodeId={episode.id!}>
+      {episode.title}
+    </EpisodeCard>
   ));
 
   return (
@@ -77,28 +88,21 @@ const Anime: NextPage = () => {
             <header className="flex flex-col items-center lg:items-start  gap-2 lg:gap-0">
               <div className="flex justify-between items-center lg:items-start gap-2 md:w-full ">
                 <h1 className="text-rose-700 text-2xl lg:text-4xl font-bold">
-                  Shingeki no Kyojin: The Final Season
+                  {anime.title.romaji}
                 </h1>
                 <Button>edit</Button>
               </div>
               <figure className="w-[130px] md:w-[170px] lg:hidden">
                 {imageCover}
               </figure>
-              <div className="flex gap-3 mt-4 flex-wrap">{categories}</div>
+              <div className="flex gap-3 mt-4 flex-wrap">{genrers}</div>
             </header>
-            <p className="text-sm lg:text-xl">
-              It’s been four years since the Scout Regiment reached the
-              shoreline, and the world looks different now. Things are heating
-              up as the fate of the Scout Regiment—and the people of Paradis—are
-              determined at last. However, Eren is missing. Will he reappear
-              before age-old tensions between Marleyans and Eldians result in
-              the war of all wars?
-            </p>
+            <p className="text-sm lg:text-base">{description}</p>
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold">TV 16 EPISODES</span>
-              <span className="text-xs">FINISHED</span>
+              <span className="text-sm font-semibold">{`${anime.format} ${anime.episodes} EPISODES`}</span>
+              <span className="text-xs">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
             </div>
-            <div className="flex flex-col gap-2 lg:h-[400px]">
+            <div className="flex flex-col gap-2 lg:max-h-[400px]">
               <h2 className="font-bold text-lg text-rose-700">
                 AVAILABLE EPISODES
               </h2>

@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      subtitleController.getVttFileById(req, res);
+      await subtitleController.getVttFileById(req, res);
       break;
     default:
       res.status(405).end();
