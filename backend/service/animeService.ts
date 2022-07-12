@@ -40,14 +40,20 @@ class AnimeService {
       const folderPath = path.join(directory, folder);
       const localAnime = animeRepository.listByPath(folderPath);
       if (!localAnime) {
-        const createdAnime = await this.createBySearchOnAnilist(folder);
+        const createdAnime = await this.createFromDirectoryBySearchOnAnilist(
+          folderPath,
+          folder
+        );
         createdAnimes.push(createdAnime);
       }
     }
     return createdAnimes;
   }
 
-  private async createBySearchOnAnilist(searchText: string) {
+  private async createFromDirectoryBySearchOnAnilist(
+    directory: string,
+    searchText: string
+  ) {
     const queryResult = await client.request(gql`
       {
         Media(search: "${searchText}", type: ANIME) {
@@ -79,7 +85,7 @@ class AnimeService {
     releaseDate.setMonth(anime.startDate.month);
     releaseDate.setDate(anime.startDate.day);
 
-    const animeParsed = <Anime>{
+    const animeParsed = {
       anilistId: anime.id,
       title: anime.title,
       coverUrl: anime.coverImage.extraLarge,
@@ -89,6 +95,7 @@ class AnimeService {
       status: anime.status,
       genres: anime.genres,
       format: anime.format,
+      folderPath: directory,
     };
 
     const createdAnime = animeRepository.create(animeParsed);

@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'DELETE':
-      directoryController.delete(req, res);
+      await directoryController.delete(req, res);
       break;
     default:
       res.status(405).end();

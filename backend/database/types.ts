@@ -7,7 +7,6 @@ interface ReleaseDate {
 export interface Anime {
   id?: string;
   anilistId: number;
-  number: string;
   title: {
     romaji: string;
     english: string;

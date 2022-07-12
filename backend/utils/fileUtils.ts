@@ -27,7 +27,10 @@ class FileUtils {
 
     const episodeFiles = await Promise.all(episodeFilesPromises);
     const flattedEpisodeFiles = episodeFiles.flat(Infinity) as Array<string>;
-    return flattedEpisodeFiles;
+    const notNullEpisodeFiles = flattedEpisodeFiles.filter((episode) =>
+      Boolean(episode)
+    );
+    return notNullEpisodeFiles;
   }
 }
 

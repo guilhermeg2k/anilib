@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'POST':
-      libraryController.update(req, res);
+      await libraryController.update(req, res);
       break;
     default:
       res.status(405).end();

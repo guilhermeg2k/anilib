@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      episodeController.listByAnimeId(req, res);
+      await episodeController.listByAnimeId(req, res);
       break;
     default:
       res.status(405).end();

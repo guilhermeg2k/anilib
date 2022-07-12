@@ -11,10 +11,10 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      directoryController.list(req, res);
+      await directoryController.list(req, res);
       break;
     case 'POST':
-      directoryController.create(req, res);
+      await directoryController.create(req, res);
       break;
     default:
       res.status(405).end();

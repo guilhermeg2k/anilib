@@ -6,6 +6,13 @@ class DirectoryRepository {
     return directories;
   }
 
+  get(directory: string) {
+    const foundDirectory = database
+      .getDirectories()
+      .find((directoryItem) => directory === directoryItem);
+    return foundDirectory;
+  }
+
   async create(directory: string) {
     const newDirectory = await database.insertDirectory(directory);
     return newDirectory;

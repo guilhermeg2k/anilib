@@ -8,6 +8,11 @@ class DirectoryService {
     return directories;
   }
 
+  get(directory: string) {
+    const foundDirectory = directoryRepository.get(directory);
+    return foundDirectory;
+  }
+
   async create(directory: string) {
     const newDirectory = await directoryRepository.create(directory);
     return newDirectory;

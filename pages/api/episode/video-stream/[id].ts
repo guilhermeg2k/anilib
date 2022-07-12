@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      episodeController.getVideoStreamById(req, res);
+      await episodeController.getVideoStreamById(req, res);
       break;
     default:
       res.status(405).end();

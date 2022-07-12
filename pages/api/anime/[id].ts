@@ -11,7 +11,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      animeController.getById(req, res);
+      await animeController.getById(req, res);
       break;
     default:
       res.status(405).end();

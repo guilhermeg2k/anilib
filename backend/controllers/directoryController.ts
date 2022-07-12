@@ -1,5 +1,6 @@
 import DirectoryService from '@backend/service/directoryService';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { resolve } from 'path';
 
 const directoryService = new DirectoryService();
 
@@ -18,9 +19,13 @@ class DirectoryController {
     try {
       const { directory } = req.body;
       if (directory && typeof directory === 'string') {
-        await directoryService.create(directory);
-        res.status(201).send('Directory added');
-        return;
+        const isDirectoryDuplicated = Boolean(
+          await directoryService.get(directory)
+        );
+        if (!isDirectoryDuplicated) {
+          await directoryService.create(directory);
+          res.status(201).send('Directory added');
+        }
       }
       res.status(400).end();
     } catch (error) {

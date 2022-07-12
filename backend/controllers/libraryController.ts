@@ -7,8 +7,9 @@ class LibraryController {
   async update(req: NextApiRequest, res: NextApiResponse) {
     try {
       await libraryService.update();
-      res.end();
+      res.status(200).end();
     } catch (error) {
+      console.log(error);
       res.status(500).end();
     }
   }
