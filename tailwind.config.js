@@ -60,6 +60,8 @@ module.exports = {
     },
     gridTemplateColumns: {
       'fill-267': 'repeat(auto-fill, 267px)',
+      'fill-150': 'repeat(auto-fill, 150px)',
+      'fill-200': 'repeat(auto-fill, 200px)',
     },
   },
   plugins: [require('@tailwindcss/forms')],

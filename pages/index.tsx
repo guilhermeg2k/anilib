@@ -31,7 +31,7 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
       <Navbar />
       <div className="flex flex-col items-center md:items-start">
         <h1 className="uppercase text-2xl font-semibold mb-5">Library</h1>
-        <div className="w-full grid gap-10 justify-center grid-cols-fill-267">
+        <div className="w-full grid gap-10 justify-center grid-cols-fill-267 md:grid-cols-fill-150 lg:grid-cols-fill-200 2xl:grid-cols-fill-267">
           {animes}
         </div>
       </div>

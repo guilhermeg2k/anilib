@@ -14,18 +14,20 @@ const AnimeCard: React.FunctionComponent<AnimeCardProps> = ({
 }) => {
   return (
     <Link href={`/anime/${id}`}>
-      <a className="flex flex-col gap-2 text-center focus:scale-110 hover:scale-110 duration-300 max-w-[260px] focus:outline-none">
-        <div className="w-[260px]">
+      <a className="flex flex-col gap-2 text-center focus:scale-110 hover:scale-110 duration-300   focus:outline-none">
+        <div className="w-full">
           <Image
             src={coverUrl}
             className="rounded-md"
             alt={`${name} cover image`}
             layout="responsive"
-            width={267}
-            height={373}
+            width={460}
+            height={639}
           />
         </div>
-        <h2 className="uppercase text-lg">{name}</h2>
+        <h2 className="uppercase text-base md:text-sm lg:text-base 2xl:text-lg">
+          {name}
+        </h2>
       </a>
     </Link>
   );
