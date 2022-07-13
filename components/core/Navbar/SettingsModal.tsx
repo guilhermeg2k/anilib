@@ -1,14 +1,15 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import Button from '@components/core/Button';
 import Modal from '@components/core/Modal';
 import TextField from '@components/core/TextField';
+import { TrashIcon } from '@heroicons/react/solid';
 import DirectoryService from '@services/directoryService';
+import LibraryService from '@services/libraryService';
+import React, { FunctionComponent, useEffect, useState } from 'react';
 import DataField from '../DataField';
 import Label from '../Label';
-import { TrashIcon } from '@heroicons/react/solid';
-import Button from '@components/core/Button';
 
 const directoryService = new DirectoryService();
-
+const libraryService = new LibraryService();
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
@@ -40,6 +41,10 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const onDeleteDirectoryHandler = async (directory: string) => {
     await directoryService.delete(directory);
     await loadDirectories();
+  };
+
+  const onLibraryUpdateHandler = async () => {
+    await libraryService.updateLibrary();
   };
 
   const directories = directoriesList.map((directory) => (
@@ -77,7 +82,9 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
         <ul>{directories}</ul>
       </DataField>
       <Label>Update Library</Label>
-      <Button color="green">Update Library</Button>
+      <Button color="green" onClick={onLibraryUpdateHandler}>
+        Update Library
+      </Button>
     </Modal>
   );
 };
