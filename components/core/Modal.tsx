@@ -54,7 +54,7 @@ const Modal = ({
                   as="div"
                   className="flex items-center justify-between"
                 >
-                  <span className="text-neutral-900 text-lg font-medium uppercase leading-6 text-indigo-800">
+                  <span className="text-neutral-900 text-xl font-medium uppercase leading-6 text-indigo-800">
                     {title}
                   </span>
                   <button onClick={onClose}>

@@ -45,7 +45,7 @@ class DirectoryController {
         res.status(200).end();
       }
     } catch (error) {
-      res.status(500).send('Failed to remove directory');
+      res.status(500).end();
     }
   }
 }

@@ -1,23 +1,7 @@
 import { CogIcon, SearchIcon } from '@heroicons/react/solid';
 import { FunctionComponent, ReactNode, useState } from 'react';
-import Logo from './Logo';
-import Modal from './Modal';
-
-interface SettingsModalProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-const SettingsModal: FunctionComponent<SettingsModalProps> = ({
-  open,
-  onClose,
-}) => {
-  return (
-    <Modal title="Settings" open={open} onClose={onClose} disableBackdropClick>
-      Settings
-    </Modal>
-  );
-};
+import Logo from '../Logo';
+import SettingsModal from './SettingsModal';
 
 interface NavbarButtonProps {
   onClick: () => void;
