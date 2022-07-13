@@ -4,7 +4,9 @@ import TextField from '@components/core/TextField';
 import { TrashIcon } from '@heroicons/react/solid';
 import DirectoryService from '@services/directoryService';
 import LibraryService from '@services/libraryService';
+import { toastError, toastSuccess } from 'library/toastify';
 import React, { FunctionComponent, useEffect, useState } from 'react';
+import Backdrop from '../Backdrop';
 import DataField from '../DataField';
 import Label from '../Label';
 
@@ -19,12 +21,18 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   open,
   onClose,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [newDirectory, setNewDirectory] = useState('');
   const [directoriesList, setDirectoriesList] = useState(Array<string>());
 
   const loadDirectories = async () => {
-    const directories = await directoryService.list();
-    setDirectoriesList(directories);
+    try {
+      setIsLoading(true);
+      const directories = await directoryService.list();
+      setDirectoriesList(directories);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onNewDirectoryChangeHandler = (value: string) => {
@@ -32,19 +40,43 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   };
 
   const onNewDirectorySubmitHandler = async (event: React.FormEvent) => {
-    event.preventDefault();
-    await directoryService.create(newDirectory);
-    setNewDirectory('');
-    await loadDirectories();
+    try {
+      setIsLoading(true);
+      event.preventDefault();
+      await directoryService.create(newDirectory);
+      setNewDirectory('');
+      await loadDirectories();
+      toastSuccess('Directory added');
+    } catch (error) {
+      toastError('Failed to add directory');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onDeleteDirectoryHandler = async (directory: string) => {
-    await directoryService.delete(directory);
-    await loadDirectories();
+    try {
+      setIsLoading(true);
+      await directoryService.delete(directory);
+      await loadDirectories();
+      toastSuccess('Directory removed');
+    } catch (error) {
+      toastError('Failed to remove directory');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onLibraryUpdateHandler = async () => {
-    await libraryService.updateLibrary();
+    try {
+      setIsLoading(true);
+      await libraryService.updateLibrary();
+      toastSuccess('Library updated');
+    } catch {
+      toastError('Failed to update library');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const directories = directoriesList.map((directory) => (
@@ -62,6 +94,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
 
   return (
     <Modal title="Settings" open={open} onClose={onClose} disableBackdropClick>
+      <Backdrop open={isLoading} />
       <form onSubmit={onNewDirectorySubmitHandler}>
         <Label>Add New Directory</Label>
         <div className="flex items-center justify-between gap-2">

@@ -1,8 +1,8 @@
 import ffprobe from 'ffprobe';
 import ffprobeStatic from 'ffprobe-static';
+import fs from 'fs';
 import path from 'path';
 import util from 'util';
-import fs from 'fs';
 
 const exec = util.promisify(require('child_process').exec);
 
@@ -59,7 +59,7 @@ class VideoUtils {
       let ffmpegExecCommand = `ffmpeg -i "${videoFilePath}"`;
       for (const subtitleStream of subtitleStreams) {
         const mapIndex = subtitleStream.index - 2;
-        const language = subtitleStream.tags?.language || 'default';
+        const language = subtitleStream.tags?.language || `default ${mapIndex}`;
         const subtitleFilePath = videoFilePath.replace(
           fileExt,
           `-${mapIndex}-${language}-.vtt`
@@ -69,7 +69,7 @@ class VideoUtils {
 
         const subtitle = <Subtitle>{
           filePath: subtitleFilePath,
-          title: subtitleStream.tags?.title || 'default subtitle',
+          title: subtitleStream.tags?.title || `default ${mapIndex}`,
           language,
         };
 
