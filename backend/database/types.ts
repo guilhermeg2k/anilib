@@ -28,7 +28,7 @@ export interface Episode {
   filePath: string;
   originalFilePath?: string;
   animeId: string;
-  coverUrl?: string;
+  coverImagePath?: string;
 }
 
 export interface Subtitle {

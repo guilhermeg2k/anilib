@@ -32,6 +32,11 @@ class FileUtils {
     );
     return notNullEpisodeFiles;
   }
+
+  async getBase64(filePath: string) {
+    const fileBase64 = await fs.readFile(filePath, { encoding: 'base64' });
+    return fileBase64;
+  }
 }
 
 export default FileUtils;

@@ -1,6 +1,5 @@
 import { Anime, Episode } from '@backend/database/types';
 import Badge from '@components/core/Badge';
-import Button from '@components/core/Button';
 import EpisodeCard from '@components/core/EpisodeCard';
 import Navbar from '@components/core/Navbar';
 import Page from '@components/core/Page';
@@ -32,13 +31,13 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
     const colorIndex = (colorSeed + 1) % 4;
     switch (colorIndex) {
       case 0:
-        return 'bg-purple-400 text-400';
+        return 'bg-purple-500';
       case 1:
-        return 'bg-amber-300 text-white';
+        return 'bg-amber-500';
       case 2:
-        return 'bg-lime-300 text-white';
+        return 'bg-lime-500';
       case 3:
-        return 'bg-blue-300 text-white';
+        return 'bg-blue-500';
 
       default:
         return '';
@@ -57,7 +56,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
     />
   );
 
-  const genrers = anime.genres.map((genre, index) => (
+  const genres = anime.genres.map((genre, index) => (
     <Badge key={genre} className={`${getCategoryColorClass(index)}`}>
       {genre}
     </Badge>
@@ -90,16 +89,15 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                 <h1 className="text-rose-700 text-2xl lg:text-4xl font-bold">
                   {anime.title.romaji}
                 </h1>
-                <Button>edit</Button>
               </div>
               <figure className="w-[130px] md:w-[170px] lg:hidden">
                 {imageCover}
               </figure>
-              <div className="flex gap-3 mt-4 flex-wrap">{genrers}</div>
+              <div className="flex gap-3 mt-4 flex-wrap">{genres}</div>
             </header>
             <p className="text-sm lg:text-base">{description}</p>
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold">{`${anime.format} ${anime.episodes} EPISODES`}</span>
+              <span className="text-sm font-semibold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
               <span className="text-xs">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
             </div>
             <div className="flex flex-col gap-2 lg:max-h-[400px]">

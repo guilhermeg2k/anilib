@@ -8,7 +8,7 @@ interface BadgeProps {
 const Badge: FunctionComponent<BadgeProps> = ({ children, className = '' }) => {
   return (
     <div
-      className={`${className} flex justify-center uppercase p-1 font-semibold  text-xs md:text-sm font-roboto rounded-sm w-20 md:w-28`}
+      className={`${className} flex justify-center uppercase p-1 px-3 font-bold text-xs  font-roboto rounded-sm w-min-20`}
     >
       {children}
     </div>

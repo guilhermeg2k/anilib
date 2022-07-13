@@ -35,6 +35,25 @@ class EpisodeController {
     }
   }
 
+  async getImageCoverBase64ById(req: NextApiRequest, res: NextApiResponse) {
+    try {
+      const { episodeId } = req.query;
+      if (episodeId && typeof episodeId === 'string') {
+        const imageCoverBase64 = await episodeService.getImageCoverBase64ById(
+          episodeId
+        );
+        if (imageCoverBase64) {
+          res.send(imageCoverBase64);
+          return;
+        }
+      }
+      res.status(400).end();
+    } catch (error) {
+      console.error(error);
+      res.status(500).end();
+    }
+  }
+
   getVideoStreamById(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { id } = req.query;

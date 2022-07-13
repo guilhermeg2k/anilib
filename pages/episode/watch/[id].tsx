@@ -16,7 +16,13 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const episode = await episodeService.getById(id);
   const episodesList = await episodeService.listByAnimeId(episode.animeId);
   const subtitlesList = await subtitleService.listByEpisodeId(id);
-  const watchProps: WatchProps = { episodeId: id, episodesList, subtitlesList };
+  const coverImageBase64 = await episodeService.getCoverImageBase64ById(id);
+  const watchProps: WatchProps = {
+    episodeId: id,
+    episodesList,
+    subtitlesList,
+    coverImageBase64,
+  };
   return { props: watchProps };
 };
 
@@ -24,12 +30,14 @@ interface WatchProps {
   episodeId: string;
   episodesList: Array<Episode>;
   subtitlesList: Array<Subtitle>;
+  coverImageBase64: string;
 }
 
 const Watch: NextPage<WatchProps> = ({
   episodeId,
   episodesList,
   subtitlesList,
+  coverImageBase64,
 }) => {
   const episodes = episodesList.map((episode) => (
     <EpisodeCard className="w-full" key={episode.id} episodeId={episode.id!}>
@@ -45,6 +53,7 @@ const Watch: NextPage<WatchProps> = ({
           <VideoPlayer
             videoUrl={`/api/episode/video-stream/${episodeId}`}
             subtitlesList={subtitlesList}
+            coverImageBase64={coverImageBase64}
           />
         </section>
         <aside className="flex flex-col gap-2 2xl:w-[40%]">

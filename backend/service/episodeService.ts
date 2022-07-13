@@ -34,6 +34,15 @@ class EpisodeService {
     return episode;
   }
 
+  async getImageCoverBase64ById(episodeId: string) {
+    const episode = episodeRepository.getById(episodeId);
+    if (episode?.coverImagePath) {
+      const imageBase64 = await fileUtils.getBase64(episode?.coverImagePath);
+      return imageBase64;
+    }
+    return null;
+  }
+
   private async create(episode: Episode) {
     const createdEpisode = await episodeRepository.create(episode);
     return createdEpisode;
@@ -75,7 +84,7 @@ class EpisodeService {
     const newEpisode = {
       title: episodeTitle,
       animeId: anime.id!,
-      coverUrl: episodeCover,
+      coverImagePath: episodeCover,
       filePath: episodeFilePath,
       originalFilePath: episodeFilePath,
     };

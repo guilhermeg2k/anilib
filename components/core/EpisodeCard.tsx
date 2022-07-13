@@ -16,10 +16,12 @@ const EpisodeCard: FunctionComponent<EpisodeCardProps> = ({
   return (
     <Link href={`/episode/watch/${episodeId}`}>
       <a
-        className={`${className} flex items-center gap-1  bg-neutral-800 py-2 px-4 hover:text-rose-700 duration-200 ease-in-out justify-between`}
+        className={`${className} flex items-center gap-1  bg-neutral-800 py-2 px-4 hover:bg-neutral-700 duration-200 ease-in-out justify-between`}
       >
         <span className="text-start text-wrap">{children}</span>
-        <PlayIcon className="h-7 w-7" />
+        <div>
+          <PlayIcon className="h-7 w-7" />
+        </div>
       </a>
     </Link>
   );

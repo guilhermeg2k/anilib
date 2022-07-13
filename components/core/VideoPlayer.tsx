@@ -46,12 +46,14 @@ const PlayerControlButton: FunctionComponent<PlayerControlButtonProps> = ({
 
 interface VideoPlayerProps {
   videoUrl: string;
+  coverImageBase64: string;
   subtitlesList: Array<Subtitle>;
 }
 
 const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   videoUrl,
   subtitlesList,
+  coverImageBase64: coverImage,
 }) => {
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
@@ -331,7 +333,10 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     [video]
   );
 
-  useEffect(() => video?.load(), [videoUrl]);
+  useEffect(() => {
+    video?.load();
+    video?.pause();
+  }, [videoUrl]);
 
   return (
     <div
@@ -351,6 +356,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         onClick={onPlayToggleHandler}
         autoPlay={false}
         preload="auto"
+        poster={`data:image/png;base64,${coverImage}`}
       >
         <source src={videoUrl} type="video/mp4" />
         {subtitles}

@@ -13,6 +13,13 @@ class EpisodeService {
     const anime = await axiosClient.get<Episode>(`/episode/${id}`);
     return anime.data;
   }
+
+  async getCoverImageBase64ById(episodeId: string) {
+    const imageCover = await axiosClient.get<string>(
+      `/episode/image-cover/${episodeId}`
+    );
+    return imageCover.data;
+  }
 }
 
 export default EpisodeService;
