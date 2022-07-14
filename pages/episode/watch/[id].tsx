@@ -7,6 +7,7 @@ import EpisodeService from '@services/episodeService';
 import SubtitleService from '@services/subtitleService';
 
 import { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 
 const episodeService = new EpisodeService();
 const subtitleService = new SubtitleService();
@@ -18,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const subtitlesList = await subtitleService.listByEpisodeId(id);
   const coverImageBase64 = await episodeService.getCoverImageBase64ById(id);
   const watchProps: WatchProps = {
-    episodeId: id,
+    episode,
     episodesList,
     subtitlesList,
     coverImageBase64,
@@ -27,14 +28,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 };
 
 interface WatchProps {
-  episodeId: string;
+  episode: Episode;
   episodesList: Array<Episode>;
   subtitlesList: Array<Subtitle>;
   coverImageBase64: string;
 }
 
 const Watch: NextPage<WatchProps> = ({
-  episodeId,
+  episode,
   episodesList,
   subtitlesList,
   coverImageBase64,
@@ -47,11 +48,14 @@ const Watch: NextPage<WatchProps> = ({
 
   return (
     <Page>
+      <Head>
+        <title>{episode.title}</title>
+      </Head>
       <Navbar />
       <main className="flex gap-2 2xl:gap-4 flex-col 2xl:flex-row">
         <section className="w-full">
           <VideoPlayer
-            videoUrl={`/api/episode/video-stream/${episodeId}`}
+            videoUrl={`/api/episode/video-stream/${episode.id}`}
             subtitlesList={subtitlesList}
             coverImageBase64={coverImageBase64}
           />

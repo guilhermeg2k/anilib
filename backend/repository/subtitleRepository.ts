@@ -21,6 +21,10 @@ class SubtitleRepository {
     const createdSubtitle = await database.insertSubtitle(subtitle);
     return createdSubtitle;
   }
+
+  async deleteInvalidSubtitles() {
+    await database.deleteInvalidSubtitles();
+  }
 }
 
 export default SubtitleRepository;

@@ -7,6 +7,7 @@ import AnimeService from '@services/animeService';
 import EpisodeService from '@services/episodeService';
 import StringUtils from '@utils/stringUtils';
 import type { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 import Image from 'next/image';
 
 const animeService = new AnimeService();
@@ -75,6 +76,9 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
 
   return (
     <Page>
+      <Head>
+        <title>{anime.title.romaji}</title>
+      </Head>
       <Navbar />
       <main className="flex flex-col items-center lg:items-start lg:pt-16">
         <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row gap-8">

@@ -62,7 +62,7 @@ class VideoUtils {
         const language = subtitleStream.tags?.language || `default ${mapIndex}`;
         const subtitleFilePath = videoFilePath.replace(
           fileExt,
-          `-${mapIndex}-${language}-.vtt`
+          `-${mapIndex}-${language}.vtt`
         );
 
         ffmpegExecCommand += ` -map 0:s:${mapIndex} "${subtitleFilePath}"`;

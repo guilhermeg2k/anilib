@@ -37,6 +37,10 @@ class EpisodeRepository {
     const createdEpisode = await database.insertEpisode(episode);
     return createdEpisode;
   }
+
+  async deleteInvalidEpisodes() {
+    await database.deleteInvalidEpisodes();
+  }
 }
 
 export default EpisodeRepository;

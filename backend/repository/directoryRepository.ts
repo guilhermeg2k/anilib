@@ -21,6 +21,10 @@ class DirectoryRepository {
   async delete(directory: string) {
     await database.deleteDirectory(String(directory));
   }
+
+  async deleteInvalidDirectories() {
+    await database.deleteInvalidDirectories();
+  }
 }
 
 export default DirectoryRepository;

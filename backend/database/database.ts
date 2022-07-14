@@ -79,6 +79,42 @@ class Database {
     this.database.directories = directories;
     await this.syncFile();
   }
+
+  async deleteInvalidAnimes() {
+    const animes = this.database.animes;
+    const validAnimes = animes.filter((anime) =>
+      fs.existsSync(anime.folderPath)
+    );
+    this.database.animes = validAnimes;
+    await this.syncFile();
+  }
+
+  async deleteInvalidEpisodes() {
+    const episodes = this.database.episodes;
+    const validEpisodes = episodes.filter((episode) =>
+      fs.existsSync(episode.filePath)
+    );
+    this.database.episodes = validEpisodes;
+    await this.syncFile();
+  }
+
+  async deleteInvalidSubtitles() {
+    const subtitles = this.database.subtitles;
+    const validSubtitles = subtitles.filter((subtitle) =>
+      fs.existsSync(subtitle.filePath)
+    );
+    this.database.subtitles = validSubtitles;
+    await this.syncFile();
+  }
+
+  async deleteInvalidDirectories() {
+    const directories = this.database.directories;
+    const validDirectories = directories.filter((directory) =>
+      fs.existsSync(directory)
+    );
+    this.database.directories = validDirectories;
+    await this.syncFile();
+  }
 }
 
 export default Database;

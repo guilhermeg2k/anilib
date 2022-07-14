@@ -9,6 +9,7 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 import Backdrop from '../Backdrop';
 import DataField from '../DataField';
 import Label from '../Label';
+import { useRouter } from 'next/router';
 
 const directoryService = new DirectoryService();
 const libraryService = new LibraryService();
@@ -24,6 +25,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [newDirectory, setNewDirectory] = useState('');
   const [directoriesList, setDirectoriesList] = useState(Array<string>());
+  const router = useRouter();
 
   const loadDirectories = async () => {
     try {
@@ -72,6 +74,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       setIsLoading(true);
       await libraryService.updateLibrary();
       toastSuccess('Library updated');
+      router.replace(window.location.pathname);
     } catch {
       toastError('Failed to update library');
     } finally {

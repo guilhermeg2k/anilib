@@ -4,6 +4,7 @@ import Navbar from '@components/core/Navbar';
 import Page from '@components/core/Page';
 import AnimeService from '@services/animeService';
 import type { GetServerSideProps, NextPage } from 'next';
+import Head from 'next/head';
 
 const animeService = new AnimeService();
 
@@ -28,6 +29,9 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
 
   return (
     <Page>
+      <Head>
+        <title>Anilib</title>
+      </Head>
       <Navbar />
       <div className="flex flex-col items-center md:items-start">
         <h1 className="uppercase text-2xl font-semibold mb-5">Library</h1>

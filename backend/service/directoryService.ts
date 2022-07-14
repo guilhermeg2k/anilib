@@ -21,6 +21,10 @@ class DirectoryService {
   async delete(directory: string) {
     await directoryRepository.delete(directory);
   }
+
+  async deleteInvalidDirectories() {
+    await directoryRepository.deleteInvalidDirectories();
+  }
 }
 
 export default DirectoryService;

@@ -132,6 +132,10 @@ class AnimeService {
     );
     return notNullEpisodeFiles;
   }
+
+  async deleteInvalidAnimes() {
+    await animeRepository.deleteInvalidAnimes();
+  }
 }
 
 export default AnimeService;

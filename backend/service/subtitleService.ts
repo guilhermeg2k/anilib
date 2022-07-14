@@ -42,6 +42,10 @@ class SubtitleService {
     }
     return createdSubtitles;
   }
+
+  async deleteInvalidSubtitles() {
+    await subtitleRepository.deleteInvalidSubtitles();
+  }
 }
 
 export default SubtitleService;

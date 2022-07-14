@@ -23,6 +23,10 @@ class AnimeRepository {
     const createdAnime = await database.insertAnime(anime);
     return createdAnime;
   }
+
+  async deleteInvalidAnimes() {
+    await database.deleteInvalidAnimes();
+  }
 }
 
 export default AnimeRepository;

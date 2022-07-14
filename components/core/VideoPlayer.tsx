@@ -55,6 +55,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   subtitlesList,
   coverImageBase64: coverImage,
 }) => {
+  const [currentSubtitleId, setCurrentSubtitleId] = useState('');
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -89,6 +90,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
       Array.from(video.textTracks).forEach(
         (textTrack) => (textTrack.mode = 'hidden')
       );
+      setCurrentSubtitleId('');
     }
   };
 
@@ -99,6 +101,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
           textTrack.mode = 'hidden';
         } else {
           textTrack.mode = 'showing';
+          setCurrentSubtitleId(textTrack.id);
         }
       });
     }
@@ -194,11 +197,13 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
 
     if (video) {
       const items = Array.from(video.textTracks).map((trackText) => {
+        const isCurrentSubtitle = trackText.id === currentSubtitleId;
+        const selectedClass = isCurrentSubtitle && 'bg-rose-700';
         return (
           <button
             key={trackText.id}
             onClick={() => onToggleSubtitleHandler(trackText.id)}
-            className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
+            className={`${selectedClass} text-left p-2 font-semibold uppercase hover:bg-rose-600`}
           >
             {trackText.label}
           </button>
@@ -268,7 +273,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     </div>
   );
 
-  const subtitlesControl = (
+  const subtitlesControl = subtitlesList.length > 0 && (
     <MenuDropdown
       buttonClassName="flex items-center"
       menuClassName="bottom-8 bg-neutral-900 opacity-90"
@@ -335,7 +340,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
 
   useEffect(() => {
     video?.load();
-    video?.pause();
+    setIsPlaying(false);
   }, [videoUrl]);
 
   return (
@@ -368,7 +373,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
           {timeBarControl}
           {volumeControl}
           {subtitlesControl}
-          {settingsControl}
+          {/* {settingsControl} */}
           {fullScreenControl}
         </div>
       </FadeTransition>

@@ -97,6 +97,10 @@ class EpisodeService {
     const createdEpisode = await this.create(newEpisode);
     return createdEpisode;
   }
+
+  async deleteInvalidEpisodes() {
+    await episodeRepository.deleteInvalidEpisodes();
+  }
 }
 
 export default EpisodeService;
