@@ -9,7 +9,7 @@ const useEffectIf = (
     if (condition) {
       effect();
     }
-  }, [deps, effect, condition]);
+  }, deps);
 };
 
 export default useEffectIf;

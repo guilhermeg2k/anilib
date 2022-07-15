@@ -93,7 +93,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
 
   useEffect(() => {
     loadDirectories();
-  }, [open]);
+  }, []);
 
   return (
     <Modal title="Settings" open={open} onClose={onClose} disableBackdropClick>

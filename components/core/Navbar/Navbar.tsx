@@ -38,10 +38,13 @@ const Navbar: FunctionComponent = () => {
           <CogIcon className="h-7 " />
         </NavbarButton>
       </div>
-      <SettingsModal
-        open={isSettingsModalOpen}
-        onClose={onSettingsModalToggleHandler}
-      />
+
+      {isSettingsModalOpen && (
+        <SettingsModal
+          open={isSettingsModalOpen}
+          onClose={onSettingsModalToggleHandler}
+        />
+      )}
     </nav>
   );
 };
