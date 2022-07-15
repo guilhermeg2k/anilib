@@ -37,6 +37,14 @@ class FileUtils {
     const fileBase64 = await fs.readFile(filePath, { encoding: 'base64' });
     return fileBase64;
   }
+
+  async getVttFilesBySearch(folder: string, search: string) {
+    const vttFiles = await this.listFilesInFolderByExtensions(folder, ['.vtt']);
+    const matchedVttFiles = vttFiles.filter((vvtFile) =>
+      vvtFile.includes(search)
+    );
+    return matchedVttFiles;
+  }
 }
 
 export default FileUtils;

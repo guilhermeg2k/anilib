@@ -80,7 +80,7 @@ class Database {
     const newAnime = { ...anime, id };
     this.database.animes.set(id, newAnime);
     await this.syncFile();
-    return this.database.animes.get(id);
+    return this.database.animes.get(id)!;
   }
 
   async insertEpisode(episode: Episode) {
@@ -88,7 +88,7 @@ class Database {
     const newEpisode = { ...episode, id };
     this.database.episodes.set(id, newEpisode);
     await this.syncFile();
-    return this.database.episodes.get(id);
+    return this.database.episodes.get(id)!;
   }
 
   async insertSubtitle(subtitle: Subtitle) {
@@ -99,13 +99,13 @@ class Database {
     };
     this.database.subtitles.set(id, newSubtitle);
     await this.syncFile();
-    return this.database.subtitles.get(id);
+    return this.database.subtitles.get(id)!;
   }
 
   async insertDirectory(directory: string) {
     this.database.directories.set(directory, directory);
     await this.syncFile();
-    return this.database.directories.get(directory);
+    return this.database.directories.get(directory)!;
   }
 
   async deleteDirectory(directory: string) {

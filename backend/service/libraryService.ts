@@ -2,7 +2,6 @@ import AnimeService from '@backend/service/animeService';
 import EpisodeService from '@backend/service/episodeService';
 import SubtitleService from '@backend/service/subtitleService';
 import DirectoryService from './directoryService';
-import fs from 'fs';
 
 const animeService = new AnimeService();
 const episodeService = new EpisodeService();
