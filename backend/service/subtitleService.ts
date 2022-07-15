@@ -3,6 +3,7 @@ import SubtitleRepository from '@backend/repository/subtitleRepository';
 import FileUtils from '@backend/utils/fileUtils';
 import VideoUtils from '@backend/utils/videoUtils';
 import path from 'path';
+import fs from 'fs';
 
 const subtitleRepository = new SubtitleRepository();
 const videoUtils = new VideoUtils();
@@ -79,16 +80,19 @@ class SubtitleService {
 
   private async createFromVideo(videoFile: string, episodeId: string) {
     const createdSubtitles = Array<Subtitle>();
-    const videoSubtitles = await videoUtils.extractSubtitles(videoFile);
-    for (const subtitle of videoSubtitles) {
-      const newSubtitle = <Subtitle>{
-        label: subtitle.title,
-        language: subtitle.language,
-        filePath: subtitle.filePath,
-        episodeId,
-      };
-      const createdEpisode = await this.create(newSubtitle);
-      createdSubtitles.push(createdEpisode);
+    const fileExists = fs.existsSync(videoFile);
+    if (fileExists) {
+      const videoSubtitles = await videoUtils.extractSubtitles(videoFile);
+      for (const subtitle of videoSubtitles) {
+        const newSubtitle = <Subtitle>{
+          label: subtitle.title,
+          language: subtitle.language,
+          filePath: subtitle.filePath,
+          episodeId,
+        };
+        const createdEpisode = await this.create(newSubtitle);
+        createdSubtitles.push(createdEpisode);
+      }
     }
     return createdSubtitles;
   }
