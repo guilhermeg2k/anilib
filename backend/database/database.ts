@@ -6,24 +6,37 @@ const fsPromises = fs.promises;
 class Database {
   private dataFilePath: string = '';
   private database: DatabaseData = {
-    animes: [],
-    episodes: [],
-    subtitles: [],
-    directories: [],
+    animes: new Map<string, Anime>(),
+    episodes: new Map<string, Episode>(),
+    subtitles: new Map<string, Subtitle>(),
+    directories: new Map<string, string>(),
   };
 
   constructor(filePath: string) {
     this.dataFilePath = filePath;
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath);
-      this.database = JSON.parse(fileData.toString());
+      const databaseObject = <DatabaseData>JSON.parse(fileData.toString());
+      const database = <DatabaseData>{
+        animes: new Map(Object.entries(databaseObject.animes)),
+        episodes: new Map(Object.entries(databaseObject.episodes)),
+        subtitles: new Map(Object.entries(databaseObject.subtitles)),
+        directories: new Map(Object.entries(databaseObject.directories)),
+      };
+      this.database = database;
     } else {
       fs.writeFileSync(filePath, this.toString());
     }
   }
 
   private toString(): string {
-    return JSON.stringify(this.database);
+    const database = {
+      animes: Object.fromEntries(this.database.animes),
+      episodes: Object.fromEntries(this.database.episodes),
+      subtitles: Object.fromEntries(this.database.subtitles),
+      directories: Object.fromEntries(this.database.directories),
+    };
+    return JSON.stringify(database);
   }
 
   private async syncFile() {
@@ -31,88 +44,116 @@ class Database {
   }
 
   getAnimes() {
-    return this.database.animes;
+    return Array.from(this.database.animes.values());
   }
 
   getEpisodes() {
-    return this.database.episodes;
+    return Array.from(this.database.episodes.values());
   }
 
   getSubtitles() {
-    return this.database.subtitles;
+    return Array.from(this.database.subtitles.values());
   }
 
   getDirectories() {
-    return this.database.directories;
+    return Array.from(this.database.directories.values());
+  }
+
+  getAnimeById(id: string) {
+    return this.database.animes.get(id);
+  }
+
+  getEpisodeById(id: string) {
+    return this.database.episodes.get(id);
+  }
+
+  getSubtitleById(id: string) {
+    return this.database.subtitles.get(id);
+  }
+
+  getDirectory(directory: string) {
+    return this.database.directories.get(directory);
   }
 
   async insertAnime(anime: Anime) {
-    const newAnime = { ...anime, id: uuid() };
-    this.database.animes.push(newAnime);
+    const id = uuid();
+    const newAnime = { ...anime, id };
+    this.database.animes.set(id, newAnime);
     await this.syncFile();
-    return newAnime;
+    return this.database.animes.get(id);
   }
 
   async insertEpisode(episode: Episode) {
-    const newEpisode = <Episode>{ ...episode, id: uuid() };
-    this.database.episodes.push(newEpisode);
+    const id = uuid();
+    const newEpisode = { ...episode, id };
+    this.database.episodes.set(id, newEpisode);
     await this.syncFile();
-    return newEpisode;
+    return this.database.episodes.get(id);
   }
 
   async insertSubtitle(subtitle: Subtitle) {
-    const newSubtitle = <Subtitle>{ ...subtitle, id: uuid() };
-    this.database.subtitles.push(newSubtitle);
+    const id = uuid();
+    const newSubtitle = {
+      ...subtitle,
+      id,
+    };
+    this.database.subtitles.set(id, newSubtitle);
     await this.syncFile();
-    return newSubtitle;
+    return this.database.subtitles.get(id);
   }
 
   async insertDirectory(directory: string) {
-    this.database.directories.push(directory);
+    this.database.directories.set(directory, directory);
     await this.syncFile();
+    return this.database.directories.get(directory);
   }
 
   async deleteDirectory(directory: string) {
-    const directories = this.database.directories.filter(
-      (dbDirectory) => dbDirectory != directory
-    );
-    this.database.directories = directories;
+    this.database.directories.delete(directory);
     await this.syncFile();
   }
 
   async deleteInvalidAnimes() {
-    const animes = this.database.animes;
-    const validAnimes = animes.filter((anime) =>
-      fs.existsSync(anime.folderPath)
+    const animes = this.getAnimes();
+    const invalidAnimes = animes.filter(
+      (anime) => !fs.existsSync(anime.folderPath)
     );
-    this.database.animes = validAnimes;
+    invalidAnimes.forEach((invalidAnime) =>
+      this.database.animes.delete(invalidAnime.id!)
+    );
     await this.syncFile();
   }
 
   async deleteInvalidEpisodes() {
-    const episodes = this.database.episodes;
-    const validEpisodes = episodes.filter((episode) =>
-      fs.existsSync(episode.filePath)
+    const episodes = this.getEpisodes();
+    const invalidEpisodes = episodes.filter(
+      (episode) => !fs.existsSync(episode.filePath)
     );
-    this.database.episodes = validEpisodes;
+    invalidEpisodes.forEach((invalidEpisode) =>
+      this.database.episodes.delete(invalidEpisode.id!)
+    );
     await this.syncFile();
   }
 
   async deleteInvalidSubtitles() {
-    const subtitles = this.database.subtitles;
-    const validSubtitles = subtitles.filter((subtitle) =>
-      fs.existsSync(subtitle.filePath)
+    const subtitles = this.getSubtitles();
+    const invalidSubtitles = subtitles.filter(
+      (subtitle) => !fs.existsSync(subtitle.filePath)
     );
-    this.database.subtitles = validSubtitles;
+    invalidSubtitles.forEach((invalidSubtitle) =>
+      this.database.subtitles.delete(invalidSubtitle.id!)
+    );
     await this.syncFile();
   }
 
   async deleteInvalidDirectories() {
-    const directories = this.database.directories;
-    const validDirectories = directories.filter((directory) =>
-      fs.existsSync(directory)
+    const directories = this.getDirectories();
+    const invalidDirectories = directories.filter(
+      (directory) => !fs.existsSync(directory)
     );
-    this.database.directories = validDirectories;
+    invalidDirectories.forEach((invalidDirectory) =>
+      this.database.directories.delete(invalidDirectory)
+    );
     await this.syncFile();
   }
 }

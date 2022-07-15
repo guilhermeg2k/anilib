@@ -15,7 +15,7 @@ class EpisodeRepository {
   }
 
   getById(id: string) {
-    const episode = database.getEpisodes().find((episode) => episode.id === id);
+    const episode = database.getEpisodeById(id);
     return episode;
   }
 

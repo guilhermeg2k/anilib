@@ -40,8 +40,8 @@ export interface Subtitle {
 }
 
 export interface DatabaseData {
-  directories: Array<string>;
-  animes: Array<Anime>;
-  episodes: Array<Episode>;
-  subtitles: Array<Subtitle>;
+  directories: Map<string, string>;
+  animes: Map<string, Anime>;
+  episodes: Map<string, Episode>;
+  subtitles: Map<string, Subtitle>;
 }

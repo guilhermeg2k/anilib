@@ -4,9 +4,7 @@ import { Subtitle } from '@backend/database/types';
 
 class SubtitleRepository {
   getById(id: string) {
-    const subtitle = dataBase
-      .getSubtitles()
-      .find((subtitle) => subtitle.id === id);
+    const subtitle = dataBase.getSubtitleById(id);
     return subtitle;
   }
 

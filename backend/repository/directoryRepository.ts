@@ -7,9 +7,7 @@ class DirectoryRepository {
   }
 
   get(directory: string) {
-    const foundDirectory = database
-      .getDirectories()
-      .find((directoryItem) => directory === directoryItem);
+    const foundDirectory = database.getDirectory(directory);
     return foundDirectory;
   }
 

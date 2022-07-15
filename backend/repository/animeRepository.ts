@@ -8,7 +8,7 @@ class AnimeRepository {
   }
 
   listById(id: string) {
-    const anime = database.getAnimes().find((anime) => anime.id === id);
+    const anime = database.getAnimeById(id);
     return anime;
   }
 
