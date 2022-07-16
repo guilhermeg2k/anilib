@@ -19,9 +19,10 @@ class LibraryService {
     await animeService.createFromDirectories(directories);
 
     const animes = animeService.list();
-    for (const anime of animes) {
+
+    animes.forEach(async (anime) => {
       await episodeService.createFromAnime(anime);
-    }
+    });
 
     const episodes = episodeService.list();
     for (const episode of episodes) {
