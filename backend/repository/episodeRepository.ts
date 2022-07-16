@@ -14,6 +14,14 @@ class EpisodeRepository {
     return episodes;
   }
 
+  listConvertedEpisodes() {
+    const episodes = database.getEpisodes();
+    const convertedEpisodes = episodes.filter(
+      (episode) => episode.wasConverted
+    );
+    return convertedEpisodes;
+  }
+
   getById(id: string) {
     const episode = database.getEpisodeById(id);
     return episode;

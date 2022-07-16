@@ -26,9 +26,10 @@ export interface Episode {
   id?: string;
   title: string;
   filePath: string;
-  originalFilePath?: string;
+  originalFilePath: string;
+  coverImagePath: string;
+  wasConverted: boolean;
   animeId: string;
-  coverImagePath?: string;
 }
 
 export interface Subtitle {

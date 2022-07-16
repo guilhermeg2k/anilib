@@ -4,6 +4,9 @@ import EpisodeRepository from '@backend/repository/episodeRepository';
 import FileUtils from '@backend/utils/fileUtils';
 import VideoUtils from '@backend/utils/videoUtils';
 import path from 'path';
+import fs from 'fs';
+
+const fsPromises = fs.promises;
 
 const episodeRepository = new EpisodeRepository();
 const videoUtils = new VideoUtils();
@@ -89,15 +92,30 @@ class EpisodeService {
       coverImagePath: episodeCover,
       filePath: episodeFilePath,
       originalFilePath: episodeFilePath,
+      wasConverted: false,
     };
 
     if (episodeFileExt === '.mkv') {
       const episodeFileMp4 = await videoUtils.convertMkvToMp4(episodeFilePath);
+      newEpisode.wasConverted = true;
       newEpisode.filePath = episodeFileMp4;
     }
 
     const createdEpisode = await this.create(newEpisode);
     return createdEpisode;
+  }
+
+  async deleteConvertedEpisodes() {
+    const convertedEpisodes = episodeRepository.listConvertedEpisodes();
+    const deleteConvertedEpisodesPromises = convertedEpisodes.map(
+      async (episode) => {
+        const fileExists = fs.existsSync(episode.originalFilePath);
+        if (fileExists) {
+          return await fsPromises.unlink(episode.originalFilePath);
+        }
+      }
+    );
+    await Promise.all(deleteConvertedEpisodesPromises);
   }
 
   async deleteInvalidEpisodes() {
