@@ -56,7 +56,7 @@ module.exports = {
       ],
       cursive: ['Finger Paint', 'cursive'],
       atkinson: ['Atkinson Hyperlegible', 'sans-serif'],
-      roboto: ['Roboto', 'sans'],
+      roboto: ['Roboto', 'sans-serif'],
     },
     gridTemplateColumns: {
       'fill-267': 'repeat(auto-fill, 267px)',

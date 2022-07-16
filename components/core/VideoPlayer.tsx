@@ -341,7 +341,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   useEffect(() => {
     video?.load();
     setIsPlaying(false);
-  }, [videoUrl]);
+  }, [video, videoUrl]);
 
   return (
     <div
