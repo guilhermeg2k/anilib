@@ -355,12 +355,11 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
       <video
         id="videoPlayer"
         key={videoUrl}
-        className="w-full"
+        className="w-full h-full"
         ref={videoRef}
-        height="100%"
         onClick={onPlayToggleHandler}
         autoPlay={false}
-        preload="auto"
+        preload="metadata"
         poster={`data:image/png;base64,${coverImage}`}
       >
         <source src={videoUrl} type="video/mp4" />
