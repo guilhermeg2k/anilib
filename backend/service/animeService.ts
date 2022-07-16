@@ -38,13 +38,16 @@ class AnimeService {
     const directoryFolders = await fs.readdir(directory);
     for (const folder of directoryFolders) {
       const folderPath = path.join(directory, folder);
-      const localAnime = animeRepository.listByPath(folderPath);
-      if (!localAnime) {
-        const createdAnime = await this.createFromDirectoryBySearchOnAnilist(
-          folderPath,
-          folder
-        );
-        createdAnimes.push(createdAnime);
+      const fileStat = await fs.stat(folderPath);
+      if (fileStat.isDirectory()) {
+        const localAnime = animeRepository.listByPath(folderPath);
+        if (!localAnime) {
+          const createdAnime = await this.createFromDirectoryBySearchOnAnilist(
+            folderPath,
+            folder
+          );
+          createdAnimes.push(createdAnime);
+        }
       }
     }
     return createdAnimes;
