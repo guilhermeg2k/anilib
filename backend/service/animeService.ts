@@ -42,9 +42,11 @@ class AnimeService {
       if (fileStat.isDirectory()) {
         const localAnime = animeRepository.listByPath(folderPath);
         if (!localAnime) {
+          const squareBracketContent = /(\[[^\].*]*\])/gi;
+          const searchText = folder.replaceAll(squareBracketContent, '');
           const createdAnime = await this.createFromDirectoryBySearchOnAnilist(
             folderPath,
-            folder
+            searchText
           );
           createdAnimes.push(createdAnime);
         }
