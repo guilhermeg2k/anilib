@@ -17,7 +17,7 @@ class VideoUtils {
     const mp4FilePath = mkvFilePath.replace('.mkv', '.mp4');
     const videoAlreadyExists = fs.existsSync(mp4FilePath);
     if (!videoAlreadyExists) {
-      const ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -codec copy "${mp4FilePath}"`;
+      const ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -strict experimental -codec copy "${mp4FilePath}"`;
       const { error } = await exec(ffmpegExecCommand);
       if (error) {
         throw new Error(`Failed to convert ${mkvFilePath} to mp4`);
