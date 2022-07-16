@@ -1,3 +1,4 @@
+import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConstants';
 import { Anime } from '@backend/database/types';
 import client from '@backend/library/graphql';
 import AnimeRepository from '@backend/repository/animeRepository';
@@ -63,8 +64,10 @@ class AnimeService {
       if (fileStat.isDirectory()) {
         const localAnime = animeRepository.listByPath(folderPath);
         if (!localAnime) {
-          const squareBracketContent = /(\[[^\].*]*\])/gi;
-          const searchText = folder.replaceAll(squareBracketContent, '');
+          const searchText = folder.replaceAll(
+            SQUARE_BRACKET_CONTENT_EXPRESSION,
+            ''
+          );
           const createdAnime = await this.createFromDirectoryBySearchOnAnilist(
             folderPath,
             searchText

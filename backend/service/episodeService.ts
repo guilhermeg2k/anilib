@@ -1,3 +1,4 @@
+import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConstants';
 import { Anime, Episode } from '@backend/database/types';
 import EpisodeRepository from '@backend/repository/episodeRepository';
 import FileUtils from '@backend/utils/fileUtils';
@@ -79,7 +80,8 @@ class EpisodeService {
     const episodeCover = await videoUtils.extractImageCover(episodeFilePath);
     const episodeTitle = path
       .basename(episodeFilePath)
-      .replace(episodeFileExt, '');
+      .replace(episodeFileExt, '')
+      .replaceAll(SQUARE_BRACKET_CONTENT_EXPRESSION, '');
 
     const newEpisode = {
       title: episodeTitle,
