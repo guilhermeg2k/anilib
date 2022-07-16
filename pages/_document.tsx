@@ -32,6 +32,8 @@ export default class MyDocument extends Document {
             sizes="16x16"
             href="/favicon-16x16.png"
           />
+          <meta name="msapplication-TileColor" content="#BE123C" />
+          <meta name="theme-color" content="#BE123C" />
 
           <link rel="manifest" href="/manifest.json" />
         </Head>
