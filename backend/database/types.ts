@@ -39,9 +39,15 @@ export interface Subtitle {
   episodeId?: string;
 }
 
+export interface Settings {
+  isToDeleteConvertedData: boolean;
+  isToDeleteInvalidData: boolean;
+}
+
 export interface DatabaseData {
   directories: Map<string, string>;
   animes: Map<string, Anime>;
   episodes: Map<string, Episode>;
   subtitles: Map<string, Subtitle>;
+  settings: Settings;
 }

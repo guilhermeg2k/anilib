@@ -4,10 +4,31 @@ import AnimeRepository from '@backend/repository/animeRepository';
 import fileSystem from 'fs';
 import { gql } from 'graphql-request';
 import path from 'path';
-import { AnilistAnime } from './types';
 
 const animeRepository = new AnimeRepository();
 const fs = fileSystem.promises;
+
+interface AnilistAnime {
+  id: number;
+  title: {
+    romaji: string;
+    english: string;
+    native: string;
+  };
+  coverImage: {
+    extraLarge: string;
+  };
+  description: string;
+  episodes: number;
+  startDate: {
+    year: number;
+    month: number;
+    day: number;
+  };
+  status: string;
+  genres: Array<string>;
+  format: string;
+}
 
 class AnimeService {
   list() {

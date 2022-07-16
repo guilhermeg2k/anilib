@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { v4 as uuid } from 'uuid';
-import { Anime, DatabaseData, Episode, Subtitle } from './types';
+import { Anime, DatabaseData, Episode, Settings, Subtitle } from './types';
 const fsPromises = fs.promises;
 
 class Database {
@@ -10,6 +10,10 @@ class Database {
     episodes: new Map<string, Episode>(),
     subtitles: new Map<string, Subtitle>(),
     directories: new Map<string, string>(),
+    settings: {
+      isToDeleteConvertedData: false,
+      isToDeleteInvalidData: true,
+    },
   };
 
   constructor(filePath: string) {
@@ -18,6 +22,7 @@ class Database {
       const fileData = fs.readFileSync(filePath);
       const databaseObject = <DatabaseData>JSON.parse(fileData.toString());
       const database = <DatabaseData>{
+        ...databaseObject,
         animes: new Map(Object.entries(databaseObject.animes)),
         episodes: new Map(Object.entries(databaseObject.episodes)),
         subtitles: new Map(Object.entries(databaseObject.subtitles)),
@@ -31,6 +36,7 @@ class Database {
 
   private toString(): string {
     const database = {
+      ...this.database,
       animes: Object.fromEntries(this.database.animes),
       episodes: Object.fromEntries(this.database.episodes),
       subtitles: Object.fromEntries(this.database.subtitles),
@@ -57,6 +63,10 @@ class Database {
 
   getDirectories() {
     return Array.from(this.database.directories.values());
+  }
+
+  getSettings() {
+    return this.database.settings;
   }
 
   getAnimeById(id: string) {
@@ -106,6 +116,11 @@ class Database {
     this.database.directories.set(directory, directory);
     await this.syncFile();
     return this.database.directories.get(directory)!;
+  }
+
+  async setSettings(settings: Settings) {
+    this.database.settings = settings;
+    await this.syncFile();
   }
 
   async deleteDirectory(directory: string) {
