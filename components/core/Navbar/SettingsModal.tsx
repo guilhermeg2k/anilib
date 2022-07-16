@@ -4,15 +4,19 @@ import TextField from '@components/core/TextField';
 import { TrashIcon } from '@heroicons/react/solid';
 import DirectoryService from '@services/directoryService';
 import LibraryService from '@services/libraryService';
+import SettingsService from '@services/settingsService';
 import { toastError, toastSuccess } from 'library/toastify';
+import { useRouter } from 'next/router';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 import Backdrop from '../Backdrop';
+import CheckBox from '../CheckBox';
 import DataField from '../DataField';
 import Label from '../Label';
-import { useRouter } from 'next/router';
 
+const settingsService = new SettingsService();
 const directoryService = new DirectoryService();
 const libraryService = new LibraryService();
+
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
@@ -22,18 +26,37 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   open,
   onClose,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [newDirectory, setNewDirectory] = useState('');
+  const [isLoadingDirectories, setIsLoadingDirectories] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
+  const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
+  const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
   const [directoriesList, setDirectoriesList] = useState(Array<string>());
   const router = useRouter();
+  const isLoading = isLoadingDirectories || isLoadingSettings;
 
   const loadDirectories = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingDirectories(true);
       const directories = await directoryService.list();
       setDirectoriesList(directories);
+    } catch (error) {
+      toastError('Failed to load directories');
     } finally {
-      setIsLoading(false);
+      setIsLoadingDirectories(false);
+    }
+  };
+
+  const loadSettings = async () => {
+    try {
+      setIsLoadingSettings(true);
+      const settings = await settingsService.get();
+      setIsToDeleteConvertedData(settings.isToDeleteConvertedData);
+      setIsToDeleteInvalidData(settings.isToDeleteInvalidData);
+    } catch (error) {
+      toastError('Failed to load settings');
+    } finally {
+      setIsLoadingSettings(false);
     }
   };
 
@@ -43,7 +66,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
 
   const onNewDirectorySubmitHandler = async (event: React.FormEvent) => {
     try {
-      setIsLoading(true);
+      setIsLoadingDirectories(true);
       event.preventDefault();
       await directoryService.create(newDirectory);
       setNewDirectory('');
@@ -52,33 +75,51 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
     } catch (error) {
       toastError('Failed to add directory');
     } finally {
-      setIsLoading(false);
+      setIsLoadingDirectories(false);
     }
   };
 
   const onDeleteDirectoryHandler = async (directory: string) => {
     try {
-      setIsLoading(true);
+      setIsLoadingDirectories(true);
       await directoryService.delete(directory);
       await loadDirectories();
       toastSuccess('Directory removed');
     } catch (error) {
       toastError('Failed to remove directory');
     } finally {
-      setIsLoading(false);
+      setIsLoadingDirectories(false);
+    }
+  };
+
+  const onIsToDeleteConvertedDataChangeHandler = async (value: boolean) => {
+    try {
+      setIsToDeleteConvertedData(value);
+      await settingsService.setIsToDeleteConvertedData(value);
+    } catch (error) {
+      toastError('Failed to update delete converted data');
+    }
+  };
+
+  const onIsToDeleteInvalidDataChangeHandler = async (value: boolean) => {
+    try {
+      setIsToDeleteInvalidData(value);
+      await settingsService.setIsToDeleteInvalidData(value);
+    } catch (error) {
+      toastError('Failed to update delete invalid data');
     }
   };
 
   const onLibraryUpdateHandler = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingDirectories(true);
       await libraryService.updateLibrary();
       toastSuccess('Library updated');
       router.replace(window.location.pathname);
     } catch {
       toastError('Failed to update library');
     } finally {
-      setIsLoading(false);
+      setIsLoadingDirectories(false);
     }
   };
 
@@ -93,6 +134,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
 
   useEffect(() => {
     loadDirectories();
+    loadSettings();
   }, []);
 
   return (
@@ -117,6 +159,27 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       <DataField className="max-h-[500px]">
         <ul>{directories}</ul>
       </DataField>
+      <div>
+        <Label>Update library settings</Label>
+        <div className="flex flex-col gap-1">
+          <CheckBox
+            className="text-sm"
+            value={isToDeleteInvalidData}
+            onChange={onIsToDeleteInvalidDataChangeHandler}
+          >
+            Delete invalid data (animes, episodes and subtitles with invalid
+            files)
+          </CheckBox>
+          <CheckBox
+            className="text-sm"
+            value={isToDeleteConvertedData}
+            onChange={onIsToDeleteConvertedDataChangeHandler}
+          >
+            Delete original files of converted files
+          </CheckBox>
+        </div>
+      </div>
+
       <Label>Update Library</Label>
       <Button color="green" onClick={onLibraryUpdateHandler}>
         Update Library
