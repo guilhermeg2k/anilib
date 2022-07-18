@@ -59,7 +59,7 @@ module.exports = {
       roboto: ['Roboto', 'sans-serif'],
     },
     gridTemplateColumns: {
-      'fill-267': 'repeat(auto-fill, 267px)',
+      'fill-260': 'repeat(auto-fill, 260px)',
       'fill-150': 'repeat(auto-fill, 150px)',
       'fill-200': 'repeat(auto-fill, 200px)',
     },

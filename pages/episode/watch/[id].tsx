@@ -16,6 +16,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
   const episode = await episodeService.getById(id);
   const episodesList = await episodeService.listByAnimeId(episode.animeId);
+
+  episodesList.sort((a, b) => (a.title > b.title ? 1 : -1));
+
   const subtitlesList = await subtitleService.listByEpisodeId(id);
   const coverImageBase64 = await episodeService.getCoverImageBase64ById(id);
   const watchProps: WatchProps = {
