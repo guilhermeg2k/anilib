@@ -8,6 +8,7 @@ import SubtitleService from '@services/subtitleService';
 
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 const episodeService = new EpisodeService();
 const subtitleService = new SubtitleService();
@@ -43,6 +44,7 @@ const Watch: NextPage<WatchProps> = ({
   subtitlesList,
   coverImageBase64,
 }) => {
+  const router = useRouter();
   const episodes = episodesList.map((episodeItem) => {
     return (
       <EpisodeCard
@@ -56,6 +58,16 @@ const Watch: NextPage<WatchProps> = ({
     );
   });
 
+  const onNextEpisodeHandler = () => {
+    const currentEpisodeIndex = episodesList.findIndex(
+      (episodeItem) => episodeItem.id === episode.id
+    );
+    if (episodesList.length > currentEpisodeIndex + 1) {
+      const nextEpisode = episodesList[currentEpisodeIndex + 1];
+      router.push(`/episode/watch/${nextEpisode.id}`);
+    }
+  };
+
   return (
     <Page>
       <Head>
@@ -66,7 +78,7 @@ const Watch: NextPage<WatchProps> = ({
         <section className="w-full">
           <VideoPlayer
             episodeTitle={episode.title}
-            onNextEpisode={() => console.log('hi')}
+            onNextEpisode={onNextEpisodeHandler}
             videoUrl={`/api/episode/video-stream/${episode.id}`}
             coverImageBase64={coverImageBase64}
             subtitlesList={subtitlesList}

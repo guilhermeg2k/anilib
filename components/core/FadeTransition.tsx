@@ -13,10 +13,10 @@ const FadeTransition: FunctionComponent<FadeTransitionProps> = ({
   return (
     <Transition appear show={show} as={Fragment}>
       <Transition.Child
-        enter="ease-in duration-300"
+        enter="ease-in duration-100"
         enterFrom="opacity-0"
         enterTo="opacity-100"
-        leave="ease-in duration-300"
+        leave="ease-in duration-100"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >

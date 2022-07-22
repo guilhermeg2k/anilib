@@ -1,7 +1,5 @@
 import { Subtitle } from '@backend/database/types';
-import { CogIcon } from '@heroicons/react/solid';
 import { formatTime } from '@utils/timeUtils';
-import useEffectIf from 'hooks/useEffectIf';
 import React, {
   FunctionComponent,
   KeyboardEvent,
@@ -14,7 +12,6 @@ import InputSlider from 'react-input-slider';
 import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
-
 interface PlayerControllersButtonProps {
   className?: string;
   children: ReactNode;
@@ -50,13 +47,18 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   subtitlesList,
   onNextEpisode,
 }) => {
-  const [currentSubtitleId, setCurrentSubtitleId] = useState('');
+  const [currentSubtitleId, setCurrentSubtitleId] = useState(
+    subtitlesList.length === 1
+      ? subtitlesList[0].id
+      : subtitlesList.find((subtitle) => subtitle.language === 'por')?.id
+  );
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState('0:00:00');
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasMouseMoved, setHasMouseMoved] = useState(true);
   const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const videoPlayer = useRef<HTMLDivElement>(null);
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
@@ -90,7 +92,6 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         textTrack.mode = 'hidden';
       } else {
         textTrack.mode = 'showing';
-        console.log(textTrack);
         setCurrentSubtitleId(textTrack.id);
       }
     });
@@ -125,7 +126,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     );
   };
 
-  const onVideoMouseMoveHandler = () => {
+  const onMouseMoveHandler = () => {
     clearInterval(currentCursorTimeoutRef.current);
     if (!hasMouseMoved) {
       setHasMouseMoved(true);
@@ -133,6 +134,11 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     currentCursorTimeoutRef.current = setTimeout(function () {
       setHasMouseMoved(false);
     }, 3500);
+  };
+
+  const onMouseLeaveHandler = () => {
+    clearInterval(currentCursorTimeoutRef.current);
+    setHasMouseMoved(false);
   };
 
   const onVideoKeyUpHandler = (event: KeyboardEvent) => {
@@ -173,13 +179,13 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   const onFullscreenToggleHandler = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen();
-      // @ts-ignore
-    } else if (document.webkitFullscreenElement) {
-      // @ts-ignore
-      document.webkitExitFullscreen();
     } else {
       videoPlayer.current!.requestFullscreen();
     }
+  };
+
+  const onFullscreenUpdateHandler = () => {
+    setIsFullscreen(Boolean(document.fullscreenElement));
   };
 
   const onLoadMetadataHandler = () => {
@@ -233,7 +239,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   };
 
   const subtitles = subtitlesList.map((subtitle) => {
-    // const isSubtitleDefault = subtitle.language === 'por';
+    const isSubtitleDefault = currentSubtitleId === subtitle.id;
     return (
       <track
         id={subtitle.id}
@@ -241,6 +247,8 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         src={`/api/subtitle/vtt-file/${subtitle.id}`}
         srcLang={subtitle.language}
         label={subtitle.label}
+        kind="subtitles"
+        default={isSubtitleDefault}
       />
     );
   });
@@ -342,7 +350,9 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
           </MenuDropdown>
         </div>
         <PlayerControllersButton onClick={onFullscreenToggleHandler}>
-          <i className="material-icons">fullscreen</i>
+          <MaterialIcon>
+            {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
+          </MaterialIcon>
         </PlayerControllersButton>
       </div>
       <div className="flex items-center gap-2">
@@ -379,11 +389,16 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
     video.current!.load();
   }, [videoUrl]);
 
+  useEffect(() => {
+    document!.addEventListener('fullscreenchange', onFullscreenUpdateHandler);
+  }, []);
+
   return (
     <div
       className={`${!shouldShowControls && 'cursor-none'} relative`}
       ref={videoPlayer}
-      onMouseMove={onVideoMouseMoveHandler}
+      onMouseMove={onMouseMoveHandler}
+      onMouseLeave={onMouseLeaveHandler}
       onKeyUp={onVideoKeyUpHandler}
     >
       <video
@@ -392,6 +407,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         className="w-full h-full"
         ref={video}
         poster={`data:image/png;base64,${coverImage}`}
+        preload="auto"
         onClick={onPlayToggleHandler}
         onLoadedMetadata={onLoadMetadataHandler}
         onPause={onPauseHandler}
