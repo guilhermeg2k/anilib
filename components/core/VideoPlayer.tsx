@@ -1,16 +1,5 @@
 import { Subtitle } from '@backend/database/types';
-import Slider from '@components/core/Slider';
-import PauseIconOutlined from '@heroicons/react/outline/PauseIcon';
-import PlayIconOutlined from '@heroicons/react/outline/PlayIcon';
-import {
-  AnnotationIcon,
-  ArrowsExpandIcon,
-  CogIcon,
-  PauseIcon,
-  PlayIcon,
-  VolumeOffIcon,
-  VolumeUpIcon,
-} from '@heroicons/react/solid';
+import { CogIcon } from '@heroicons/react/solid';
 import { formatTime } from '@utils/timeUtils';
 import useEffectIf from 'hooks/useEffectIf';
 import React, {
@@ -21,25 +10,27 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import InputSlider from 'react-input-slider';
 import FadeTransition from './FadeTransition';
+import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
-interface PlayerControlButtonProps {
+
+interface PlayerControllersButtonProps {
   className?: string;
   children: ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const PlayerControlButton: FunctionComponent<PlayerControlButtonProps> = ({
-  className = '',
-  onClick,
-  children,
-}) => {
+const PlayerControllersButton: FunctionComponent<
+  PlayerControllersButtonProps
+> = ({ className = '', onClick, children }) => {
   return (
-    <button
-      className={`${className} text-neutral-300 hover:text-white duration-200 ease-in-out`}
-      onClick={onClick}
-    >
-      {children}
+    <button onClick={onClick}>
+      <MaterialIcon
+        className={`${className} opacity-70 hover:opacity-100 text-white duration-200 ease-in-out  flex items-center`}
+      >
+        {children}
+      </MaterialIcon>
     </button>
   );
 };
@@ -47,92 +38,100 @@ const PlayerControlButton: FunctionComponent<PlayerControlButtonProps> = ({
 interface VideoPlayerProps {
   videoUrl: string;
   coverImageBase64: string;
+  episodeTitle: string;
   subtitlesList: Array<Subtitle>;
+  onNextEpisode: () => void;
 }
 
 const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   videoUrl,
-  subtitlesList,
+  episodeTitle,
   coverImageBase64: coverImage,
+  subtitlesList,
+  onNextEpisode,
 }) => {
   const [currentSubtitleId, setCurrentSubtitleId] = useState('');
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState('0:00:00');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [shouldShowControls, setShouldShowControls] = useState(true);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const videoPlayerRef = useRef<HTMLDivElement>(null);
+  const [hasMouseMoved, setHasMouseMoved] = useState(true);
+  const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
+  const video = useRef<HTMLVideoElement>(null);
+  const videoPlayer = useRef<HTMLDivElement>(null);
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
 
-  const video = videoRef.current;
-  const videoPlayer = videoPlayerRef.current;
+  const shouldShowControls = hasMouseMoved || !isPlaying;
   const isMuted = volume === 0;
-  const isMaxVolume = volume === 100;
-  const isOnStart = currentTime === 0;
-  const duration = formatTime(video?.duration);
-  const videoCurrentTime = formatTime(video?.currentTime);
+  const videoCurrentTime = formatTime(video.current?.currentTime);
 
   const seekToTime = (timeInSeconds: number) => {
-    if (video) {
-      video.currentTime = timeInSeconds;
-    }
+    video.current!.currentTime = timeInSeconds;
   };
 
-  const updateCurrentTime = () => {
-    if (video) {
-      const currentTime = (video?.currentTime * 100) / video?.duration;
-      setCurrentTime(currentTime);
-    }
+  const forward = (seconds: number) => {
+    seekToTime(video.current!.currentTime + seconds);
+  };
+
+  const rewind = (seconds: number) => {
+    seekToTime(video.current!.currentTime - seconds);
   };
 
   const onDisableSubtitlesHandler = () => {
-    if (video) {
-      Array.from(video.textTracks).forEach(
-        (textTrack) => (textTrack.mode = 'hidden')
-      );
-      setCurrentSubtitleId('');
-    }
+    Array.from(video.current!.textTracks).forEach(
+      (textTrack) => (textTrack.mode = 'hidden')
+    );
+    setCurrentSubtitleId('');
   };
 
-  const onToggleSubtitleHandler = (textTrackId: string) => {
-    if (video) {
-      Array.from(video.textTracks).forEach((textTrack) => {
-        if (textTrack.id !== textTrackId) {
-          textTrack.mode = 'hidden';
-        } else {
-          textTrack.mode = 'showing';
-          setCurrentSubtitleId(textTrack.id);
-        }
-      });
-    }
+  const onSelectSubtitleHandler = (textTrackId: string) => {
+    Array.from(video.current!.textTracks).forEach((textTrack) => {
+      if (textTrack.id !== textTrackId) {
+        textTrack.mode = 'hidden';
+      } else {
+        textTrack.mode = 'showing';
+        console.log(textTrack);
+        setCurrentSubtitleId(textTrack.id);
+      }
+    });
   };
 
   const onPlayToggleHandler = () => {
-    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      video.current!.pause();
+    } else {
+      video.current!.play();
+    }
+  };
+
+  const onPauseHandler = () => {
+    setIsPlaying(false);
+  };
+
+  const onPlayHandler = () => {
+    setIsPlaying(true);
   };
 
   const onTimeChangeHandler = (time: number) => {
-    if (video && time < 100) {
-      const currentTimeOnSeconds = (video.duration * time) / 100;
+    if (time) {
+      const currentTimeOnSeconds = (video.current!.duration * time) / 100;
       seekToTime(currentTimeOnSeconds);
     }
   };
 
-  const onVideoMouseLeaveHandler = () => {
-    setShouldShowControls(false);
-  };
-
-  const onVideoMouseEnterHandler = () => {
-    setShouldShowControls(true);
+  const onTimeUpdateHandler = () => {
+    setCurrentTime(
+      (video.current!.currentTime * 100) / video.current!.duration
+    );
   };
 
   const onVideoMouseMoveHandler = () => {
     clearInterval(currentCursorTimeoutRef.current);
-    if (!shouldShowControls) {
-      setShouldShowControls(true);
+    if (!hasMouseMoved) {
+      setHasMouseMoved(true);
     }
     currentCursorTimeoutRef.current = setTimeout(function () {
-      setShouldShowControls(false);
+      setHasMouseMoved(false);
     }, 3500);
   };
 
@@ -143,42 +142,61 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         onPlayToggleHandler();
         break;
       case 'ArrowLeft':
-        if (video) {
-          seekToTime(video?.currentTime - 10);
-        }
+        rewind(10);
+        break;
       case 'ArrowRight':
-        if (video) {
-          seekToTime(video?.currentTime + 10);
-        }
+        forward(10);
+        break;
       default:
         break;
     }
   };
 
+  const onVolumeUpdateHandler = () => {
+    setVolume(video.current!.volume * 100);
+  };
+
   const onVolumeChangeHandler = (newVolume: number) => {
-    setVolume(newVolume);
+    if (newVolume) {
+      video.current!.volume = newVolume / 100;
+    }
   };
 
   const onMuteToggleHandler = () => {
-    if (volume === 0) {
-      setVolume(100);
+    if (video.current!.volume) {
+      video.current!.volume = 0;
     } else {
-      setVolume(0);
+      video.current!.volume = 1;
     }
   };
 
   const onFullscreenToggleHandler = () => {
-    if (video && document) {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-        // @ts-ignore
-      } else if (document.webkitFullscreenElement) {
-        // @ts-ignore
-        document.webkitExitFullscreen();
-      } else {
-        videoPlayer!.requestFullscreen();
-      }
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      // @ts-ignore
+    } else if (document.webkitFullscreenElement) {
+      // @ts-ignore
+      document.webkitExitFullscreen();
+    } else {
+      videoPlayer.current!.requestFullscreen();
     }
+  };
+
+  const onLoadMetadataHandler = () => {
+    const duration = formatTime(video.current?.duration);
+    setDuration(duration);
+  };
+
+  const onForward10SecondsHandler = () => {
+    forward(10);
+  };
+
+  const onRewind10SecondsHandler = () => {
+    rewind(10);
+  };
+
+  const onToggleIsShowingVolumeSlider = () => {
+    setIsShowingVolumeSlider(!isShowingVolumeSlider);
   };
 
   const buildSubtitlesOptions = () => {
@@ -194,15 +212,14 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
       </button>
     );
     subtitles.push(disableSubtitlesOption);
-
-    if (video) {
-      const items = Array.from(video.textTracks).map((trackText) => {
+    if (video.current) {
+      const items = Array.from(video.current!.textTracks).map((trackText) => {
         const isCurrentSubtitle = trackText.id === currentSubtitleId;
         const selectedClass = isCurrentSubtitle && 'bg-rose-700';
         return (
           <button
             key={trackText.id}
-            onClick={() => onToggleSubtitleHandler(trackText.id)}
+            onClick={() => onSelectSubtitleHandler(trackText.id)}
             className={`${selectedClass} text-left p-2 font-semibold uppercase hover:bg-rose-600`}
           >
             {trackText.label}
@@ -212,93 +229,11 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
       subtitles.push(...items);
       return subtitles;
     }
-
     return subtitles;
   };
 
-  const playButton = (
-    <button
-      className="absolute m-auto left-0 right-0 top-0 bottom-0 w-28 h-28 opacity-90 hover:opacity-100 duration-200 ease-in-out"
-      onClick={onPlayToggleHandler}
-    >
-      {isPlaying ? (
-        <FadeTransition show={shouldShowControls}>
-          <PauseIconOutlined className="h-full w-full" />
-        </FadeTransition>
-      ) : (
-        <FadeTransition show={!isPlaying}>
-          <PlayIconOutlined className="h-full w-full" />
-        </FadeTransition>
-      )}
-    </button>
-  );
-
-  const playButtonControl = (
-    <PlayerControlButton onClick={onPlayToggleHandler}>
-      {isPlaying ? (
-        <PauseIcon className="h-8 w-8" />
-      ) : (
-        <PlayIcon className="h-8 w-8" />
-      )}
-    </PlayerControlButton>
-  );
-
-  const timeBarControl = (
-    <>
-      <Slider
-        className={`${isOnStart && 'pl-2'} w-full`}
-        value={currentTime}
-        onChange={onTimeChangeHandler}
-      />
-      <span className="text-sm">
-        {videoCurrentTime}/{duration}
-      </span>
-    </>
-  );
-
-  const volumeControl = (
-    <div className="flex gap-1 w-[150px] items-center">
-      <PlayerControlButton onClick={onMuteToggleHandler}>
-        {isMuted ? (
-          <VolumeOffIcon className="h-5 w-5" />
-        ) : (
-          <VolumeUpIcon className="h-5 w-5" />
-        )}
-      </PlayerControlButton>
-      <Slider
-        className={`w-full ${isMuted && 'pl-2'} ${isMaxVolume && 'pr-2'}`}
-        value={volume}
-        onChange={onVolumeChangeHandler}
-      />
-    </div>
-  );
-
-  const subtitlesControl = subtitlesList.length > 0 && (
-    <MenuDropdown
-      buttonClassName="flex items-center"
-      menuClassName="bottom-8 bg-neutral-900 opacity-90"
-      items={buildSubtitlesOptions()}
-    >
-      <PlayerControlButton>
-        <AnnotationIcon className="h-5 w-5" />
-      </PlayerControlButton>
-    </MenuDropdown>
-  );
-
-  const settingsControl = (
-    <PlayerControlButton>
-      <CogIcon className="h-5 w-5" />
-    </PlayerControlButton>
-  );
-
-  const fullScreenControl = (
-    <PlayerControlButton onClick={onFullscreenToggleHandler}>
-      <ArrowsExpandIcon className="h-5 w-5" />
-    </PlayerControlButton>
-  );
-
   const subtitles = subtitlesList.map((subtitle) => {
-    const isSubtitleDefault = subtitle.language === 'por';
+    // const isSubtitleDefault = subtitle.language === 'por';
     return (
       <track
         id={subtitle.id}
@@ -306,49 +241,148 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         src={`/api/subtitle/vtt-file/${subtitle.id}`}
         srcLang={subtitle.language}
         label={subtitle.label}
-        kind="subtitles"
-        default={isSubtitleDefault}
       />
     );
   });
 
-  useEffectIf(
-    () => {
-      if (isPlaying) {
-        video!.play();
-      } else {
-        video!.pause();
-      }
-    },
-    Boolean(video),
-    [isPlaying, video]
+  const topControls = (
+    <div className="absolute top-0  px-4 py-2 flex flex-col z-10">
+      <span className="text-xl">{episodeTitle}</span>
+      <button
+        className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200"
+        onClick={onNextEpisode}
+      >
+        Next Episode
+      </button>
+    </div>
   );
 
-  useEffectIf(
-    () => {
-      video!.volume = volume / 100;
-    },
-    Boolean(video),
-    [volume, video]
+  const middleControls = (
+    <div className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center">
+      <PlayerControllersButton
+        className="text-8xl"
+        onClick={onRewind10SecondsHandler}
+      >
+        replay_10
+      </PlayerControllersButton>
+      <PlayerControllersButton
+        className="text-9xl"
+        onClick={onPlayToggleHandler}
+      >
+        {isPlaying ? 'pause' : 'play_arrow'}
+      </PlayerControllersButton>
+      <PlayerControllersButton
+        className="text-8xl"
+        onClick={onForward10SecondsHandler}
+      >
+        forward_10
+      </PlayerControllersButton>
+    </div>
   );
 
-  useEffectIf(
-    () => video?.addEventListener('timeupdate', updateCurrentTime),
-    Boolean(video),
-    [video]
+  const bottomControls = (
+    <div className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2">
+      <div className="w-full flex justify-between items-center">
+        <div className="flex items-center gap-5">
+          <PlayerControllersButton onClick={onPlayToggleHandler}>
+            {isPlaying ? 'pause' : 'play_circle'}
+          </PlayerControllersButton>
+
+          <div
+            className="flex gap-2 items-center"
+            onMouseEnter={onToggleIsShowingVolumeSlider}
+            onMouseLeave={onToggleIsShowingVolumeSlider}
+          >
+            <PlayerControllersButton onClick={onMuteToggleHandler}>
+              {isMuted ? (
+                <i className="material-icons">volume_off</i>
+              ) : (
+                <i className="material-icons">volume_up</i>
+              )}
+            </PlayerControllersButton>
+            <div
+              className={`flex w-[110px] items-center justify-center ${
+                !isShowingVolumeSlider && 'hidden'
+              }`}
+            >
+              <InputSlider
+                styles={{
+                  track: {
+                    cursor: 'pointer',
+                    width: '100%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                    borderRadius: '1px',
+                    height: '5px',
+                  },
+                  active: {
+                    backgroundColor: '#fff',
+                    borderRadius: '1px',
+                  },
+                  thumb: {
+                    height: '10px',
+                    width: '10px',
+                    backgroundColor: '#fff',
+                  },
+                }}
+                axis="x"
+                x={volume}
+                onChange={({ x }) => onVolumeChangeHandler(x)}
+              />
+            </div>
+          </div>
+
+          <MenuDropdown
+            buttonClassName="flex items-center"
+            menuClassName="bottom-8 bg-neutral-900 opacity-90"
+            items={buildSubtitlesOptions()}
+          >
+            <PlayerControllersButton>
+              <i className="material-icons">subtitles</i>
+            </PlayerControllersButton>
+          </MenuDropdown>
+        </div>
+        <PlayerControllersButton onClick={onFullscreenToggleHandler}>
+          <i className="material-icons">fullscreen</i>
+        </PlayerControllersButton>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-semibold">{videoCurrentTime}</span>
+        <div className={`mt-[2px] w-full flex items-center justify-center`}>
+          <InputSlider
+            styles={{
+              track: {
+                cursor: 'pointer',
+                width: '100%',
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                borderRadius: '1px',
+                height: '5px',
+              },
+              active: {
+                backgroundColor: '#E11D48',
+                borderRadius: '1px',
+              },
+              thumb: {
+                display: 'none',
+              },
+            }}
+            axis="x"
+            x={currentTime}
+            onChange={({ x }) => onTimeChangeHandler(x)}
+          />
+        </div>
+        <span className="text-sm font-semibold">{duration}</span>
+      </div>
+    </div>
   );
 
   useEffect(() => {
-    video?.load();
-    setIsPlaying(false);
-  }, [video, videoUrl]);
+    video.current!.load();
+  }, [videoUrl]);
 
   return (
     <div
       className={`${!shouldShowControls && 'cursor-none'} relative`}
-      ref={videoPlayerRef}
-      onMouseLeave={onVideoMouseLeaveHandler}
-      onMouseEnter={onVideoMouseEnterHandler}
+      ref={videoPlayer}
       onMouseMove={onVideoMouseMoveHandler}
       onKeyUp={onVideoKeyUpHandler}
     >
@@ -356,25 +390,22 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
         id="videoPlayer"
         key={videoUrl}
         className="w-full h-full"
-        ref={videoRef}
-        onClick={onPlayToggleHandler}
-        autoPlay={false}
-        preload="metadata"
+        ref={video}
         poster={`data:image/png;base64,${coverImage}`}
+        onClick={onPlayToggleHandler}
+        onLoadedMetadata={onLoadMetadataHandler}
+        onPause={onPauseHandler}
+        onPlay={onPlayHandler}
+        onTimeUpdate={onTimeUpdateHandler}
+        onVolumeChange={onVolumeUpdateHandler}
       >
         <source src={videoUrl} type="video/mp4" />
         {subtitles}
       </video>
-      {playButton}
       <FadeTransition show={shouldShowControls}>
-        <div className="h-9 bg-neutral-900 opacity-90 absolute bottom-0 w-full flex items-center gap-2 px-2">
-          {playButtonControl}
-          {timeBarControl}
-          {volumeControl}
-          {subtitlesControl}
-          {/* {settingsControl} */}
-          {fullScreenControl}
-        </div>
+        {topControls}
+        {middleControls}
+        {bottomControls}
       </FadeTransition>
     </div>
   );

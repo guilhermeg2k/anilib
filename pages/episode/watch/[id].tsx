@@ -43,11 +43,18 @@ const Watch: NextPage<WatchProps> = ({
   subtitlesList,
   coverImageBase64,
 }) => {
-  const episodes = episodesList.map((episode) => (
-    <EpisodeCard className="w-full" key={episode.id} episodeId={episode.id!}>
-      {episode.title}
-    </EpisodeCard>
-  ));
+  const episodes = episodesList.map((episodeItem) => {
+    return (
+      <EpisodeCard
+        className={`w-full`}
+        key={episodeItem.id}
+        episodeId={episodeItem.id!}
+        active={episode.id === episodeItem.id}
+      >
+        {episodeItem.title}
+      </EpisodeCard>
+    );
+  });
 
   return (
     <Page>
@@ -58,9 +65,11 @@ const Watch: NextPage<WatchProps> = ({
       <main className="flex gap-2 2xl:gap-4 flex-col 2xl:flex-row">
         <section className="w-full">
           <VideoPlayer
+            episodeTitle={episode.title}
+            onNextEpisode={() => console.log('hi')}
             videoUrl={`/api/episode/video-stream/${episode.id}`}
-            subtitlesList={subtitlesList}
             coverImageBase64={coverImageBase64}
+            subtitlesList={subtitlesList}
           />
         </section>
         <aside className="flex flex-col gap-2 2xl:w-[40%]">
