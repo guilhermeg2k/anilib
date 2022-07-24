@@ -1,6 +1,6 @@
-import Button from '@components/core/Button';
-import Modal from '@components/core/Modal';
-import TextField from '@components/core/TextField';
+import Button from '@components/Button';
+import Modal from '@components/Modal';
+import TextField from '@components/TextField';
 import { TrashIcon } from '@heroicons/react/solid';
 import DirectoryService from '@services/directoryService';
 import LibraryService from '@services/libraryService';
@@ -8,10 +8,10 @@ import SettingsService from '@services/settingsService';
 import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import Backdrop from '../Backdrop';
-import CheckBox from '../CheckBox';
-import DataField from '../DataField';
-import Label from '../Label';
+import Backdrop from '@components/Backdrop';
+import CheckBox from '@components/CheckBox';
+import DataField from '@components/DataField';
+import Label from '@components/Label';
 
 const settingsService = new SettingsService();
 const directoryService = new DirectoryService();

@@ -1,7 +1,7 @@
 import { Anime } from '@backend/database/types';
-import AnimeCard from '@components/core/AnimeCard';
-import Navbar from '@components/core/Navbar';
-import Page from '@components/core/Page';
+import AnimeCard from '@components/AnimeCard';
+import Navbar from '@components/Navbar';
+import Page from '@components/Page';
 import AnimeService from '@services/animeService';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';

@@ -1,6 +1,6 @@
 import { CogIcon, SearchIcon } from '@heroicons/react/solid';
 import { FunctionComponent, ReactNode, useState } from 'react';
-import Logo from '../Logo';
+import Logo from '@components/Logo';
 import SettingsModal from './SettingsModal';
 
 interface NavbarButtonProps {

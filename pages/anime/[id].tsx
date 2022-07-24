@@ -1,8 +1,8 @@
 import { Anime, Episode } from '@backend/database/types';
-import Badge from '@components/core/Badge';
-import EpisodeCard from '@components/core/EpisodeCard';
-import Navbar from '@components/core/Navbar';
-import Page from '@components/core/Page';
+import Badge from '@components/Badge';
+import EpisodeCard from '@components/EpisodeCard';
+import Navbar from '@components/Navbar';
+import Page from '@components/Page';
 import AnimeService from '@services/animeService';
 import EpisodeService from '@services/episodeService';
 import StringUtils from '@utils/stringUtils';

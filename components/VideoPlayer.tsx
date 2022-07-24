@@ -268,19 +268,16 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   const middleControls = (
     <div className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center">
       <PlayerControllersButton
-        className="text-8xl"
+        className="md-64"
         onClick={onRewind10SecondsHandler}
       >
         replay_10
       </PlayerControllersButton>
-      <PlayerControllersButton
-        className="text-9xl"
-        onClick={onPlayToggleHandler}
-      >
+      <PlayerControllersButton className="md-72" onClick={onPlayToggleHandler}>
         {isPlaying ? 'pause' : 'play_arrow'}
       </PlayerControllersButton>
       <PlayerControllersButton
-        className="text-8xl"
+        className="md-64"
         onClick={onForward10SecondsHandler}
       >
         forward_10

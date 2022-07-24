@@ -1,8 +1,8 @@
 import { Episode, Subtitle } from '@backend/database/types';
-import EpisodeCard from '@components/core/EpisodeCard';
-import Navbar from '@components/core/Navbar';
-import Page from '@components/core/Page';
-import VideoPlayer from '@components/core/VideoPlayer';
+import EpisodeCard from '@components/EpisodeCard';
+import Navbar from '@components/Navbar';
+import Page from '@components/Page';
+import VideoPlayer from '@components/VideoPlayer';
 import EpisodeService from '@services/episodeService';
 import SubtitleService from '@services/subtitleService';
 
