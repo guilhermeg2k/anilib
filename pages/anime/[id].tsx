@@ -83,7 +83,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
         <title>{anime.title.romaji}</title>
       </Head>
       <Navbar />
-      <main className="flex flex-col items-center lg:items-start lg:pt-16">
+      <main className="flex flex-col items-center lg:items-start lg:pt-4">
         <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row gap-8">
           <div>
             <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
@@ -102,11 +102,12 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
               </figure>
               <div className="flex gap-3 mt-4 flex-wrap">{genres}</div>
             </header>
-            <p className="text-sm lg:text-base">{description}</p>
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
-              <span className="text-xs">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
+              <span className="font-bold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
+              <span className="text-sm font-semibold">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
             </div>
+            <p className="text-sm lg:text-base">{description}</p>
+
             <div className="flex flex-col gap-2 lg:max-h-[400px]">
               <h2 className="font-bold text-lg text-rose-700">
                 AVAILABLE EPISODES

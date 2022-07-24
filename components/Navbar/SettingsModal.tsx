@@ -179,11 +179,11 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
           </CheckBox>
         </div>
       </div>
-
       <Label>Update Library</Label>
       <Button color="green" onClick={onLibraryUpdateHandler}>
         Update Library
       </Button>
+      <div className="text-xs text-right">Version 0.1 (Jujutsu)</div>
     </Modal>
   );
 };
