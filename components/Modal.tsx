@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
-import CloseIcon from '@heroicons/react/outline/XCircleIcon';
 import { Fragment } from 'react';
+import MaterialIcon from './MaterialIcon';
 
 interface ModalProps {
   title?: string;
@@ -58,7 +58,9 @@ const Modal = ({
                     {title}
                   </span>
                   <button onClick={onClose}>
-                    <CloseIcon className="h-7 w-7 text-rose-500 hover:text-rose-400" />
+                    <MaterialIcon className="text-rose-500 hover:text-rose-400 outlined">
+                      cancel
+                    </MaterialIcon>
                   </button>
                 </Dialog.Title>
                 <div className="mt-2 text-neutral-900">{children}</div>

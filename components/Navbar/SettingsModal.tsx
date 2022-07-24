@@ -1,17 +1,17 @@
+import Backdrop from '@components/Backdrop';
 import Button from '@components/Button';
+import CheckBox from '@components/CheckBox';
+import DataField from '@components/DataField';
+import Label from '@components/Label';
+import MaterialIcon from '@components/MaterialIcon';
 import Modal from '@components/Modal';
 import TextField from '@components/TextField';
-import { TrashIcon } from '@heroicons/react/solid';
 import DirectoryService from '@services/directoryService';
 import LibraryService from '@services/libraryService';
 import SettingsService from '@services/settingsService';
 import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
 import React, { FunctionComponent, useEffect, useState } from 'react';
-import Backdrop from '@components/Backdrop';
-import CheckBox from '@components/CheckBox';
-import DataField from '@components/DataField';
-import Label from '@components/Label';
 
 const settingsService = new SettingsService();
 const directoryService = new DirectoryService();
@@ -126,8 +126,13 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const directories = directoriesList.map((directory) => (
     <li key={directory} className="flex items-center justify-between">
       <span>{directory}</span>
-      <button onClick={() => onDeleteDirectoryHandler(directory)}>
-        <TrashIcon className="w-5 h-5 text-rose-600 hover:text-rose-400" />
+      <button
+        className="h-[24px]"
+        onClick={() => onDeleteDirectoryHandler(directory)}
+      >
+        <MaterialIcon className="text-rose-600 hover:text-rose-400">
+          delete
+        </MaterialIcon>
       </button>
     </li>
   ));

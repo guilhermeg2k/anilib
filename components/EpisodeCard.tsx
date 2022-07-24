@@ -1,6 +1,6 @@
-import { PlayIcon } from '@heroicons/react/solid';
 import Link from 'next/link';
 import { FunctionComponent } from 'react';
+import MaterialIcon from './MaterialIcon';
 
 interface EpisodeCardProps {
   episodeId: string;
@@ -24,9 +24,7 @@ const EpisodeCard: FunctionComponent<EpisodeCardProps> = ({
         className={`${className} ${activeClass} flex items-center gap-1   py-2 px-4  duration-200 ease-in-out justify-between`}
       >
         <span className="text-start text-wrap">{children}</span>
-        <div>
-          <PlayIcon className="h-7 w-7" />
-        </div>
+        <MaterialIcon>play_circle</MaterialIcon>
       </a>
     </Link>
   );
