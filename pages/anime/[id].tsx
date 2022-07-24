@@ -83,7 +83,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
         <title>{anime.title.romaji}</title>
       </Head>
       <Navbar />
-      <main className="flex flex-col items-center lg:items-start lg:pt-4">
+      <main className="flex flex-col items-center lg:items-start">
         <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row gap-8">
           <div>
             <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
