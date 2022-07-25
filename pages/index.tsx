@@ -5,6 +5,8 @@ import Page from '@components/Page';
 import AnimeService from '@services/animeService';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
+import { useState } from 'react';
+import { stringSimilarity } from 'string-similarity-js';
 
 const animeService = new AnimeService();
 
@@ -21,7 +23,40 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({ animesList }) => {
-  const animes = animesList.map((anime) => (
+  const [filteredAnimeList, setFilteredAnimeList] = useState(animesList);
+
+  const isAnimeTitleSimilar = (anime: Anime, similarText: string) => {
+    const similarityRate = 0.2;
+    const romajiSimilarity = stringSimilarity(similarText, anime.title.romaji);
+    const englishSimilarity = stringSimilarity(
+      similarText,
+      anime.title.english
+    );
+    const nativeSimilarity = stringSimilarity(similarText, anime.title.native);
+
+    if (
+      romajiSimilarity > similarityRate ||
+      englishSimilarity > similarityRate ||
+      nativeSimilarity > similarityRate
+    ) {
+      return true;
+    }
+  };
+
+  const onSearchHandler = (searchText: string) => {
+    if (searchText.length === 0) {
+      setFilteredAnimeList(animesList);
+      return;
+    }
+
+    const filteredAnimes = animesList.filter((anime) =>
+      isAnimeTitleSimilar(anime, searchText)
+    );
+
+    setFilteredAnimeList(filteredAnimes);
+  };
+
+  const animes = filteredAnimeList.map((anime) => (
     <AnimeCard
       key={anime.id}
       id={anime.id!}
@@ -31,17 +66,19 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
   ));
 
   return (
-    <Page>
+    <>
       <Head>
         <title>Anilib</title>
       </Head>
-      <Navbar />
-      <div className="flex flex-col items-center md:items-start">
-        <div className="w-full grid gap-10 justify-center grid-cols-fill-267 md:grid-cols-fill-150 lg:grid-cols-fill-200 2xl:grid-cols-fill-260">
-          {animes}
+      <Navbar onSearchChange={onSearchHandler} />
+      <Page>
+        <div className="flex flex-col items-center md:items-start">
+          <div className="w-full grid gap-10 justify-center grid-cols-fill-267 md:grid-cols-fill-150 lg:grid-cols-fill-200 2xl:grid-cols-fill-260">
+            {animes}
+          </div>
         </div>
-      </div>
-    </Page>
+      </Page>
+    </>
   );
 };
 

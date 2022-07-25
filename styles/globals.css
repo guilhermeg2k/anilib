@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Subtitles CSS ===== */
 video::cue {
   color: white;
   font-family: 'Roboto', sans-serif;
@@ -10,11 +11,17 @@ video::cue {
     #000 0px 0px 1px, #000 0px 0px 1px, #000 0px 0px 1px;
 }
 
+/* ===== MD Icons CSS ===== */
 .material-icons.md-18 {
   font-size: 18px;
 }
+
 .material-icons.md-24 {
   font-size: 24px;
+}
+
+.material-icons.md-26 {
+  font-size: 26px;
 }
 
 .material-icons.md-36 {
@@ -52,6 +59,28 @@ video::cue {
 .material-icons.md-light {
   color: rgba(255, 255, 255, 1);
 }
+
 .material-icons.md-light.md-inactive {
   color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+  scrollbar-width: 5px;
+  scrollbar-color: #be123c #ffffff;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #be123c;
+  border-radius: 10px;
 }

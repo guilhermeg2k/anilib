@@ -254,7 +254,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   });
 
   const topControls = (
-    <div className="absolute top-0  px-4 py-2 flex flex-col z-10 bg-gradient-to-b from-neutral-900 to-transparent w-full">
+    <div className="absolute top-0  px-4 py-2 flex flex-col z-10 bg-gradient-to-b from-neutral-800 to-transparent w-full">
       <span className="text-xl">{episodeTitle}</span>
       <button
         className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200"
@@ -286,7 +286,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   );
 
   const bottomControls = (
-    <div className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-900 to-transparent">
+    <div className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent">
       <div className="w-full flex justify-between items-center">
         <div className="flex items-center gap-5">
           <PlayerControllersButton onClick={onPlayToggleHandler}>

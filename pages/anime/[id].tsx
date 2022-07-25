@@ -78,48 +78,50 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
   ));
 
   return (
-    <Page>
+    <>
       <Head>
         <title>{anime.title.romaji}</title>
       </Head>
       <Navbar />
-      <main className="flex flex-col items-center lg:items-start">
-        <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row gap-8">
-          <div>
-            <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
-              {imageCover}
-            </figure>
-          </div>
-          <div className="flex flex-col gap-4">
-            <header className="flex flex-col items-center lg:items-start  gap-2 lg:gap-0">
-              <div className="flex justify-between items-center lg:items-start gap-2 md:w-full ">
-                <h1 className="text-rose-700 text-2xl lg:text-4xl font-bold">
-                  {anime.title.romaji}
-                </h1>
-              </div>
-              <figure className="w-[130px] md:w-[170px] lg:hidden">
+      <Page>
+        <main className="flex flex-col items-center lg:items-start">
+          <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row gap-8">
+            <div>
+              <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
                 {imageCover}
               </figure>
-              <div className="flex gap-3 mt-4 flex-wrap">{genres}</div>
-            </header>
-            <div className="flex flex-col gap-1">
-              <span className="font-bold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
-              <span className="text-sm font-semibold">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
             </div>
-            <p className="text-sm lg:text-base">{description}</p>
+            <div className="flex flex-col gap-4">
+              <header className="flex flex-col items-center lg:items-start  gap-2 lg:gap-0">
+                <div className="flex justify-between items-center lg:items-start gap-2 md:w-full ">
+                  <h1 className="text-rose-700 text-2xl lg:text-4xl font-bold">
+                    {anime.title.romaji}
+                  </h1>
+                </div>
+                <figure className="w-[130px] md:w-[170px] lg:hidden">
+                  {imageCover}
+                </figure>
+                <div className="flex gap-3 mt-4 flex-wrap">{genres}</div>
+              </header>
+              <div className="flex flex-col gap-1">
+                <span className="font-bold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
+                <span className="text-sm font-semibold">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
+              </div>
+              <p className="text-sm lg:text-base">{description}</p>
 
-            <div className="flex flex-col gap-2 lg:max-h-[400px]">
-              <h2 className="font-bold text-lg text-rose-700">
-                AVAILABLE EPISODES
-              </h2>
-              <div className="flex flex-col gap-2 overflow-auto max-h-max pr-2">
-                {episodes}
+              <div className="flex flex-col gap-2 lg:max-h-[400px]">
+                <h2 className="font-bold text-lg text-rose-700">
+                  AVAILABLE EPISODES
+                </h2>
+                <div className="flex flex-col gap-2 overflow-auto max-h-max pr-2">
+                  {episodes}
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      </main>
-    </Page>
+          </section>
+        </main>
+      </Page>
+    </>
   );
 };
 

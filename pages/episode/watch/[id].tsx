@@ -69,29 +69,31 @@ const Watch: NextPage<WatchProps> = ({
   };
 
   return (
-    <Page>
+    <>
       <Head>
         <title>{episode.title}</title>
       </Head>
       <Navbar />
-      <main className="flex gap-2 2xl:gap-4 flex-col 2xl:flex-row">
-        <section className="w-full">
-          <VideoPlayer
-            episodeTitle={episode.title}
-            onNextEpisode={onNextEpisodeHandler}
-            videoUrl={`/api/episode/video-stream/${episode.id}`}
-            coverImageBase64={coverImageBase64}
-            subtitlesList={subtitlesList}
-          />
-        </section>
-        <aside className="flex flex-col gap-2 2xl:w-[40%]">
-          <h1 className="font-bold uppercase text-lg text-rose-700">
-            Episodes
-          </h1>
-          <div className="flex flex-col gap-2">{episodes}</div>
-        </aside>
-      </main>
-    </Page>
+      <Page>
+        <main className="flex gap-2 2xl:gap-4 flex-col 2xl:flex-row">
+          <section className="w-full">
+            <VideoPlayer
+              episodeTitle={episode.title}
+              onNextEpisode={onNextEpisodeHandler}
+              videoUrl={`/api/episode/video-stream/${episode.id}`}
+              coverImageBase64={coverImageBase64}
+              subtitlesList={subtitlesList}
+            />
+          </section>
+          <aside className="flex flex-col gap-2 2xl:w-[40%]">
+            <h1 className="font-bold uppercase text-lg text-rose-700">
+              Episodes
+            </h1>
+            <div className="flex flex-col gap-2">{episodes}</div>
+          </aside>
+        </main>
+      </Page>
+    </>
   );
 };
 
