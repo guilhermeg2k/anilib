@@ -65,14 +65,14 @@ const Navbar: FunctionComponent<NavbarProps> = ({ onSearchChange }) => {
       </div>
 
       {isSearchOpen && onSearchChange && (
-        <div className="w-full bg-neutral-900 py-10 px-96">
+        <div className="w-full bg-neutral-900 py-10 px-4 md:px-40 lg:px-60 2xl:px-96">
           <input
             type="text"
             name="search_field"
             id="search_field"
             onChange={onSearchFieldChangeHandler}
             placeholder="Kimetsu no Yaiba"
-            className="w-full p-2 outline-none focus:ring-0 bg-neutral-900 border-0 border-b-2  text-xl focus:border-b-2 focus:border-rose-700"
+            className="w-full p-2 outline-none focus:ring-0 bg-neutral-900 border-0 border-b-2  text-base lg:text-xl focus:border-b-2 focus:border-rose-700 "
             autoComplete="off"
             autoFocus
           />

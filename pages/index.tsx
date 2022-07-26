@@ -10,7 +10,7 @@ import { stringSimilarity } from 'string-similarity-js';
 
 const animeService = new AnimeService();
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const animesList = await animeService.list();
   const animesSorted = animesList.sort((a, b) =>
     a.title.romaji < b.title.romaji ? -1 : 1
@@ -25,22 +25,31 @@ interface HomeProps {
 const Home: NextPage<HomeProps> = ({ animesList }) => {
   const [filteredAnimeList, setFilteredAnimeList] = useState(animesList);
 
-  const isAnimeTitleSimilar = (anime: Anime, similarText: string) => {
-    const similarityRate = 0.2;
-    const romajiSimilarity = stringSimilarity(similarText, anime.title.romaji);
-    const englishSimilarity = stringSimilarity(
-      similarText,
-      anime.title.english
-    );
-    const nativeSimilarity = stringSimilarity(similarText, anime.title.native);
+  const appendSimilarityRate = (animes: Array<Anime>, similarText: string) => {
+    const animesWithSimilarity = animes.map((anime) => {
+      const romajiSimilarity = stringSimilarity(
+        similarText,
+        anime.title.romaji
+      );
+      const englishSimilarity = stringSimilarity(
+        similarText,
+        anime.title.english
+      );
+      const nativeSimilarity = stringSimilarity(
+        similarText,
+        anime.title.native
+      );
 
-    if (
-      romajiSimilarity > similarityRate ||
-      englishSimilarity > similarityRate ||
-      nativeSimilarity > similarityRate
-    ) {
-      return true;
-    }
+      const similarityWithSearch = Math.max(
+        romajiSimilarity,
+        englishSimilarity,
+        nativeSimilarity
+      );
+
+      return { ...anime, similarityWithSearch };
+    });
+
+    return animesWithSimilarity;
   };
 
   const onSearchHandler = (searchText: string) => {
@@ -49,11 +58,16 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
       return;
     }
 
-    const filteredAnimes = animesList.filter((anime) =>
-      isAnimeTitleSimilar(anime, searchText)
-    );
+    const animesFilteredAndSortedBySimilarityWithSearch = appendSimilarityRate(
+      animesList,
+      searchText
+    )
+      .filter((anime) => anime.similarityWithSearch > 0.2)
+      .sort((animeA, animeB) =>
+        animeA.similarityWithSearch > animeB.similarityWithSearch ? -1 : 1
+      );
 
-    setFilteredAnimeList(filteredAnimes);
+    setFilteredAnimeList(animesFilteredAndSortedBySimilarityWithSearch);
   };
 
   const animes = filteredAnimeList.map((anime) => (
