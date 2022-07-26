@@ -24,7 +24,7 @@ const PlayerControllersButton: FunctionComponent<
   return (
     <button onClick={onClick}>
       <MaterialIcon
-        className={`${className} opacity-70 hover:opacity-100 text-white duration-200 ease-in-out  flex items-center`}
+        className={`${className} opacity-90 hover:opacity-100 text-white duration-200 ease-in-out  flex items-center`}
       >
         {children}
       </MaterialIcon>
@@ -383,6 +383,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   );
 
   useEffect(() => {
+    setIsPlaying(false);
     video.current!.load();
   }, [videoUrl]);
 
