@@ -113,11 +113,11 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
       </header>
 
       <Page>
-        <div className="flex flex-col items-center md:items-start">
-          <div className="w-full grid gap-10 justify-center grid-cols-fill-267 md:grid-cols-fill-150 lg:grid-cols-fill-200 2xl:grid-cols-fill-260">
+        <main className="flex flex-col items-center md:items-start">
+          <div className="w-full grid gap-10 justify-center grid-cols-fill-260 md:grid-cols-fill-150 lg:grid-cols-fill-200 2xl:grid-cols-fill-260">
             {animes}
           </div>
-        </div>
+        </main>
       </Page>
     </>
   );

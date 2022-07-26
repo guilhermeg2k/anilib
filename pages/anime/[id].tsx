@@ -85,7 +85,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
       <Navbar />
       <Page>
         <main className="flex flex-col items-center lg:items-start">
-          <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row gap-8">
+          <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row lg:gap-8">
             <div>
               <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
                 {imageCover}
@@ -105,13 +105,13 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
               </header>
               <div className="flex flex-col gap-1">
                 <span className="font-bold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
-                <span className="text-sm font-semibold">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
+                <span className="text-sm font-semibold capitalize">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
               </div>
               <p className="text-sm lg:text-base">{description}</p>
 
               <div className="flex flex-col gap-2 lg:max-h-[400px]">
                 <h2 className="font-bold text-lg text-rose-700">
-                  AVAILABLE EPISODES
+                  Available Episodes
                 </h2>
                 <div className="flex flex-col gap-2 overflow-auto max-h-max pr-2">
                   {episodes}

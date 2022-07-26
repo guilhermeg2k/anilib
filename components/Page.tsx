@@ -9,7 +9,7 @@ const Page: React.FunctionComponent<PageProps> = ({
 }) => {
   return (
     <div
-      className={`${className} px-4 py-10 md:px-36 lg:px-52 z-0  w-full bg-cover bg-center bg-no-repeat bg-fixed`}
+      className={`${className} px-4 py-3 lg:py-10 md:px-36 lg:px-52 z-0 w-full bg-cover bg-center bg-no-repeat bg-fixed`}
       style={{ backgroundImage: `url('/images/bg.jpg')` }}
     >
       {children}
