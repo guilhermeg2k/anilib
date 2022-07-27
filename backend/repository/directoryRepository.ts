@@ -2,26 +2,28 @@ import database from '@backend/database/';
 
 class DirectoryRepository {
   list() {
-    const directories = database.getDirectories();
-    return directories;
+    const directoriesList = new Array<string>();
+    const directories = <Map<string, string>>database.list('directories');
+    directories.forEach((directory) => directoriesList.push(directory));
+    return directoriesList;
   }
 
   get(directory: string) {
-    const foundDirectory = database.getDirectory(directory);
+    const foundDirectory = <string>database.get('directories', directory);
     return foundDirectory;
   }
 
-  async create(directory: string) {
-    const newDirectory = await database.insertDirectory(directory);
+  create(directory: string) {
+    const newDirectory = database.insertOrUpdate(
+      'directories',
+      directory,
+      directory
+    );
     return newDirectory;
   }
 
-  async delete(directory: string) {
-    await database.deleteDirectory(String(directory));
-  }
-
-  async deleteInvalidDirectories() {
-    await database.deleteInvalidDirectories();
+  delete(directory: string) {
+    database.delete('directories', directory);
   }
 }
 

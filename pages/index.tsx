@@ -90,6 +90,10 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
     }
   }, []);
 
+  useEffect(() => {
+    setFilteredAndSortedAnimeList(animesList);
+  }, [animesList]);
+
   return (
     <>
       <Head>

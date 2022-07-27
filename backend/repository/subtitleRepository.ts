@@ -1,27 +1,40 @@
-import database from '@backend/database';
-import dataBase from '@backend/database';
+import { default as database, default as dataBase } from '@backend/database';
 import { Subtitle } from '@backend/database/types';
+import { v4 as uuid } from 'uuid';
 
 class SubtitleRepository {
+  list() {
+    const subtitleList = new Array<Subtitle>();
+    const subtitles = <Map<string, Subtitle>>database.list('subtitles');
+    subtitles.forEach((subtitle, id) => {
+      subtitleList.push({
+        ...subtitle,
+        id,
+      });
+    });
+    return subtitleList;
+  }
+
   getById(id: string) {
-    const subtitle = dataBase.getSubtitleById(id);
+    const subtitle = <Subtitle>dataBase.get('subtitles', id);
     return subtitle;
   }
 
   listByEpisodeId(episodeId: string) {
-    const subtitles = dataBase
-      .getSubtitles()
-      .filter((subtitle) => subtitle.episodeId === episodeId);
+    const subtitles = this.list().filter(
+      (subtitle) => subtitle.episodeId === episodeId
+    );
     return subtitles;
   }
 
-  async create(subtitle: Subtitle) {
-    const createdSubtitle = await database.insertSubtitle(subtitle);
-    return createdSubtitle;
+  create(subtitle: Subtitle) {
+    const key = uuid();
+    const createdSubtitle = database.insertOrUpdate('subtitles', key, subtitle);
+    return <Subtitle>createdSubtitle;
   }
 
-  async deleteInvalidSubtitles() {
-    await database.deleteInvalidSubtitles();
+  deleteById(id: string) {
+    database.delete('subtitles', id);
   }
 }
 

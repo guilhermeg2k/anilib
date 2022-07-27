@@ -1,31 +1,40 @@
 import database from '@backend/database/';
 import { Anime } from '@backend/database/types';
-
+import { v4 as uuid } from 'uuid';
 class AnimeRepository {
   list() {
-    const animes = database.getAnimes();
-    return animes;
+    const animesList = new Array<Anime>();
+    const animes = <Map<string, Anime>>database.list('animes');
+    animes.forEach((anime, id) => {
+      animesList.push({
+        ...anime,
+        id,
+      });
+    });
+    return animesList;
   }
 
-  listById(id: string) {
-    const anime = database.getAnimeById(id);
+  getById(id: string) {
+    const anime = <Anime>database.get('animes', id);
+    if (anime) {
+      anime.id = id;
+    }
     return anime;
   }
 
   listByPath(path: string) {
-    const anime = database
-      .getAnimes()
-      .find((anime) => anime.folderPath === path);
+    const anime = this.list().find((anime) => anime.folderPath === path);
     return anime;
   }
 
-  async create(anime: Anime) {
-    const createdAnime = await database.insertAnime(anime);
-    return createdAnime;
+  create(anime: Anime) {
+    const key = uuid();
+    const createdAnime = database.insertOrUpdate('animes', key, anime);
+    return <Anime>createdAnime;
   }
 
-  async deleteInvalidAnimes() {
-    await database.deleteInvalidAnimes();
+  deleteById(id: string) {
+    database.delete('animes', id);
   }
 }
 

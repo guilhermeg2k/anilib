@@ -1,7 +1,12 @@
 import fs from 'fs';
-import { v4 as uuid } from 'uuid';
-import { Anime, DatabaseData, Episode, Settings, Subtitle } from './types';
-const fsPromises = fs.promises;
+import { Anime, DatabaseData, Episode, Subtitle } from './types';
+
+type DatabaseProperty =
+  | 'animes'
+  | 'episodes'
+  | 'subtitles'
+  | 'directories'
+  | 'settings';
 
 class Database {
   private dataFilePath: string = '';
@@ -10,10 +15,10 @@ class Database {
     episodes: new Map<string, Episode>(),
     subtitles: new Map<string, Subtitle>(),
     directories: new Map<string, string>(),
-    settings: {
-      isToDeleteConvertedData: false,
-      isToDeleteInvalidData: true,
-    },
+    settings: new Map<string, Boolean>([
+      ['isToDeleteConvertedData', false],
+      ['isToDeleteInvalidData', true],
+    ]),
   };
 
   constructor(filePath: string) {
@@ -22,11 +27,11 @@ class Database {
       const fileData = fs.readFileSync(filePath);
       const databaseObject = <DatabaseData>JSON.parse(fileData.toString());
       const database = <DatabaseData>{
-        ...databaseObject,
         animes: new Map(Object.entries(databaseObject.animes)),
         episodes: new Map(Object.entries(databaseObject.episodes)),
         subtitles: new Map(Object.entries(databaseObject.subtitles)),
         directories: new Map(Object.entries(databaseObject.directories)),
+        settings: new Map(Object.entries(databaseObject.settings)),
       };
       this.database = database;
     } else {
@@ -36,140 +41,36 @@ class Database {
 
   private toString(): string {
     const database = {
-      ...this.database,
       animes: Object.fromEntries(this.database.animes),
       episodes: Object.fromEntries(this.database.episodes),
       subtitles: Object.fromEntries(this.database.subtitles),
       directories: Object.fromEntries(this.database.directories),
+      settings: Object.fromEntries(this.database.settings),
     };
     return JSON.stringify(database);
   }
 
-  private async syncFile() {
-    await fsPromises.writeFile(this.dataFilePath, this.toString());
+  private syncFile() {
+    fs.writeFileSync(this.dataFilePath, this.toString());
   }
 
-  getAnimes() {
-    return Array.from(this.database.animes.values());
+  list(property: DatabaseProperty) {
+    return this.database[property];
   }
 
-  getEpisodes() {
-    return Array.from(this.database.episodes.values());
+  get(property: DatabaseProperty, key: string) {
+    return this.database[property].get(key);
   }
 
-  getSubtitles() {
-    return Array.from(this.database.subtitles.values());
+  insertOrUpdate(property: DatabaseProperty, key: string, value: any) {
+    this.database[property].set(key, value);
+    this.syncFile();
+    return this.database[property].get(key)!;
   }
 
-  getDirectories() {
-    return Array.from(this.database.directories.values());
-  }
-
-  getSettings() {
-    return this.database.settings;
-  }
-
-  getAnimeById(id: string) {
-    return this.database.animes.get(id);
-  }
-
-  getEpisodeById(id: string) {
-    return this.database.episodes.get(id);
-  }
-
-  getSubtitleById(id: string) {
-    return this.database.subtitles.get(id);
-  }
-
-  getDirectory(directory: string) {
-    return this.database.directories.get(directory);
-  }
-
-  async insertAnime(anime: Anime) {
-    const id = uuid();
-    const newAnime = { ...anime, id };
-    this.database.animes.set(id, newAnime);
-    await this.syncFile();
-    return this.database.animes.get(id)!;
-  }
-
-  async insertEpisode(episode: Episode) {
-    const id = uuid();
-    const newEpisode = { ...episode, id };
-    this.database.episodes.set(id, newEpisode);
-    await this.syncFile();
-    return this.database.episodes.get(id)!;
-  }
-
-  async insertSubtitle(subtitle: Subtitle) {
-    const id = uuid();
-    const newSubtitle = {
-      ...subtitle,
-      id,
-    };
-    this.database.subtitles.set(id, newSubtitle);
-    await this.syncFile();
-    return this.database.subtitles.get(id)!;
-  }
-
-  async insertDirectory(directory: string) {
-    this.database.directories.set(directory, directory);
-    await this.syncFile();
-    return this.database.directories.get(directory)!;
-  }
-
-  async setSettings(settings: Settings) {
-    this.database.settings = settings;
-    await this.syncFile();
-  }
-
-  async deleteDirectory(directory: string) {
-    this.database.directories.delete(directory);
-    await this.syncFile();
-  }
-
-  async deleteInvalidAnimes() {
-    const animes = this.getAnimes();
-    const invalidAnimes = animes.filter(
-      (anime) => !fs.existsSync(anime.folderPath)
-    );
-    invalidAnimes.forEach((invalidAnime) =>
-      this.database.animes.delete(invalidAnime.id!)
-    );
-    await this.syncFile();
-  }
-
-  async deleteInvalidEpisodes() {
-    const episodes = this.getEpisodes();
-    const invalidEpisodes = episodes.filter(
-      (episode) => !fs.existsSync(episode.filePath)
-    );
-    invalidEpisodes.forEach((invalidEpisode) =>
-      this.database.episodes.delete(invalidEpisode.id!)
-    );
-    await this.syncFile();
-  }
-
-  async deleteInvalidSubtitles() {
-    const subtitles = this.getSubtitles();
-    const invalidSubtitles = subtitles.filter(
-      (subtitle) => !fs.existsSync(subtitle.filePath)
-    );
-    invalidSubtitles.forEach((invalidSubtitle) =>
-      this.database.subtitles.delete(invalidSubtitle.id!)
-    );
-    await this.syncFile();
-  }
-
-  async deleteInvalidDirectories() {
-    const directories = this.getDirectories();
-    const invalidDirectories = directories.filter(
-      (directory) => !fs.existsSync(directory)
-    );
-    invalidDirectories.forEach((invalidDirectory) =>
-      this.database.directories.delete(invalidDirectory)
-    );
-    await this.syncFile();
+  delete(property: DatabaseProperty, key: string) {
+    this.database[property].delete(key);
+    this.syncFile();
   }
 }
 

@@ -1,9 +1,3 @@
-interface ReleaseDate {
-  year: number;
-  month: number;
-  day: number;
-}
-
 export interface Anime {
   id?: string;
   anilistId: number;
@@ -40,15 +34,10 @@ export interface Subtitle {
   episodeId?: string;
 }
 
-export interface Settings {
-  isToDeleteConvertedData: boolean;
-  isToDeleteInvalidData: boolean;
-}
-
 export interface DatabaseData {
   directories: Map<string, string>;
   animes: Map<string, Anime>;
   episodes: Map<string, Episode>;
   subtitles: Map<string, Subtitle>;
-  settings: Settings;
+  settings: Map<string, Boolean>;
 }

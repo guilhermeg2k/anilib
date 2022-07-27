@@ -4,10 +4,21 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const settingsService = new SettingsService();
 
 class SettingsController {
-  get(req: NextApiRequest, res: NextApiResponse) {
+  getIsToDeleteConvertedData(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const settings = settingsService.get();
-      return res.json(settings);
+      const isToDeleteConvertedData =
+        settingsService.getIsToDeleteConvertedData();
+      return res.json(isToDeleteConvertedData);
+    } catch (error) {
+      res.status(500).end();
+      console.error(error);
+    }
+  }
+
+  getIsToDeleteInvalidData(req: NextApiRequest, res: NextApiResponse) {
+    try {
+      const isToDeleteInvalidData = settingsService.getIsToDeleteInvalidData();
+      return res.json(isToDeleteInvalidData);
     } catch (error) {
       res.status(500).end();
       console.error(error);

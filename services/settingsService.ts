@@ -1,9 +1,17 @@
-import { Settings } from '@backend/database/types';
 import axiosClient from 'library/axios';
 
 class SettingsService {
-  async get() {
-    const settings = await axiosClient.get<Settings>('/settings');
+  async getIsToDeleteConvertedData() {
+    const settings = await axiosClient.get<boolean>(
+      '/settings/is-to-delete-converted-data'
+    );
+    return settings.data;
+  }
+
+  async getIsToDeleteInvalidData() {
+    const settings = await axiosClient.get<boolean>(
+      '/settings/is-to-delete-invalid-data'
+    );
     return settings.data;
   }
 

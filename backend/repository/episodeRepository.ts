@@ -1,53 +1,62 @@
 import database from '@backend/database';
 import { Episode } from '@backend/database/types';
+import { v4 as uuid } from 'uuid';
 
 class EpisodeRepository {
   list() {
-    const episodes = database.getEpisodes();
-    return episodes;
+    const episodesList = new Array<Episode>();
+    const episodes = <Map<string, Episode>>database.list('episodes');
+    episodes.forEach((episode, id) => {
+      episodesList.push({
+        ...episode,
+        id,
+      });
+    });
+    return episodesList;
   }
 
   listByAnimeId(animeId: string) {
-    const episodes = database
-      .getEpisodes()
-      .filter((episode) => episode.animeId === animeId);
-    return episodes;
+    const animeEpisodes = this.list().filter(
+      (episode) => episode.animeId === animeId
+    );
+    return animeEpisodes;
   }
 
   listConvertedEpisodes() {
-    const episodes = database.getEpisodes();
-    const convertedEpisodes = episodes.filter(
+    const convertedEpisodes = this.list().filter(
       (episode) => episode.wasConverted
     );
     return convertedEpisodes;
   }
 
   getById(id: string) {
-    const episode = database.getEpisodeById(id);
+    const episode = <Episode>database.get('episodes', id);
+    if (episode) {
+      episode.id = id;
+    }
     return episode;
   }
 
   getByFilePath(path: string) {
-    const episode = database
-      .getEpisodes()
-      .find((episode) => episode.filePath === path);
+    const episode = this.list().find((episode) => episode.filePath === path);
     return episode;
   }
 
   getByOriginalFilePath(path: string) {
-    const episode = database
-      .getEpisodes()
-      .find((episode) => episode.originalFilePath === path);
+    const episode = this.list().find(
+      (episode) => episode.originalFilePath === path
+    );
     return episode;
   }
 
-  async create(episode: Episode) {
-    const createdEpisode = await database.insertEpisode(episode);
-    return createdEpisode;
+  create(episode: Episode) {
+    const key = uuid();
+    const createdEpisode = database.insertOrUpdate('episodes', key, episode);
+    return <Episode>createdEpisode;
   }
 
-  async deleteInvalidEpisodes() {
-    await database.deleteInvalidEpisodes();
+  deleteById(id: string) {
+    database.delete('episodes', id);
   }
 }
 

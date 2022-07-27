@@ -42,10 +42,8 @@ class EpisodeController {
         const imageCoverBase64 = await episodeService.getImageCoverBase64ById(
           episodeId
         );
-        if (imageCoverBase64) {
-          res.send(imageCoverBase64);
-          return;
-        }
+        res.send(imageCoverBase64);
+        return;
       }
       res.status(400).end();
     } catch (error) {

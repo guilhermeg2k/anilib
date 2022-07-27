@@ -1,4 +1,5 @@
 import DirectoryRepository from '@backend/repository/directoryRepository';
+import fs from 'fs';
 
 const directoryRepository = new DirectoryRepository();
 
@@ -13,17 +14,23 @@ class DirectoryService {
     return foundDirectory;
   }
 
-  async create(directory: string) {
-    const newDirectory = await directoryRepository.create(directory);
+  create(directory: string) {
+    const newDirectory = directoryRepository.create(directory);
     return newDirectory;
   }
 
-  async delete(directory: string) {
-    await directoryRepository.delete(directory);
+  delete(directory: string) {
+    directoryRepository.delete(directory);
   }
 
-  async deleteInvalidDirectories() {
-    await directoryRepository.deleteInvalidDirectories();
+  deleteInvalidDirectories() {
+    const invalidDirectories = this.list().filter(
+      (directory) => !fs.existsSync(directory)
+    );
+
+    invalidDirectories.forEach((invalidDirectory) =>
+      directoryRepository.delete(invalidDirectory)
+    );
   }
 }
 

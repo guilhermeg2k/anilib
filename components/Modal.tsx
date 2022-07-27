@@ -23,7 +23,7 @@ const Modal = ({
     <Transition appear show={open} as={Fragment}>
       <Dialog
         as="div"
-        className={`${className} relative z-10`}
+        className={`${className} relative z-30`}
         onClose={disableBackdropClick ? () => {} : onClose}
       >
         <Transition.Child

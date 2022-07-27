@@ -36,6 +36,7 @@ const TextField = ({
         placeholder={placeHolder}
         className={`w-full border border-neutral-300  p-2 outline-none hover:border-neutral-600 focus:border-neutral-600 focus:ring-0`}
         onChange={onChangeHandler}
+        autoComplete="off"
       />
     </div>
   );

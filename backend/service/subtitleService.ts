@@ -2,14 +2,19 @@ import { Episode, Subtitle } from '@backend/database/types';
 import SubtitleRepository from '@backend/repository/subtitleRepository';
 import FileUtils from '@backend/utils/fileUtils';
 import VideoUtils from '@backend/utils/videoUtils';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 const subtitleRepository = new SubtitleRepository();
 const videoUtils = new VideoUtils();
 const fileUtils = new FileUtils();
 
 class SubtitleService {
+  list() {
+    const subtitles = subtitleRepository.list();
+    return subtitles;
+  }
+
   listByEpisodeId(episodeId: string) {
     const subtitles = subtitleRepository.listByEpisodeId(episodeId);
     return subtitles;
@@ -97,8 +102,14 @@ class SubtitleService {
     return createdSubtitles;
   }
 
-  async deleteInvalidSubtitles() {
-    await subtitleRepository.deleteInvalidSubtitles();
+  deleteInvalidSubtitles() {
+    const invalidSubtitles = this.list().filter(
+      (subtitle) => !fs.existsSync(subtitle.filePath)
+    );
+
+    invalidSubtitles.forEach((invalidSubtitle) =>
+      subtitleRepository.deleteById(invalidSubtitle.id!)
+    );
   }
 }
 

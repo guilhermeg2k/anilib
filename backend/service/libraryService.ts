@@ -11,9 +11,7 @@ const directoriesService = new DirectoryService();
 const settingsService = new SettingsService();
 class LibraryService {
   async update() {
-    const settings = settingsService.get();
-
-    if (settings.isToDeleteInvalidData) {
+    if (settingsService.getIsToDeleteInvalidData()) {
       await directoriesService.deleteInvalidDirectories();
       await animeService.deleteInvalidAnimes();
       await episodeService.deleteInvalidEpisodes();
@@ -34,7 +32,7 @@ class LibraryService {
       await subtitleService.createFromEpisode(episode);
     }
 
-    if (settings.isToDeleteConvertedData) {
+    if (settingsService.getIsToDeleteConvertedData()) {
       await episodeService.deleteConvertedEpisodes();
     }
   }

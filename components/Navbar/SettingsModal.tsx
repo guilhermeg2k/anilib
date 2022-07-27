@@ -50,9 +50,12 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const loadSettings = async () => {
     try {
       setIsLoadingSettings(true);
-      const settings = await settingsService.get();
-      setIsToDeleteConvertedData(settings.isToDeleteConvertedData);
-      setIsToDeleteInvalidData(settings.isToDeleteInvalidData);
+      const isToDeleteConvertedData =
+        await settingsService.getIsToDeleteConvertedData();
+      const isToDeleteInvalidData =
+        await settingsService.getIsToDeleteInvalidData();
+      setIsToDeleteConvertedData(isToDeleteConvertedData);
+      setIsToDeleteInvalidData(isToDeleteInvalidData);
     } catch (error) {
       toastError('Failed to load settings');
     } finally {
@@ -115,7 +118,8 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       setIsLoadingDirectories(true);
       await libraryService.updateLibrary();
       toastSuccess('Library updated');
-      router.replace(window.location.pathname);
+      await loadDirectories();
+      router.replace(router.asPath);
     } catch {
       toastError('Failed to update library');
     } finally {
@@ -188,7 +192,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       <Button color="green" onClick={onLibraryUpdateHandler}>
         Update Library
       </Button>
-      <div className="text-xs text-right">Version 0.1 (Jujutsu)</div>
+      <div className="text-xs text-right">Version 0.2 (Jujutsu)</div>
     </Modal>
   );
 };

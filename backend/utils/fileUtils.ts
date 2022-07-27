@@ -1,41 +1,51 @@
-import fileSystem from 'fs';
+import fs from 'fs';
 import path from 'path';
 
-const fs = fileSystem.promises;
+const fsPromises = fs.promises;
 
 class FileUtils {
   async listFilesInFolderByExtensions(
     folder: string,
     extensions: Array<string>
   ) {
-    const folderDir = await fs.readdir(folder);
+    const folderExists = fs.existsSync(folder);
+    if (folderExists) {
+      const folderDir = await fsPromises.readdir(folder);
 
-    const episodeFilesPromises = folderDir.map(async (file: string) => {
-      const filePath = path.join(folder, file);
-      const fileStats = await fs.stat(filePath);
-      const isFile = fileStats.isFile();
-      const isDir = fileStats.isDirectory();
-      if (isFile) {
-        const fileExt = path.extname(filePath);
-        if (extensions.includes(fileExt)) {
-          return filePath;
+      const episodeFilesPromises = folderDir.map(async (file: string) => {
+        const filePath = path.join(folder, file);
+        const fileStats = await fsPromises.stat(filePath);
+        const isFile = fileStats.isFile();
+        const isDir = fileStats.isDirectory();
+        if (isFile) {
+          const fileExt = path.extname(filePath);
+          if (extensions.includes(fileExt)) {
+            return filePath;
+          }
+        } else if (isDir) {
+          return this.listFilesInFolderByExtensions(filePath, extensions);
         }
-      } else if (isDir) {
-        return this.listFilesInFolderByExtensions(filePath, extensions);
-      }
-    });
+      });
 
-    const episodeFiles = await Promise.all(episodeFilesPromises);
-    const flattedEpisodeFiles = episodeFiles.flat(Infinity) as Array<string>;
-    const notNullEpisodeFiles = flattedEpisodeFiles.filter((episode) =>
-      Boolean(episode)
-    );
-    return notNullEpisodeFiles;
+      const episodeFiles = await Promise.all(episodeFilesPromises);
+      const flattedEpisodeFiles = episodeFiles.flat(Infinity) as Array<string>;
+      const notNullEpisodeFiles = flattedEpisodeFiles.filter((episode) =>
+        Boolean(episode)
+      );
+      return notNullEpisodeFiles;
+    }
+    return [];
   }
 
   async getBase64(filePath: string) {
-    const fileBase64 = await fs.readFile(filePath, { encoding: 'base64' });
-    return fileBase64;
+    const fileExists = fs.existsSync(filePath);
+    if (fileExists) {
+      const fileBase64 = await fsPromises.readFile(filePath, {
+        encoding: 'base64',
+      });
+      return fileBase64;
+    }
+    return null;
   }
 
   async getVttFilesBySearch(folder: string, search: string) {

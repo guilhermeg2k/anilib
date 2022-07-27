@@ -2,12 +2,12 @@ import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConst
 import { Anime } from '@backend/database/types';
 import client from '@backend/library/graphql';
 import AnimeRepository from '@backend/repository/animeRepository';
-import fileSystem from 'fs';
+import fs from 'fs';
 import { gql } from 'graphql-request';
 import path from 'path';
 
 const animeRepository = new AnimeRepository();
-const fs = fileSystem.promises;
+const fsPromises = fs.promises;
 
 interface AnilistAnime {
   id: number;
@@ -38,7 +38,7 @@ class AnimeService {
   }
 
   getById(id: string) {
-    const anime = animeRepository.listById(id);
+    const anime = animeRepository.getById(id);
     return anime;
   }
 
@@ -57,22 +57,26 @@ class AnimeService {
 
   private async createFromDirectory(directory: string) {
     const createdAnimes = Array<Anime>();
-    const directoryFolders = await fs.readdir(directory);
-    for (const folder of directoryFolders) {
-      const folderPath = path.join(directory, folder);
-      const fileStat = await fs.stat(folderPath);
-      if (fileStat.isDirectory()) {
-        const localAnime = animeRepository.listByPath(folderPath);
-        if (!localAnime) {
-          const searchText = folder.replaceAll(
-            SQUARE_BRACKET_CONTENT_EXPRESSION,
-            ''
-          );
-          const createdAnime = await this.createFromDirectoryBySearchOnAnilist(
-            folderPath,
-            searchText
-          );
-          createdAnimes.push(createdAnime);
+    const directoryExists = fs.existsSync(directory);
+    if (directoryExists) {
+      const directoryFolders = await fsPromises.readdir(directory);
+      for (const folder of directoryFolders) {
+        const folderPath = path.join(directory, folder);
+        const fileStat = await fsPromises.stat(folderPath);
+        if (fileStat.isDirectory()) {
+          const localAnime = animeRepository.listByPath(folderPath);
+          if (!localAnime) {
+            const searchText = folder.replaceAll(
+              SQUARE_BRACKET_CONTENT_EXPRESSION,
+              ''
+            );
+            const createdAnime =
+              await this.createFromDirectoryBySearchOnAnilist(
+                folderPath,
+                searchText
+              );
+            createdAnimes.push(createdAnime);
+          }
         }
       }
     }
@@ -134,11 +138,11 @@ class AnimeService {
 
   private async getEpisodeFilesPaths(folder: string) {
     const episodeFileExtensions = ['.mkv', '.mp4'];
-    const folderDir = await fs.readdir(folder);
+    const folderDir = await fsPromises.readdir(folder);
 
     const episodeFilesPromises = folderDir.map(async (file: string) => {
       const filePath = path.join(folder, file);
-      const fileStats = await fs.stat(filePath);
+      const fileStats = await fsPromises.stat(filePath);
       const isFile = fileStats.isFile();
       const isDir = fileStats.isDirectory();
       if (isFile) {
@@ -162,8 +166,14 @@ class AnimeService {
     return notNullEpisodeFiles;
   }
 
-  async deleteInvalidAnimes() {
-    await animeRepository.deleteInvalidAnimes();
+  deleteInvalidAnimes() {
+    const invalidAnimes = this.list().filter(
+      (anime) => !fs.existsSync(anime.folderPath)
+    );
+
+    invalidAnimes.forEach((invalidAnime) =>
+      animeRepository.deleteById(invalidAnime.id!)
+    );
   }
 }
 

@@ -3,8 +3,8 @@ import { Anime, Episode } from '@backend/database/types';
 import EpisodeRepository from '@backend/repository/episodeRepository';
 import FileUtils from '@backend/utils/fileUtils';
 import VideoUtils from '@backend/utils/videoUtils';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 const fsPromises = fs.promises;
 
@@ -47,8 +47,8 @@ class EpisodeService {
     return null;
   }
 
-  private async create(episode: Episode) {
-    const createdEpisode = await episodeRepository.create(episode);
+  private create(episode: Episode) {
+    const createdEpisode = episodeRepository.create(episode);
     return createdEpisode;
   }
 
@@ -101,7 +101,7 @@ class EpisodeService {
       newEpisode.filePath = episodeFileMp4;
     }
 
-    const createdEpisode = await this.create(newEpisode);
+    const createdEpisode = this.create(newEpisode);
     return createdEpisode;
   }
 
@@ -111,15 +111,21 @@ class EpisodeService {
       async (episode) => {
         const fileExists = fs.existsSync(episode.originalFilePath);
         if (fileExists) {
-          return await fsPromises.unlink(episode.originalFilePath);
+          return fsPromises.unlink(episode.originalFilePath);
         }
       }
     );
     await Promise.all(deleteConvertedEpisodesPromises);
   }
 
-  async deleteInvalidEpisodes() {
-    await episodeRepository.deleteInvalidEpisodes();
+  deleteInvalidEpisodes() {
+    const invalidEpisodes = this.list().filter(
+      (episode) => !fs.existsSync(episode.filePath)
+    );
+
+    invalidEpisodes.forEach((invalidEpisode) =>
+      episodeRepository.deleteById(invalidEpisode.id!)
+    );
   }
 }
 

@@ -1,14 +1,19 @@
 import database from '@backend/database/';
-import { Settings } from '@backend/database/types';
+
+type Settings = 'isToDeleteConvertedData' | 'isToDeleteInvalidData';
 
 class SettingsRepository {
-  get() {
-    const settings = database.getSettings();
+  list() {
+    const settings = <Map<string, string>>database.list('settings');
     return settings;
   }
 
-  async set(settings: Settings) {
-    await database.setSettings(settings);
+  get(settings: Settings) {
+    return <Boolean>database.get('settings', settings);
+  }
+
+  set(settings: string, value: Boolean) {
+    database.insertOrUpdate('settings', settings, value);
   }
 }
 
