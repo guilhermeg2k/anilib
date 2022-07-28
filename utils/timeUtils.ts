@@ -1,4 +1,4 @@
-export const formatTime = (timeInSeconds: number | undefined) => {
+const formatSecondsInTime = (timeInSeconds: number | undefined | null) => {
   if (timeInSeconds) {
     if (timeInSeconds < 3600) {
       const formattedTime = new Date(timeInSeconds * 1000)
@@ -13,3 +13,9 @@ export const formatTime = (timeInSeconds: number | undefined) => {
   }
   return '00:00';
 };
+
+const timeUtils = {
+  formatSecondsInTime,
+};
+
+export default timeUtils;

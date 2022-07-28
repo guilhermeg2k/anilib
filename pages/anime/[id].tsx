@@ -5,14 +5,13 @@ import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import AnimeService from '@services/animeService';
 import EpisodeService from '@services/episodeService';
-import StringUtils from '@utils/stringUtils';
+import stringUtils from '@utils/stringUtils';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 
 const animeService = new AnimeService();
 const episodeService = new EpisodeService();
-const stringUtils = new StringUtils();
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;

@@ -1,35 +1,15 @@
 import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConstants';
 import { Anime } from '@backend/database/types';
-import client from '@backend/library/graphql';
 import AnimeRepository from '@backend/repository/animeRepository';
+import animeUtils from '@utils/animeUtils';
 import fs from 'fs';
-import { gql } from 'graphql-request';
 import path from 'path';
+import AnilistService from './anilistService';
+import { AnilistAnime } from './types';
 
 const animeRepository = new AnimeRepository();
+const anilistService = new AnilistService();
 const fsPromises = fs.promises;
-
-interface AnilistAnime {
-  id: number;
-  title: {
-    romaji: string;
-    english: string;
-    native: string;
-  };
-  coverImage: {
-    extraLarge: string;
-  };
-  description: string;
-  episodes: number;
-  startDate: {
-    year: number;
-    month: number;
-    day: number;
-  };
-  status: string;
-  genres: Array<string>;
-  format: string;
-}
 
 class AnimeService {
   list() {
@@ -75,7 +55,9 @@ class AnimeService {
                 folderPath,
                 searchText
               );
-            createdAnimes.push(createdAnime);
+            if (createdAnime) {
+              createdAnimes.push(createdAnime);
+            }
           }
         }
       }
@@ -87,53 +69,36 @@ class AnimeService {
     directory: string,
     searchText: string
   ) {
-    const queryResult = await client.request(gql`
-      {
-        Media(search: "${searchText}", type: ANIME) {
-          id
-          title {
-            romaji
-            english
-            native
-          }
-          coverImage {
-            extraLarge
-          }
-          description
-          episodes
-          startDate {
-            year
-            month
-            day
-          }
-          status
-          genres
-          format
-        }
-      }
-    `);
-    const anime = queryResult.Media as AnilistAnime;
-    const releaseDate = new Date();
-    releaseDate.setFullYear(anime.startDate.year);
-    releaseDate.setMonth(anime.startDate.month);
-    releaseDate.setDate(anime.startDate.day);
+    const searchResults = await anilistService.getAnimesBySearch(searchText);
+    const anime = animeUtils.getWithMostSimilarTitle(
+      searchResults,
+      searchText
+    ) as AnilistAnime;
 
-    const animeParsed = {
-      anilistId: anime.id,
-      title: anime.title,
-      coverUrl: anime.coverImage.extraLarge,
-      description: anime.description,
-      episodes: anime.episodes,
-      releaseDate: releaseDate,
-      status: anime.status,
-      genres: anime.genres,
-      format: anime.format,
-      folderPath: directory,
-    };
+    if (anime) {
+      const releaseDate = new Date();
+      releaseDate.setFullYear(anime.startDate.year);
+      releaseDate.setMonth(anime.startDate.month);
+      releaseDate.setDate(anime.startDate.day);
 
-    const createdAnime = animeRepository.create(animeParsed);
+      const animeParsed = {
+        anilistId: anime.id,
+        title: anime.title,
+        coverUrl: anime.coverImage.extraLarge,
+        description: anime.description,
+        episodes: anime.episodes,
+        releaseDate: releaseDate,
+        status: anime.status,
+        genres: anime.genres,
+        format: anime.format,
+        folderPath: directory,
+      };
 
-    return createdAnime;
+      const createdAnime = animeRepository.create(animeParsed);
+
+      return createdAnime;
+    }
+    return null;
   }
 
   private async getEpisodeFilesPaths(folder: string) {
