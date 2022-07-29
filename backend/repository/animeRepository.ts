@@ -1,6 +1,11 @@
 import database from '@backend/database/';
 import { Anime } from '@backend/database/types';
+import FileUtils from '@backend/utils/fileUtils';
 import { v4 as uuid } from 'uuid';
+import EpisodeRepository from './episodeRepository';
+
+const fileUtils = new FileUtils();
+const episodeRepository = new EpisodeRepository();
 class AnimeRepository {
   list() {
     const animesList = new Array<Anime>();
@@ -35,6 +40,14 @@ class AnimeRepository {
 
   deleteById(id: string) {
     database.delete('animes', id);
+    episodeRepository.deleteByAnimeId(id);
+  }
+
+  deleteByDirectory(directory: string) {
+    const animesToDelete = this.list().filter((anime) =>
+      fileUtils.isPathRelativeToDir(directory, anime.folderPath)
+    );
+    animesToDelete.forEach((anime) => this.deleteById(anime.id!));
   }
 }
 

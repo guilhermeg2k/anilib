@@ -1,7 +1,9 @@
 import database from '@backend/database';
 import { Episode } from '@backend/database/types';
 import { v4 as uuid } from 'uuid';
+import SubtitleRepository from './subtitleRepository';
 
+const subtitleRepository = new SubtitleRepository();
 class EpisodeRepository {
   list() {
     const episodesList = new Array<Episode>();
@@ -57,6 +59,15 @@ class EpisodeRepository {
 
   deleteById(id: string) {
     database.delete('episodes', id);
+    subtitleRepository.deleteByEpisodeId(id);
+  }
+
+  deleteByAnimeId(animeId: string) {
+    const episodesToDelete = this.list().filter(
+      (episode) => episode.animeId === animeId
+    );
+
+    episodesToDelete.forEach((episode) => this.deleteById(episode.id!));
   }
 }
 

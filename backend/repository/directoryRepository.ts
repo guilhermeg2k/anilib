@@ -1,5 +1,7 @@
 import database from '@backend/database/';
+import AnimeRepository from './animeRepository';
 
+const animeRepository = new AnimeRepository();
 class DirectoryRepository {
   list() {
     const directoriesList = new Array<string>();
@@ -24,6 +26,7 @@ class DirectoryRepository {
 
   delete(directory: string) {
     database.delete('directories', directory);
+    animeRepository.deleteByDirectory(directory);
   }
 }
 

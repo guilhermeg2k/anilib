@@ -55,6 +55,11 @@ class FileUtils {
     );
     return matchedVttFiles;
   }
+
+  isPathRelativeToDir(dir: string, relativePath: string) {
+    const relative = path.relative(dir, relativePath);
+    return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+  }
 }
 
 export default FileUtils;

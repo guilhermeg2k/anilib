@@ -36,6 +36,14 @@ class SubtitleRepository {
   deleteById(id: string) {
     database.delete('subtitles', id);
   }
+
+  deleteByEpisodeId(episodeId: string) {
+    const subtitlesToDelete = this.list().filter(
+      (subtitle) => subtitle.episodeId === episodeId
+    );
+
+    subtitlesToDelete.forEach((subtitle) => this.deleteById(subtitle.id!));
+  }
 }
 
 export default SubtitleRepository;

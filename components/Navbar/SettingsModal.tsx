@@ -87,6 +87,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       setIsLoadingDirectories(true);
       await directoryService.delete(directory);
       await loadDirectories();
+      router.replace(router.asPath);
       toastSuccess('Directory removed');
     } catch (error) {
       toastError('Failed to remove directory');
@@ -192,7 +193,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       <Button color="green" onClick={onLibraryUpdateHandler}>
         Update Library
       </Button>
-      <div className="text-xs text-right">Version 0.2 (Jujutsu)</div>
+      <div className="text-xs text-right">Version 0.3 (Jujutsu)</div>
     </Modal>
   );
 };
