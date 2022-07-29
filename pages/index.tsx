@@ -78,7 +78,7 @@ const Home: NextPage<HomeProps> = ({ animesList }) => {
       </Head>
       <header>
         <Navbar />
-        <div className="w-full bg-neutral-900 py-7 px-4 md:px-40 lg:px-60 2xl:px-96">
+        <div className="w-full bg-neutral-900 mt-1 lg:mt-5 px-4 md:px-40 lg:px-60 2xl:px-96">
           <input
             type="text"
             ref={searchFieldRef}
