@@ -1,34 +1,77 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Anilib
 
-## Getting Started
+This a local anime streaming platform, that uses [AniList API](https://anilist.gitbook.io/anilist-apiv2-docs/) as anime data source
 
-First, run the development server:
+It was created using next with typescript and tailwind
 
-```bash
-npm run dev
-# or
-yarn dev
+It's on very early stage so expect to found some bugs >)
+
+You can see the figma prototype [here](https://www.figma.com/file/LqfsWrDChSkTKCXEL0EBQA/Anilib)
+
+## Preview
+
+<img src="https://i.imgur.com/Iic5SOz.png" alt="Screenshot 01" style="height: 350px;"/>
+
+<img src="https://i.imgur.com/1pae2rG.png" alt="Screenshot 02" style="height: 350px;"/>
+
+<img src="https://i.imgur.com/lzqL4xi.png" alt="Screenshot 03" style="height: 350px;"/>
+
+## How it works
+
+- You add directories to your library
+  - Anilib will understand that each folder of this directory it's an anime
+  - It will try to get data from the AniList API based on the folder name
+  - Then it will look for every `mp4` or `mkv` files inside of the directories
+    - Note that the files can be in subdirectories
+    - Every found file its considered an episode
+    - If it's a `mkv` file it will try to convert to mp4 and extract its subtitles
+- When you finish adding your directories and update your library, you will be able to watch your animes in any device connected to your local network
+
+## How to build
+
+### Install dependencies
+
+- [Node JS](https://nodejs.org/en/download/)
+- [FFmpeg](https://ffmpeg.org/)
+
+### Clone the repository
+
+```sh
+git clone https://github.com/guilhermeg2k/neofy.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Create and change a .env.local file as the example
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```sh
+NEXT_PUBLIC_BASE_API_URL=http://localhost:3000/api
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+### In the project folder install dependencies and build
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```sh
+npm install
+npm run build
+```
 
-## Learn More
+or
 
-To learn more about Next.js, take a look at the following resources:
+```sh
+yarn
+yarn build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Start the local server
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```sh
+npm run start
+```
 
-## Deploy on Vercel
+or
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```sh
+yarn start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+[MIT License](https://github.com/guilhermeg2k/anilib/blob/main/LICENSE)
+
+Made by Guilherme (~\_^)
