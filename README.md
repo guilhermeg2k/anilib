@@ -14,6 +14,8 @@ You can see the figma prototype [here](https://www.figma.com/file/LqfsWrDChSkTKC
 
 <img src="https://i.imgur.com/1pae2rG.png" alt="Screenshot 02" style="height: 350px;"/>
 
+<img src="https://i.imgur.com/yUsyZ25.png" alt="Screenshot 02" style="height: 350px;"/>
+
 <img src="https://i.imgur.com/lzqL4xi.png" alt="Screenshot 03" style="height: 350px;"/>
 
 ## How it works

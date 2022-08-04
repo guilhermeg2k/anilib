@@ -177,7 +177,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
             value={isToDeleteInvalidData}
             onChange={onIsToDeleteInvalidDataChangeHandler}
           >
-            Delete invalid data (animes, episodes and subtitles with invalid
+            Remove invalid data (animes, episodes and subtitles with invalid
             files)
           </CheckBox>
           <CheckBox
@@ -185,7 +185,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
             value={isToDeleteConvertedData}
             onChange={onIsToDeleteConvertedDataChangeHandler}
           >
-            Delete original files of converted files
+            Delete original converted files
           </CheckBox>
         </div>
       </div>
