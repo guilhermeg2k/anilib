@@ -14,9 +14,6 @@ import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 
-const directoryService = new DirectoryService();
-const libraryService = new LibraryService();
-
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
@@ -40,7 +37,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const loadDirectories = async () => {
     try {
       setIsLoadingDirectories(true);
-      const directories = await directoryService.list();
+      const directories = await DirectoryService.list();
       setDirectoriesList(directories);
     } catch (error) {
       toastError('Failed to load directories');
@@ -73,7 +70,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
     try {
       setIsLoadingDirectories(true);
       event.preventDefault();
-      await directoryService.create(newDirectory);
+      await DirectoryService.create(newDirectory);
       setNewDirectory('');
       await loadDirectories();
       toastSuccess('Directory added');
@@ -87,7 +84,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const onDeleteDirectoryHandler = async (directory: string) => {
     try {
       setIsLoadingDirectories(true);
-      await directoryService.delete(directory);
+      await DirectoryService.delete(directory);
       await loadDirectories();
       router.replace(router.asPath);
       toastSuccess('Directory removed');
@@ -119,7 +116,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const onLibraryUpdateHandler = async () => {
     try {
       setIsLoadingDirectories(true);
-      await libraryService.updateLibrary();
+      await LibraryService.updateLibrary();
       toastSuccess('Library updated');
       await loadDirectories();
       router.replace(router.asPath);

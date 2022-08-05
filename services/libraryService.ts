@@ -1,7 +1,7 @@
 import axiosClient from 'library/axios';
 
 class LibraryService {
-  async updateLibrary() {
+  static async updateLibrary() {
     await axiosClient.put('/library');
   }
 }

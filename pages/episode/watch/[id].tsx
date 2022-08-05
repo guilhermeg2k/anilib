@@ -10,17 +10,15 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
-const episodeService = new EpisodeService();
-
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
-  const episode = await episodeService.getById(id);
-  const episodesList = await episodeService.listByAnimeId(episode.animeId);
+  const episode = await EpisodeService.getById(id);
+  const episodesList = await EpisodeService.listByAnimeId(episode.animeId);
 
   episodesList.sort((a, b) => (a.title > b.title ? 1 : -1));
 
   const subtitlesList = await SubtitleService.listByEpisodeId(id);
-  const coverImageBase64 = await episodeService.getCoverImageBase64ById(id);
+  const coverImageBase64 = await EpisodeService.getCoverImageBase64ById(id);
   const watchProps: WatchProps = {
     episode,
     episodesList,

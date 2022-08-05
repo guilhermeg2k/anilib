@@ -10,13 +10,10 @@ import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 
-const animeService = new AnimeService();
-const episodeService = new EpisodeService();
-
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
-  const anime = await animeService.getById(id);
-  const animeEpisodes = await episodeService.listByAnimeId(id);
+  const anime = await AnimeService.getById(id);
+  const animeEpisodes = await EpisodeService.listByAnimeId(id);
 
   animeEpisodes.sort((a, b) => (a.title > b.title ? 1 : -1));
 

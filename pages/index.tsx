@@ -1,9 +1,8 @@
 import { Anime } from '@backend/database/types';
-import AutoAnimate from '@components/AutoAnimate';
 import AnimeCard from '@components/AnimeCard';
+import AutoAnimate from '@components/AutoAnimate';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
 import AnimeService from '@services/animeService';
 import animeUtils from '@utils/animeUtils';
 import type { GetServerSideProps, NextPage } from 'next';
@@ -118,8 +117,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const animeService = new AnimeService();
-  const animes = await animeService.list();
+  const animes = await AnimeService.list();
   const animesSortedAlphabeticallyByTitle = animes.sort((animeA, animeB) =>
     animeA.title.romaji < animeB.title.romaji ? -1 : 1
   );
