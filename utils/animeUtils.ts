@@ -31,28 +31,28 @@ const calculateSimilarity = (
   return titleSimilarityRate;
 };
 
-export const getAnimesWithTitleSimilarityRateAppended = (
+export const getAnimesWithTitleSimilarityToTextAppended = (
   animes: Array<AnilistAnime | Anime>,
-  similarTitle: string
+  text: string
 ) => {
   const animesWithSimilarity = animes.map((anime) => {
     return {
       ...anime,
-      titleSimilarityRate: calculateSimilarity(anime, similarTitle),
+      titleSimilarity: calculateSimilarity(anime, text),
     };
   });
 
   return animesWithSimilarity;
 };
 
-export const getAnimeWithMostSimilarTitle = (
+export const getAnimeWithMostSimilarTitleToText = (
   animes: Array<AnilistAnime | Anime>,
-  title: string
+  text: string
 ) => {
   const animesSortedByTitleSimilarity =
-    getAnimesWithTitleSimilarityRateAppended(animes, title).sort(
+    getAnimesWithTitleSimilarityToTextAppended(animes, text).sort(
       (animeA, animeB) =>
-        animeA.titleSimilarityRate > animeB.titleSimilarityRate ? -1 : 1
+        animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
     );
 
   if (animesSortedByTitleSimilarity.length > 0) {

@@ -4,10 +4,12 @@ import AutoAnimate from '@components/AutoAnimate';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import AnimeService from '@services/animeService';
-import { getAnimesWithTitleSimilarityRateAppended } from '@utils/animeUtils';
+import { getAnimesWithTitleSimilarityToTextAppended } from '@utils/animeUtils';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
+
+type AnimeWithSimilarity = Anime & { titleSimilarity: number };
 
 interface HomeProps {
   animes: Array<Anime>;
@@ -19,23 +21,24 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
   const searchFieldRef = useRef<HTMLInputElement>(null);
   const isLibraryEmpty = animes.length === 0;
 
-  const filterAnimesByTitle = (title: string) => {
+  const getAnimesFilteredByTitleSimilarity = (
+    animes: Array<AnimeWithSimilarity>
+  ) => {
     const titleSimilarityMinRate = 0.2;
-    const animesWithTitleSimilarity = getAnimesWithTitleSimilarityRateAppended(
-      animes,
-      title
+    const animesFilteredBySimilarity = animes.filter(
+      (anime) => anime.titleSimilarity >= titleSimilarityMinRate
     );
 
-    const animesFilteredBySimilarity = animesWithTitleSimilarity.filter(
-      (anime) => anime.titleSimilarityRate >= titleSimilarityMinRate
-    );
+    return animesFilteredBySimilarity;
+  };
 
-    const animesSortedBySimilarity = animesFilteredBySimilarity.sort(
-      (animeA, animeB) =>
-        animeA.titleSimilarityRate > animeB.titleSimilarityRate ? -1 : 1
+  const getAnimesSortedByByTitleSimilarity = (
+    animes: Array<AnimeWithSimilarity>
+  ) => {
+    const animesSortedBySimilarity = animes.sort((animeA, animeB) =>
+      animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
     );
-
-    setFilteredAndSortedAnimeList(animesSortedBySimilarity as Array<Anime>);
+    return animesSortedBySimilarity;
   };
 
   const onSearchHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +53,18 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
       return;
     }
 
-    filterAnimesByTitle(searchText);
+    const animesWithTitleSimilarityToText =
+      getAnimesWithTitleSimilarityToTextAppended(animes, searchText);
+
+    const animesFilteredBySimilarity = getAnimesFilteredByTitleSimilarity(
+      animesWithTitleSimilarityToText as Array<AnimeWithSimilarity>
+    );
+
+    const animesSorted = getAnimesSortedByByTitleSimilarity(
+      animesFilteredBySimilarity
+    );
+
+    setFilteredAndSortedAnimeList(animesSorted as Array<Anime>);
   };
 
   useEffect(() => {
