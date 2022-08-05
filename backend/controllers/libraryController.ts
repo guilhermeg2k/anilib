@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const libraryService = new LibraryService();
 
 class LibraryController {
-  async update(req: NextApiRequest, res: NextApiResponse) {
+  static async update(req: NextApiRequest, res: NextApiResponse) {
     try {
       await libraryService.update();
       res.status(200).end();

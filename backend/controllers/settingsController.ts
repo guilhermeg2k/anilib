@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const settingsService = new SettingsService();
 
 class SettingsController {
-  getIsToDeleteConvertedData(req: NextApiRequest, res: NextApiResponse) {
+  static getIsToDeleteConvertedData(req: NextApiRequest, res: NextApiResponse) {
     try {
       const isToDeleteConvertedData =
         settingsService.getIsToDeleteConvertedData();
@@ -15,7 +15,7 @@ class SettingsController {
     }
   }
 
-  getIsToDeleteInvalidData(req: NextApiRequest, res: NextApiResponse) {
+  static getIsToDeleteInvalidData(req: NextApiRequest, res: NextApiResponse) {
     try {
       const isToDeleteInvalidData = settingsService.getIsToDeleteInvalidData();
       return res.json(isToDeleteInvalidData);
@@ -25,7 +25,10 @@ class SettingsController {
     }
   }
 
-  async setIsToDeleteConvertedData(req: NextApiRequest, res: NextApiResponse) {
+  static async setIsToDeleteConvertedData(
+    req: NextApiRequest,
+    res: NextApiResponse
+  ) {
     try {
       const { isToDeleteConvertedData } = req.body;
       if (
@@ -42,7 +45,10 @@ class SettingsController {
     }
   }
 
-  async setIsToDeleteInvalidData(req: NextApiRequest, res: NextApiResponse) {
+  static async setIsToDeleteInvalidData(
+    req: NextApiRequest,
+    res: NextApiResponse
+  ) {
     try {
       const { isToDeleteInvalidData } = req.body;
       if (

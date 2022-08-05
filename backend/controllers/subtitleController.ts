@@ -5,7 +5,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const subtitleService = new SubtitleService();
 
 class SubtitleController {
-  listByEpisodeId(req: NextApiRequest, res: NextApiResponse) {
+  static listByEpisodeId(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { episodeId } = req.query;
       if (episodeId && typeof episodeId === 'string') {
@@ -20,7 +20,7 @@ class SubtitleController {
     }
   }
 
-  getVttFileById(req: NextApiRequest, res: NextApiResponse) {
+  static getVttFileById(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { id } = req.query;
       if (id && typeof id === 'string') {

@@ -1,8 +1,6 @@
 import SettingsController from '@backend/controllers/settingsController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const settingsController = new SettingsController();
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -11,10 +9,10 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      await settingsController.getIsToDeleteConvertedData(req, res);
+      await SettingsController.getIsToDeleteConvertedData(req, res);
       break;
     case 'PATCH':
-      await settingsController.setIsToDeleteConvertedData(req, res);
+      await SettingsController.setIsToDeleteConvertedData(req, res);
       break;
     default:
       res.status(405).end();

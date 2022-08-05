@@ -1,8 +1,6 @@
 import LibraryController from '@backend/controllers/libraryController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const libraryController = new LibraryController();
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -11,7 +9,7 @@ export default async function handler(
 
   switch (method) {
     case 'PUT':
-      await libraryController.update(req, res);
+      await LibraryController.update(req, res);
       break;
     default:
       res.status(405).end();

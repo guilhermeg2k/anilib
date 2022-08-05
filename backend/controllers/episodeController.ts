@@ -5,7 +5,7 @@ import fs from 'fs';
 const episodeService = new EpisodeService();
 
 class EpisodeController {
-  getById(req: NextApiRequest, res: NextApiResponse) {
+  static getById(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { id } = req.query;
       if (id) {
@@ -20,7 +20,7 @@ class EpisodeController {
     }
   }
 
-  listByAnimeId(req: NextApiRequest, res: NextApiResponse) {
+  static listByAnimeId(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { animeId } = req.query;
       if (animeId && typeof animeId === 'string') {
@@ -35,7 +35,10 @@ class EpisodeController {
     }
   }
 
-  async getImageCoverBase64ById(req: NextApiRequest, res: NextApiResponse) {
+  static async getImageCoverBase64ById(
+    req: NextApiRequest,
+    res: NextApiResponse
+  ) {
     try {
       const { episodeId } = req.query;
       if (episodeId && typeof episodeId === 'string') {
@@ -52,7 +55,7 @@ class EpisodeController {
     }
   }
 
-  getVideoStreamById(req: NextApiRequest, res: NextApiResponse) {
+  static getVideoStreamById(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { id } = req.query;
       const { range } = req.headers;

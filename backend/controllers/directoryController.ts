@@ -1,12 +1,11 @@
 import DirectoryService from '@backend/service/directoryService';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { resolve } from 'path';
 
 const directoryService = new DirectoryService();
 
 class DirectoryController {
-  async list(req: NextApiRequest, res: NextApiResponse) {
+  static async list(req: NextApiRequest, res: NextApiResponse) {
     try {
       const directories = directoryService.list();
       res.json(directories);
@@ -16,7 +15,7 @@ class DirectoryController {
     }
   }
 
-  async create(req: NextApiRequest, res: NextApiResponse) {
+  static async create(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { directory } = req.body;
       if (directory && typeof directory === 'string') {
@@ -37,7 +36,7 @@ class DirectoryController {
     }
   }
 
-  async delete(req: NextApiRequest, res: NextApiResponse) {
+  static async delete(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { directory } = req.query;
       if (directory && typeof directory === 'string') {

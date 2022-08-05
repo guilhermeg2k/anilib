@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const animeService = new AnimeService();
 
 class AnimeController {
-  list(req: NextApiRequest, res: NextApiResponse) {
+  static list(req: NextApiRequest, res: NextApiResponse) {
     try {
       const animes = animeService.list();
       res.json(animes);
@@ -14,7 +14,7 @@ class AnimeController {
     }
   }
 
-  getById(req: NextApiRequest, res: NextApiResponse) {
+  static getById(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { id } = req.query;
       if (id && typeof id === 'string') {

@@ -1,8 +1,6 @@
 import AnimeController from '@backend/controllers/animeController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const animeController = new AnimeController();
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -11,7 +9,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      await animeController.list(req, res);
+      await AnimeController.list(req, res);
       break;
     default:
       res.status(405).end();

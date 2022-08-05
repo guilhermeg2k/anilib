@@ -1,8 +1,6 @@
 import DirectoryController from '@backend/controllers/directoryController';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const directoryController = new DirectoryController();
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -11,7 +9,7 @@ export default async function handler(
 
   switch (method) {
     case 'DELETE':
-      await directoryController.delete(req, res);
+      await DirectoryController.delete(req, res);
       break;
     default:
       res.status(405).end();
