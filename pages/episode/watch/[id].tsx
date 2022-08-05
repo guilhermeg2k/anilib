@@ -11,7 +11,6 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 const episodeService = new EpisodeService();
-const subtitleService = new SubtitleService();
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
@@ -20,7 +19,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
   episodesList.sort((a, b) => (a.title > b.title ? 1 : -1));
 
-  const subtitlesList = await subtitleService.listByEpisodeId(id);
+  const subtitlesList = await SubtitleService.listByEpisodeId(id);
   const coverImageBase64 = await episodeService.getCoverImageBase64ById(id);
   const watchProps: WatchProps = {
     episode,

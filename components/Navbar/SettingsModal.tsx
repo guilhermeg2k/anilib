@@ -1,3 +1,4 @@
+import AutoAnimate from '@components/AutoAnimate';
 import Backdrop from '@components/Backdrop';
 import Button from '@components/Button';
 import CheckBox from '@components/CheckBox';
@@ -13,7 +14,6 @@ import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
 import React, { FunctionComponent, useEffect, useState } from 'react';
 
-const settingsService = new SettingsService();
 const directoryService = new DirectoryService();
 const libraryService = new LibraryService();
 
@@ -31,8 +31,10 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
-  const [directoriesList, setDirectoriesList] = useState(Array<string>());
+  const [directories, setDirectoriesList] = useState(Array<string>());
   const router = useRouter();
+
+  const isDirectoriesEmpty = directories.length === 0;
   const isLoading = isLoadingDirectories || isLoadingSettings;
 
   const loadDirectories = async () => {
@@ -51,9 +53,9 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
     try {
       setIsLoadingSettings(true);
       const isToDeleteConvertedData =
-        await settingsService.getIsToDeleteConvertedData();
+        await SettingsService.getIsToDeleteConvertedData();
       const isToDeleteInvalidData =
-        await settingsService.getIsToDeleteInvalidData();
+        await SettingsService.getIsToDeleteInvalidData();
       setIsToDeleteConvertedData(isToDeleteConvertedData);
       setIsToDeleteInvalidData(isToDeleteInvalidData);
     } catch (error) {
@@ -99,7 +101,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const onIsToDeleteConvertedDataChangeHandler = async (value: boolean) => {
     try {
       setIsToDeleteConvertedData(value);
-      await settingsService.setIsToDeleteConvertedData(value);
+      await SettingsService.setIsToDeleteConvertedData(value);
     } catch (error) {
       toastError('Failed to update delete converted data');
     }
@@ -108,7 +110,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
   const onIsToDeleteInvalidDataChangeHandler = async (value: boolean) => {
     try {
       setIsToDeleteInvalidData(value);
-      await settingsService.setIsToDeleteInvalidData(value);
+      await SettingsService.setIsToDeleteInvalidData(value);
     } catch (error) {
       toastError('Failed to update delete invalid data');
     }
@@ -127,20 +129,6 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       setIsLoadingDirectories(false);
     }
   };
-
-  const directories = directoriesList.map((directory) => (
-    <li key={directory} className="flex items-center justify-between">
-      <span>{directory}</span>
-      <button
-        className="h-[24px]"
-        onClick={() => onDeleteDirectoryHandler(directory)}
-      >
-        <MaterialIcon className="text-rose-600 hover:text-rose-400">
-          delete
-        </MaterialIcon>
-      </button>
-    </li>
-  ));
 
   useEffect(() => {
     loadDirectories();
@@ -167,7 +155,27 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
       </form>
       <Label>Directories</Label>
       <DataField className="max-h-[500px]">
-        <ul>{directories}</ul>
+        <AutoAnimate as="ul">
+          {isDirectoriesEmpty ? (
+            <div className="flex justify-center text-sm">
+              You don&apos;t have directories added
+            </div>
+          ) : (
+            directories.map((directory) => (
+              <li key={directory} className="flex items-center justify-between">
+                <span>{directory}</span>
+                <button
+                  className="h-[24px]"
+                  onClick={() => onDeleteDirectoryHandler(directory)}
+                >
+                  <MaterialIcon className="text-rose-600 hover:text-rose-400">
+                    delete
+                  </MaterialIcon>
+                </button>
+              </li>
+            ))
+          )}
+        </AutoAnimate>
       </DataField>
       <div>
         <Label>Update library settings</Label>
