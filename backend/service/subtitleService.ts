@@ -5,32 +5,30 @@ import { extractSubtitlesFromVideo } from '@backend/utils/videoUtils';
 import fs from 'fs';
 import path from 'path';
 
-const subtitleRepository = new SubtitleRepository();
-
 class SubtitleService {
   list() {
-    const subtitles = subtitleRepository.list();
+    const subtitles = SubtitleRepository.list();
     return subtitles;
   }
 
   listByEpisodeId(episodeId: string) {
-    const subtitles = subtitleRepository.listByEpisodeId(episodeId);
+    const subtitles = SubtitleRepository.listByEpisodeId(episodeId);
     return subtitles;
   }
 
   getById(id: string) {
-    const episode = subtitleRepository.getById(id);
+    const episode = SubtitleRepository.getById(id);
     return episode;
   }
 
   private async create(subtitle: Subtitle) {
-    const createdSubtitle = await subtitleRepository.create(subtitle);
+    const createdSubtitle = await SubtitleRepository.create(subtitle);
     return createdSubtitle;
   }
 
   async createFromEpisode(episode: Episode) {
     const createdSubtitles = Array<Subtitle>();
-    const episodeSubtitles = subtitleRepository.listByEpisodeId(episode.id!);
+    const episodeSubtitles = SubtitleRepository.listByEpisodeId(episode.id!);
 
     if (episodeSubtitles.length === 0) {
       const parsedEpisodeFolder = path.parse(episode.filePath);
@@ -106,7 +104,7 @@ class SubtitleService {
     );
 
     invalidSubtitles.forEach((invalidSubtitle) =>
-      subtitleRepository.deleteById(invalidSubtitle.id!)
+      SubtitleRepository.deleteById(invalidSubtitle.id!)
     );
   }
 }

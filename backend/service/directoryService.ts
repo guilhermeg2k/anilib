@@ -1,26 +1,24 @@
 import DirectoryRepository from '@backend/repository/directoryRepository';
 import fs from 'fs';
 
-const directoryRepository = new DirectoryRepository();
-
 class DirectoryService {
   list() {
-    const directories = directoryRepository.list();
+    const directories = DirectoryRepository.list();
     return directories;
   }
 
   get(directory: string) {
-    const foundDirectory = directoryRepository.get(directory);
+    const foundDirectory = DirectoryRepository.get(directory);
     return foundDirectory;
   }
 
   create(directory: string) {
-    const newDirectory = directoryRepository.create(directory);
+    const newDirectory = DirectoryRepository.create(directory);
     return newDirectory;
   }
 
   delete(directory: string) {
-    directoryRepository.delete(directory);
+    DirectoryRepository.delete(directory);
   }
 
   deleteInvalidDirectories() {
@@ -29,7 +27,7 @@ class DirectoryService {
     );
 
     invalidDirectories.forEach((invalidDirectory) =>
-      directoryRepository.delete(invalidDirectory)
+      DirectoryRepository.delete(invalidDirectory)
     );
   }
 }

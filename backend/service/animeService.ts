@@ -7,23 +7,22 @@ import path from 'path';
 import AnilistService from './anilistService';
 import { AnilistAnime } from './types';
 
-const animeRepository = new AnimeRepository();
 const anilistService = new AnilistService();
 const fsPromises = fs.promises;
 
 class AnimeService {
   list() {
-    const animes = animeRepository.list();
+    const animes = AnimeRepository.list();
     return animes;
   }
 
   getById(id: string) {
-    const anime = animeRepository.getById(id);
+    const anime = AnimeRepository.getById(id);
     return anime;
   }
 
   getByPath(path: string) {
-    const anime = animeRepository.listByPath(path);
+    const anime = AnimeRepository.listByPath(path);
     return anime;
   }
 
@@ -44,7 +43,7 @@ class AnimeService {
         const folderPath = path.join(directory, folder);
         const fileStat = await fsPromises.stat(folderPath);
         if (fileStat.isDirectory()) {
-          const localAnime = animeRepository.listByPath(folderPath);
+          const localAnime = AnimeRepository.listByPath(folderPath);
           if (!localAnime) {
             const searchText = folder.replaceAll(
               SQUARE_BRACKET_CONTENT_EXPRESSION,
@@ -94,7 +93,7 @@ class AnimeService {
         folderPath: directory,
       };
 
-      const createdAnime = animeRepository.create(animeParsed);
+      const createdAnime = AnimeRepository.create(animeParsed);
 
       return createdAnime;
     }
@@ -137,7 +136,7 @@ class AnimeService {
     );
 
     invalidAnimes.forEach((invalidAnime) =>
-      animeRepository.deleteById(invalidAnime.id!)
+      AnimeRepository.deleteById(invalidAnime.id!)
     );
   }
 }

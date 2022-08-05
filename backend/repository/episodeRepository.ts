@@ -3,9 +3,8 @@ import { Episode } from '@backend/database/types';
 import { v4 as uuid } from 'uuid';
 import SubtitleRepository from './subtitleRepository';
 
-const subtitleRepository = new SubtitleRepository();
 class EpisodeRepository {
-  list() {
+  static list() {
     const episodesList = new Array<Episode>();
     const episodes = <Map<string, Episode>>database.list('episodes');
     episodes.forEach((episode, id) => {
@@ -17,21 +16,21 @@ class EpisodeRepository {
     return episodesList;
   }
 
-  listByAnimeId(animeId: string) {
+  static listByAnimeId(animeId: string) {
     const animeEpisodes = this.list().filter(
       (episode) => episode.animeId === animeId
     );
     return animeEpisodes;
   }
 
-  listConvertedEpisodes() {
+  static listConvertedEpisodes() {
     const convertedEpisodes = this.list().filter(
       (episode) => episode.wasConverted
     );
     return convertedEpisodes;
   }
 
-  getById(id: string) {
+  static getById(id: string) {
     const episode = <Episode>database.get('episodes', id);
     if (episode) {
       episode.id = id;
@@ -39,30 +38,30 @@ class EpisodeRepository {
     return episode;
   }
 
-  getByFilePath(path: string) {
+  static getByFilePath(path: string) {
     const episode = this.list().find((episode) => episode.filePath === path);
     return episode;
   }
 
-  getByOriginalFilePath(path: string) {
+  static getByOriginalFilePath(path: string) {
     const episode = this.list().find(
       (episode) => episode.originalFilePath === path
     );
     return episode;
   }
 
-  create(episode: Episode) {
+  static create(episode: Episode) {
     const key = uuid();
     const createdEpisode = database.insertOrUpdate('episodes', key, episode);
     return <Episode>createdEpisode;
   }
 
-  deleteById(id: string) {
+  static deleteById(id: string) {
     database.delete('episodes', id);
-    subtitleRepository.deleteByEpisodeId(id);
+    SubtitleRepository.deleteByEpisodeId(id);
   }
 
-  deleteByAnimeId(animeId: string) {
+  static deleteByAnimeId(animeId: string) {
     const episodesToDelete = this.list().filter(
       (episode) => episode.animeId === animeId
     );

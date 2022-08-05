@@ -1,21 +1,20 @@
 import database from '@backend/database/';
 import AnimeRepository from './animeRepository';
 
-const animeRepository = new AnimeRepository();
 class DirectoryRepository {
-  list() {
+  static list() {
     const directoriesList = new Array<string>();
     const directories = <Map<string, string>>database.list('directories');
     directories.forEach((directory) => directoriesList.push(directory));
     return directoriesList;
   }
 
-  get(directory: string) {
+  static get(directory: string) {
     const foundDirectory = <string>database.get('directories', directory);
     return foundDirectory;
   }
 
-  create(directory: string) {
+  static create(directory: string) {
     const newDirectory = database.insertOrUpdate(
       'directories',
       directory,
@@ -24,9 +23,9 @@ class DirectoryRepository {
     return newDirectory;
   }
 
-  delete(directory: string) {
+  static delete(directory: string) {
     database.delete('directories', directory);
-    animeRepository.deleteByDirectory(directory);
+    AnimeRepository.deleteByDirectory(directory);
   }
 }
 

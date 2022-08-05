@@ -4,9 +4,8 @@ import { isPathRelativeToDir } from '@backend/utils/fileUtils';
 import { v4 as uuid } from 'uuid';
 import EpisodeRepository from './episodeRepository';
 
-const episodeRepository = new EpisodeRepository();
 class AnimeRepository {
-  list() {
+  static list() {
     const animesList = new Array<Anime>();
     const animes = <Map<string, Anime>>database.list('animes');
     animes.forEach((anime, id) => {
@@ -18,7 +17,7 @@ class AnimeRepository {
     return animesList;
   }
 
-  getById(id: string) {
+  static getById(id: string) {
     const anime = <Anime>database.get('animes', id);
     if (anime) {
       anime.id = id;
@@ -26,23 +25,23 @@ class AnimeRepository {
     return anime;
   }
 
-  listByPath(path: string) {
+  static listByPath(path: string) {
     const anime = this.list().find((anime) => anime.folderPath === path);
     return anime;
   }
 
-  create(anime: Anime) {
+  static create(anime: Anime) {
     const key = uuid();
     const createdAnime = database.insertOrUpdate('animes', key, anime);
     return <Anime>createdAnime;
   }
 
-  deleteById(id: string) {
+  static deleteById(id: string) {
     database.delete('animes', id);
-    episodeRepository.deleteByAnimeId(id);
+    EpisodeRepository.deleteByAnimeId(id);
   }
 
-  deleteByDirectory(directory: string) {
+  static deleteByDirectory(directory: string) {
     const animesToDelete = this.list().filter((anime) =>
       isPathRelativeToDir(directory, anime.folderPath)
     );

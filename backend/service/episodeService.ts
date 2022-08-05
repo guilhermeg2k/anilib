@@ -14,36 +14,35 @@ import path from 'path';
 
 const fsPromises = fs.promises;
 
-const episodeRepository = new EpisodeRepository();
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 class EpisodeService {
   list() {
-    const episodes = episodeRepository.list();
+    const episodes = EpisodeRepository.list();
     return episodes;
   }
 
   listByAnimeId(animeId: string) {
-    const episodes = episodeRepository.listByAnimeId(animeId);
+    const episodes = EpisodeRepository.listByAnimeId(animeId);
     return episodes;
   }
 
   getById(id: string) {
-    const episode = episodeRepository.getById(id);
+    const episode = EpisodeRepository.getById(id);
     return episode;
   }
 
   getByPath(path: string) {
-    const episode = episodeRepository.getByFilePath(path);
+    const episode = EpisodeRepository.getByFilePath(path);
     return episode;
   }
 
   getByOriginalPath(path: string) {
-    const episode = episodeRepository.getByOriginalFilePath(path);
+    const episode = EpisodeRepository.getByOriginalFilePath(path);
     return episode;
   }
 
   async getImageCoverBase64ById(episodeId: string) {
-    const episode = episodeRepository.getById(episodeId);
+    const episode = EpisodeRepository.getById(episodeId);
     if (episode?.coverImagePath) {
       const imageBase64 = await getFileInBase64(episode?.coverImagePath);
       return imageBase64;
@@ -52,7 +51,7 @@ class EpisodeService {
   }
 
   private create(episode: Episode) {
-    const createdEpisode = episodeRepository.create(episode);
+    const createdEpisode = EpisodeRepository.create(episode);
     return createdEpisode;
   }
 
@@ -110,7 +109,7 @@ class EpisodeService {
   }
 
   async deleteConvertedEpisodes() {
-    const convertedEpisodes = episodeRepository.listConvertedEpisodes();
+    const convertedEpisodes = EpisodeRepository.listConvertedEpisodes();
     const deleteConvertedEpisodesPromises = convertedEpisodes.map(
       async (episode) => {
         const fileExists = fs.existsSync(episode.originalFilePath);
@@ -128,7 +127,7 @@ class EpisodeService {
     );
 
     invalidEpisodes.forEach((invalidEpisode) =>
-      episodeRepository.deleteById(invalidEpisode.id!)
+      EpisodeRepository.deleteById(invalidEpisode.id!)
     );
   }
 }
