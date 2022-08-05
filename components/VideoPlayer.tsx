@@ -1,7 +1,6 @@
 import { Subtitle } from '@backend/database/types';
 import { formatSecondsInTime } from '@utils/timeUtils';
 import React, {
-  FunctionComponent,
   KeyboardEvent,
   ReactNode,
   useEffect,
@@ -12,15 +11,18 @@ import InputSlider from 'react-input-slider';
 import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
+
 interface PlayerControllersButtonProps {
   className?: string;
   children: ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const PlayerControllersButton: FunctionComponent<
-  PlayerControllersButtonProps
-> = ({ className = '', onClick, children }) => {
+const PlayerControllersButton: React.FC<PlayerControllersButtonProps> = ({
+  className = '',
+  onClick = () => {},
+  children,
+}) => {
   return (
     <button onClick={onClick}>
       <MaterialIcon
@@ -40,7 +42,7 @@ interface VideoPlayerProps {
   onNextEpisode: () => void;
 }
 
-const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
+const VideoPlayer: React.FC<VideoPlayerProps> = ({
   videoUrl,
   episodeTitle,
   coverImageBase64: coverImage,

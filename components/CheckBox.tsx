@@ -1,18 +1,20 @@
+import { ReactNode } from 'react';
+
 interface CheckBoxProps {
   id?: string;
   value: boolean;
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   onChange: (value: boolean) => void;
 }
 
-const CheckBox = ({
+const CheckBox: React.FC<CheckBoxProps> = ({
   id,
   value,
   className = '',
   children,
   onChange,
-}: CheckBoxProps) => {
+}) => {
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.checked);
   };

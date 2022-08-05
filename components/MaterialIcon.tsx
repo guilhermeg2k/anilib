@@ -1,11 +1,11 @@
-import { FunctionComponent, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface MaterialIconProps {
   children: ReactNode;
   className?: string;
 }
 
-const MaterialIcon: FunctionComponent<MaterialIconProps> = ({
+const MaterialIcon: React.FC<MaterialIconProps> = ({
   className = '',
   children,
 }) => {

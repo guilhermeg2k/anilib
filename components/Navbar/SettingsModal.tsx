@@ -2,7 +2,7 @@ import AutoAnimate from '@components/AutoAnimate';
 import Backdrop from '@components/Backdrop';
 import Button from '@components/Button';
 import CheckBox from '@components/CheckBox';
-import DataField from '@components/DataField';
+import DataDisplay from '@components/DataField';
 import Label from '@components/Label';
 import MaterialIcon from '@components/MaterialIcon';
 import Modal from '@components/Modal';
@@ -12,17 +12,14 @@ import LibraryService from '@services/libraryService';
 import SettingsService from '@services/settingsService';
 import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const SettingsModal: FunctionComponent<SettingsModalProps> = ({
-  open,
-  onClose,
-}) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [newDirectory, setNewDirectory] = useState('');
   const [isLoadingDirectories, setIsLoadingDirectories] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
@@ -151,7 +148,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
         </div>
       </form>
       <Label>Directories</Label>
-      <DataField className="max-h-[500px]">
+      <DataDisplay className="max-h-[500px]">
         <AutoAnimate as="ul">
           {isDirectoriesEmpty ? (
             <div className="flex justify-center text-sm">
@@ -173,7 +170,7 @@ const SettingsModal: FunctionComponent<SettingsModalProps> = ({
             ))
           )}
         </AutoAnimate>
-      </DataField>
+      </DataDisplay>
       <div>
         <Label>Update library settings</Label>
         <div className="flex flex-col gap-1">

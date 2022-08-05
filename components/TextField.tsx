@@ -11,7 +11,7 @@ interface TextFieldProps {
   onChange: (value: string) => void;
 }
 
-const TextField = ({
+const TextField: React.FC<TextFieldProps> = ({
   id,
   value,
   label = '',
@@ -19,7 +19,7 @@ const TextField = ({
   className,
   maxLength,
   onChange,
-}: TextFieldProps) => {
+}) => {
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     if (!maxLength || newValue.length < maxLength) {

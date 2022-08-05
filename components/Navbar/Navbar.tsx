@@ -1,6 +1,6 @@
 import Logo from '@components/Logo';
 import MaterialIcon from '@components/MaterialIcon';
-import { FunctionComponent, ReactNode, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import SettingsModal from './SettingsModal';
 
 interface NavbarButtonProps {
@@ -9,7 +9,7 @@ interface NavbarButtonProps {
   children: ReactNode;
 }
 
-const NavbarButton: FunctionComponent<NavbarButtonProps> = ({
+const NavbarButton: React.FC<NavbarButtonProps> = ({
   onClick,
   className = '',
   children,
@@ -24,7 +24,7 @@ const NavbarButton: FunctionComponent<NavbarButtonProps> = ({
   );
 };
 
-const Navbar: FunctionComponent = () => {
+const Navbar = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const onSettingsModalToggleHandler = () => {

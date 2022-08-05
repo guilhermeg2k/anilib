@@ -5,7 +5,7 @@ interface BackdropProps {
   open: boolean;
 }
 
-const Backdrop: FunctionComponent<BackdropProps> = ({ open }) => {
+const Backdrop: React.FC<BackdropProps> = ({ open }) => {
   if (!open) {
     return <></>;
   }

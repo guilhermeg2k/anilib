@@ -1,20 +1,22 @@
+import { ReactNode } from 'react';
+
 interface ButtonProps {
-  children: React.ReactNode;
   size?: 'small' | 'normal' | 'large';
   className?: string;
   color?: 'red' | 'green' | 'white';
   disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  children: ReactNode;
 }
 
-const Button = ({
+const Button: React.FC<ButtonProps> = ({
   children,
   className = '',
   size = 'normal',
   color = 'green',
   disabled = false,
-  onClick,
-}: ButtonProps) => {
+  onClick = () => {},
+}) => {
   const buildColorClasses = () => {
     if (disabled) {
       return 'bg-neutral-300 text-neutral-400';

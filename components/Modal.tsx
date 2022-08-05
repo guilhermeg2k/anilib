@@ -11,14 +11,14 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-const Modal = ({
+const Modal: React.FC<ModalProps> = ({
   title = '',
   className = '',
   open,
   onClose,
   disableBackdropClick = false,
   children,
-}: ModalProps) => {
+}) => {
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog

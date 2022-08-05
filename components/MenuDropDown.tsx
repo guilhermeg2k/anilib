@@ -1,19 +1,19 @@
 import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Fragment, ReactNode } from 'react';
 
 interface MenuDropdownProps {
   items: Array<React.ReactNode>;
   buttonClassName?: string;
   menuClassName?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const MenuDropdown = ({
+const MenuDropdown: React.FC<MenuDropdownProps> = ({
   items,
   buttonClassName = '',
   menuClassName = '',
   children,
-}: MenuDropdownProps) => {
+}) => {
   return (
     <Menu as="div" className={`relative inline-block text-left`}>
       <Menu.Button className={buttonClassName} as="div">

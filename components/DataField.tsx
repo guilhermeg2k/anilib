@@ -1,9 +1,14 @@
-interface DataFieldProps {
+import { ReactNode } from 'react';
+
+interface DataDisplayProps {
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const DataField = ({ children, className = '' }: DataFieldProps) => {
+const DataDisplay: React.FC<DataDisplayProps> = ({
+  children,
+  className = '',
+}) => {
   return (
     <div className={`border border-neutral-300 p-2 ${className}`}>
       {children}
@@ -11,4 +16,4 @@ const DataField = ({ children, className = '' }: DataFieldProps) => {
   );
 };
 
-export default DataField;
+export default DataDisplay;

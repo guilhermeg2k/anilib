@@ -1,15 +1,12 @@
 import { Transition } from '@headlessui/react';
-import { Fragment, FunctionComponent } from 'react';
+import { Fragment, ReactNode } from 'react';
 
 interface FadeTransitionProps {
   show: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const FadeTransition: FunctionComponent<FadeTransitionProps> = ({
-  show,
-  children,
-}) => {
+const FadeTransition: React.FC<FadeTransitionProps> = ({ show, children }) => {
   return (
     <Transition appear show={show} as={Fragment}>
       <Transition.Child

@@ -1,15 +1,15 @@
 import Link from 'next/link';
-import { FunctionComponent } from 'react';
+import { ReactNode } from 'react';
 import MaterialIcon from './MaterialIcon';
 
 interface EpisodeCardProps {
   episodeId: string;
   className?: string;
   active?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const EpisodeCard: FunctionComponent<EpisodeCardProps> = ({
+const EpisodeCard: React.FC<EpisodeCardProps> = ({
   episodeId,
   className = '',
   active = false,
