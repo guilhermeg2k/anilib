@@ -1,9 +1,3 @@
-const removeHTMLTags = (str: string) => {
-  return str.replace(/(<([^>]+)>)/gi, '');
+export const removeHTMLTags = (text: string) => {
+  return text.replace(/(<([^>]+)>)/gi, '');
 };
-
-const stringUtils = {
-  removeHTMLTags,
-};
-
-export default stringUtils;

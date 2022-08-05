@@ -1,7 +1,7 @@
 import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConstants';
 import { Anime } from '@backend/database/types';
 import AnimeRepository from '@backend/repository/animeRepository';
-import animeUtils from '@utils/animeUtils';
+import { getAnimeWithMostSimilarTitle } from '@utils/animeUtils';
 import fs from 'fs';
 import path from 'path';
 import AnilistService from './anilistService';
@@ -70,7 +70,7 @@ class AnimeService {
     searchText: string
   ) {
     const searchResults = await anilistService.getAnimesBySearch(searchText);
-    const anime = animeUtils.getWithMostSimilarTitle(
+    const anime = getAnimeWithMostSimilarTitle(
       searchResults,
       searchText
     ) as AnilistAnime;

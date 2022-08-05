@@ -1,5 +1,5 @@
 import { Subtitle } from '@backend/database/types';
-import timeUtils from '@utils/timeUtils';
+import { formatSecondsInTime } from '@utils/timeUtils';
 import React, {
   FunctionComponent,
   KeyboardEvent,
@@ -65,9 +65,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
 
   const shouldShowControls = hasMouseMoved || !isPlaying;
   const isMuted = volume === 0;
-  const videoCurrentTime = timeUtils.formatSecondsInTime(
-    video.current?.currentTime
-  );
+  const videoCurrentTime = formatSecondsInTime(video.current?.currentTime);
 
   const seekToTime = (timeInSeconds: number) => {
     video.current!.currentTime = timeInSeconds;
@@ -191,7 +189,7 @@ const VideoPlayer: FunctionComponent<VideoPlayerProps> = ({
   };
 
   const onLoadMetadataHandler = () => {
-    const duration = timeUtils.formatSecondsInTime(video.current?.duration);
+    const duration = formatSecondsInTime(video.current?.duration);
     setDuration(duration);
   };
 

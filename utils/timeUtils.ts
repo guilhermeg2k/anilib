@@ -1,4 +1,6 @@
-const formatSecondsInTime = (timeInSeconds: number | undefined | null) => {
+export const formatSecondsInTime = (
+  timeInSeconds: number | undefined | null
+) => {
   if (timeInSeconds) {
     if (timeInSeconds < 3600) {
       const formattedTime = new Date(timeInSeconds * 1000)
@@ -6,6 +8,7 @@ const formatSecondsInTime = (timeInSeconds: number | undefined | null) => {
         .slice(14, 19);
       return formattedTime;
     }
+
     const formattedTime = new Date(timeInSeconds * 1000)
       .toISOString()
       .slice(11, 19);
@@ -13,9 +16,3 @@ const formatSecondsInTime = (timeInSeconds: number | undefined | null) => {
   }
   return '00:00';
 };
-
-const timeUtils = {
-  formatSecondsInTime,
-};
-
-export default timeUtils;

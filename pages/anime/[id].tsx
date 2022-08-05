@@ -5,7 +5,7 @@ import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import AnimeService from '@services/animeService';
 import EpisodeService from '@services/episodeService';
-import stringUtils from '@utils/stringUtils';
+import { removeHTMLTags } from '@utils/stringUtils';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -44,7 +44,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
     }
   };
 
-  const description = stringUtils.removeHTMLTags(anime.description);
+  const description = removeHTMLTags(anime.description);
 
   const imageCover = (
     <Image

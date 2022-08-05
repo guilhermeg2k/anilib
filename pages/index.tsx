@@ -4,7 +4,7 @@ import AutoAnimate from '@components/AutoAnimate';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import AnimeService from '@services/animeService';
-import animeUtils from '@utils/animeUtils';
+import { getAnimesWithTitleSimilarityRateAppended } from '@utils/animeUtils';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
@@ -21,7 +21,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
 
   const filterAnimesByTitle = (title: string) => {
     const titleSimilarityMinRate = 0.2;
-    const animesWithTitleSimilarity = animeUtils.appendTitleSimilarityRate(
+    const animesWithTitleSimilarity = getAnimesWithTitleSimilarityRateAppended(
       animes,
       title
     );
