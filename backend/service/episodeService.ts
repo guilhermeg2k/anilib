@@ -1,16 +1,20 @@
 import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConstants';
 import { Anime, Episode } from '@backend/database/types';
 import EpisodeRepository from '@backend/repository/episodeRepository';
-import FileUtils from '@backend/utils/fileUtils';
-import VideoUtils from '@backend/utils/videoUtils';
+import {
+  getFileInBase64,
+  getFilesInFolderByExtensions,
+} from '@backend/utils/fileUtils';
+import {
+  convertMkvToMp4,
+  extractImageCoverFromVideo,
+} from '@backend/utils/videoUtils';
 import fs from 'fs';
 import path from 'path';
 
 const fsPromises = fs.promises;
 
 const episodeRepository = new EpisodeRepository();
-const videoUtils = new VideoUtils();
-const fileUtils = new FileUtils();
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 class EpisodeService {
   list() {
@@ -41,7 +45,7 @@ class EpisodeService {
   async getImageCoverBase64ById(episodeId: string) {
     const episode = episodeRepository.getById(episodeId);
     if (episode?.coverImagePath) {
-      const imageBase64 = await fileUtils.getBase64(episode?.coverImagePath);
+      const imageBase64 = await getFileInBase64(episode?.coverImagePath);
       return imageBase64;
     }
     return null;
@@ -54,7 +58,7 @@ class EpisodeService {
 
   async createFromAnime(anime: Anime) {
     const createdEpisodes = Array<Episode>();
-    const episodeFilePaths = await fileUtils.listFilesInFolderByExtensions(
+    const episodeFilePaths = await getFilesInFolderByExtensions(
       anime.folderPath,
       EPISODE_FILES_EXTENSIONS
     );
@@ -80,7 +84,7 @@ class EpisodeService {
     episodeFilePath: string
   ) {
     const episodeFileExt = path.extname(episodeFilePath);
-    const episodeCover = await videoUtils.extractImageCover(episodeFilePath);
+    const episodeCover = await extractImageCoverFromVideo(episodeFilePath);
     const episodeTitle = path
       .basename(episodeFilePath)
       .replace(episodeFileExt, '')
@@ -96,7 +100,7 @@ class EpisodeService {
     };
 
     if (episodeFileExt === '.mkv') {
-      const episodeFileMp4 = await videoUtils.convertMkvToMp4(episodeFilePath);
+      const episodeFileMp4 = await convertMkvToMp4(episodeFilePath);
       newEpisode.wasConverted = true;
       newEpisode.filePath = episodeFileMp4;
     }

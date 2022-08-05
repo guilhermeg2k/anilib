@@ -1,13 +1,11 @@
 import { Episode, Subtitle } from '@backend/database/types';
 import SubtitleRepository from '@backend/repository/subtitleRepository';
-import FileUtils from '@backend/utils/fileUtils';
-import VideoUtils from '@backend/utils/videoUtils';
+import { getFolderVttFilesByFileNamePrefix } from '@backend/utils/fileUtils';
+import { extractSubtitlesFromVideo } from '@backend/utils/videoUtils';
 import fs from 'fs';
 import path from 'path';
 
 const subtitleRepository = new SubtitleRepository();
-const videoUtils = new VideoUtils();
-const fileUtils = new FileUtils();
 
 class SubtitleService {
   list() {
@@ -39,7 +37,7 @@ class SubtitleService {
       const episodeFolder = parsedEpisodeFolder.dir;
       const episodeFileName = parsedEpisodeFolder.name;
 
-      const subtitleFiles = await fileUtils.getVttFilesBySearch(
+      const subtitleFiles = await getFolderVttFilesByFileNamePrefix(
         episodeFolder,
         episodeFileName
       );
@@ -87,7 +85,7 @@ class SubtitleService {
     const createdSubtitles = Array<Subtitle>();
     const fileExists = fs.existsSync(videoFile);
     if (fileExists) {
-      const videoSubtitles = await videoUtils.extractSubtitles(videoFile);
+      const videoSubtitles = await extractSubtitlesFromVideo(videoFile);
       for (const subtitle of videoSubtitles) {
         const newSubtitle = <Subtitle>{
           label: subtitle.title,
