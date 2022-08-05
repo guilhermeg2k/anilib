@@ -3,7 +3,7 @@ import { Anime, Episode } from '@backend/database/types';
 import EpisodeRepository from '@backend/repository/episodeRepository';
 import {
   getFileInBase64,
-  getFilesInFolderByExtensions,
+  getFilesInDirectoryByExtensions,
 } from '@backend/utils/fileUtils';
 import {
   convertMkvToMp4,
@@ -15,33 +15,34 @@ import path from 'path';
 const fsPromises = fs.promises;
 
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
+
 class EpisodeService {
-  list() {
+  static list() {
     const episodes = EpisodeRepository.list();
     return episodes;
   }
 
-  listByAnimeId(animeId: string) {
+  static listByAnimeId(animeId: string) {
     const episodes = EpisodeRepository.listByAnimeId(animeId);
     return episodes;
   }
 
-  getById(id: string) {
+  static getById(id: string) {
     const episode = EpisodeRepository.getById(id);
     return episode;
   }
 
-  getByPath(path: string) {
+  static getByPath(path: string) {
     const episode = EpisodeRepository.getByFilePath(path);
     return episode;
   }
 
-  getByOriginalPath(path: string) {
+  static getByOriginalPath(path: string) {
     const episode = EpisodeRepository.getByOriginalFilePath(path);
     return episode;
   }
 
-  async getImageCoverBase64ById(episodeId: string) {
+  static async getImageCoverBase64ById(episodeId: string) {
     const episode = EpisodeRepository.getById(episodeId);
     if (episode?.coverImagePath) {
       const imageBase64 = await getFileInBase64(episode?.coverImagePath);
@@ -50,14 +51,32 @@ class EpisodeService {
     return null;
   }
 
-  private create(episode: Episode) {
-    const createdEpisode = EpisodeRepository.create(episode);
-    return createdEpisode;
+  static async deleteConverted() {
+    const convertedEpisodes = EpisodeRepository.listConvertedEpisodes();
+    const deleteConvertedEpisodesPromises = convertedEpisodes.map(
+      async (episode) => {
+        const fileExists = fs.existsSync(episode.originalFilePath);
+        if (fileExists) {
+          return fsPromises.unlink(episode.originalFilePath);
+        }
+      }
+    );
+    await Promise.all(deleteConvertedEpisodesPromises);
   }
 
-  async createFromAnime(anime: Anime) {
+  static deleteInvalids() {
+    const invalidEpisodes = this.list().filter(
+      (episode) => !fs.existsSync(episode.filePath)
+    );
+
+    invalidEpisodes.forEach((invalidEpisode) =>
+      EpisodeRepository.deleteById(invalidEpisode.id!)
+    );
+  }
+
+  static async createFromAnime(anime: Anime) {
     const createdEpisodes = Array<Episode>();
-    const episodeFilePaths = await getFilesInFolderByExtensions(
+    const episodeFilePaths = await getFilesInDirectoryByExtensions(
       anime.folderPath,
       EPISODE_FILES_EXTENSIONS
     );
@@ -66,8 +85,9 @@ class EpisodeService {
       const episodeAlreadyExists =
         this.getByPath(episodeFilePath) ||
         this.getByOriginalPath(episodeFilePath);
+
       if (!episodeAlreadyExists) {
-        const createdEpisode = await this.createFromAnimeAndFilePath(
+        const createdEpisode = await EpisodeService.createFromAnimeAndFilePath(
           anime,
           episodeFilePath
         );
@@ -78,7 +98,7 @@ class EpisodeService {
     return createdEpisodes;
   }
 
-  private async createFromAnimeAndFilePath(
+  private static async createFromAnimeAndFilePath(
     anime: Anime,
     episodeFilePath: string
   ) {
@@ -108,27 +128,9 @@ class EpisodeService {
     return createdEpisode;
   }
 
-  async deleteConvertedEpisodes() {
-    const convertedEpisodes = EpisodeRepository.listConvertedEpisodes();
-    const deleteConvertedEpisodesPromises = convertedEpisodes.map(
-      async (episode) => {
-        const fileExists = fs.existsSync(episode.originalFilePath);
-        if (fileExists) {
-          return fsPromises.unlink(episode.originalFilePath);
-        }
-      }
-    );
-    await Promise.all(deleteConvertedEpisodesPromises);
-  }
-
-  deleteInvalidEpisodes() {
-    const invalidEpisodes = this.list().filter(
-      (episode) => !fs.existsSync(episode.filePath)
-    );
-
-    invalidEpisodes.forEach((invalidEpisode) =>
-      EpisodeRepository.deleteById(invalidEpisode.id!)
-    );
+  private static create(episode: Episode) {
+    const createdEpisode = EpisodeRepository.create(episode);
+    return createdEpisode;
   }
 }
 

@@ -3,35 +3,39 @@ import path from 'path';
 
 const fsPromises = fs.promises;
 
-export const getFilesInFolderByExtensions = async (
+export const getFilesInDirectoryByExtensions = async (
   folder: string,
   extensions: Array<string>
 ) => {
   const folderExists = fs.existsSync(folder);
   if (folderExists) {
-    const folderDir = await fsPromises.readdir(folder);
+    const directoryContents = await fsPromises.readdir(folder);
 
-    const episodeFilesPromises = folderDir.map(async (file: string) => {
+    const folderFilesPromises = directoryContents.map(async (file: string) => {
       const filePath = path.join(folder, file);
       const fileStats = await fsPromises.stat(filePath);
       const isFile = fileStats.isFile();
       const isDir = fileStats.isDirectory();
+
       if (isFile) {
         const fileExt = path.extname(filePath);
         if (extensions.includes(fileExt)) {
           return filePath;
         }
       } else if (isDir) {
-        return getFilesInFolderByExtensions(filePath, extensions);
+        return getFilesInDirectoryByExtensions(filePath, extensions);
       }
     });
 
-    const episodeFiles = await Promise.all(episodeFilesPromises);
-    const flattedEpisodeFiles = episodeFiles.flat(Infinity) as Array<string>;
-    const notNullEpisodeFiles = flattedEpisodeFiles.filter((episode) =>
+    const directoryFiles = await Promise.all(folderFilesPromises);
+    const flattedDirectoryFiles = directoryFiles.flat(
+      Infinity
+    ) as Array<string>;
+    const notNullDirectoryFiles = flattedDirectoryFiles.filter((episode) =>
       Boolean(episode)
     );
-    return notNullEpisodeFiles;
+
+    return notNullDirectoryFiles;
   }
   return [];
 };
@@ -51,7 +55,7 @@ export const getFolderVttFilesByFileNamePrefix = async (
   folder: string,
   fileNamePrefix: string
 ) => {
-  const vttFiles = await getFilesInFolderByExtensions(folder, ['.vtt']);
+  const vttFiles = await getFilesInDirectoryByExtensions(folder, ['.vtt']);
   const matchedVttFiles = vttFiles.filter((vvtFile) =>
     vvtFile.includes(fileNamePrefix)
   );

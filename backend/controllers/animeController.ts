@@ -1,12 +1,10 @@
 import AnimeService from '@backend/service/animeService';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const animeService = new AnimeService();
-
 class AnimeController {
   static list(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const animes = animeService.list();
+      const animes = AnimeService.list();
       res.json(animes);
     } catch (error) {
       console.error(error);
@@ -18,7 +16,7 @@ class AnimeController {
     try {
       const { id } = req.query;
       if (id && typeof id === 'string') {
-        const animes = animeService.getById(id);
+        const animes = AnimeService.getById(id);
         res.json(animes);
       }
     } catch (error) {

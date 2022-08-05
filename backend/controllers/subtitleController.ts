@@ -2,14 +2,12 @@ import SubtitleService from '@backend/service/subtitleService';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const subtitleService = new SubtitleService();
-
 class SubtitleController {
   static listByEpisodeId(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { episodeId } = req.query;
       if (episodeId && typeof episodeId === 'string') {
-        const subtitles = subtitleService.listByEpisodeId(episodeId);
+        const subtitles = SubtitleService.listByEpisodeId(episodeId);
         res.json(subtitles);
         return;
       }
@@ -24,7 +22,7 @@ class SubtitleController {
     try {
       const { id } = req.query;
       if (id && typeof id === 'string') {
-        const subtitle = subtitleService.getById(id);
+        const subtitle = SubtitleService.getById(id);
         if (subtitle) {
           const vttFilePath = subtitle.filePath;
           const { size } = fs.statSync(vttFilePath);

@@ -6,49 +6,57 @@ import fs from 'fs';
 import path from 'path';
 
 class SubtitleService {
-  list() {
+  static list() {
     const subtitles = SubtitleRepository.list();
     return subtitles;
   }
 
-  listByEpisodeId(episodeId: string) {
+  static listByEpisodeId(episodeId: string) {
     const subtitles = SubtitleRepository.listByEpisodeId(episodeId);
     return subtitles;
   }
 
-  getById(id: string) {
+  static getById(id: string) {
     const episode = SubtitleRepository.getById(id);
     return episode;
   }
 
-  private async create(subtitle: Subtitle) {
-    const createdSubtitle = await SubtitleRepository.create(subtitle);
-    return createdSubtitle;
+  static deleteInvalids() {
+    const invalidSubtitles = this.list().filter(
+      (subtitle) => !fs.existsSync(subtitle.filePath)
+    );
+
+    invalidSubtitles.forEach((invalidSubtitle) =>
+      SubtitleRepository.deleteById(invalidSubtitle.id!)
+    );
   }
 
-  async createFromEpisode(episode: Episode) {
+  static async createFromEpisode(episode: Episode) {
     const createdSubtitles = Array<Subtitle>();
     const episodeSubtitles = SubtitleRepository.listByEpisodeId(episode.id!);
+    const episodeDoesNotHaveSubtitles = episodeSubtitles.length === 0;
 
-    if (episodeSubtitles.length === 0) {
-      const parsedEpisodeFolder = path.parse(episode.filePath);
-      const episodeFolder = parsedEpisodeFolder.dir;
-      const episodeFileName = parsedEpisodeFolder.name;
+    if (episodeDoesNotHaveSubtitles) {
+      const parsedEpisodePath = path.parse(episode.filePath);
+      const episodeFolder = parsedEpisodePath.dir;
+      const episodeFileName = parsedEpisodePath.name;
 
       const subtitleFiles = await getFolderVttFilesByFileNamePrefix(
         episodeFolder,
         episodeFileName
       );
 
-      if (subtitleFiles.length > 0) {
-        const createdFromFiles = await this.createFromFiles(
+      const episodeHasVttFiles = subtitleFiles.length > 0;
+
+      if (episodeHasVttFiles) {
+        const createdFromFiles = await SubtitleService.createFromVttFiles(
           subtitleFiles,
           episode.id!
         );
         createdSubtitles.push(...createdFromFiles);
       } else {
         if (episode.originalFilePath) {
-          const createdFromVideo = await this.createFromVideo(
+          const createdFromVideo = await SubtitleService.createFromVideo(
             episode.originalFilePath,
             episode.id!
           );
@@ -60,9 +68,18 @@ class SubtitleService {
     return createdSubtitles;
   }
 
-  private async createFromFiles(files: Array<string>, episodeId: string) {
+  private static async create(subtitle: Subtitle) {
+    const createdSubtitle = await SubtitleRepository.create(subtitle);
+    return createdSubtitle;
+  }
+
+  private static async createFromVttFiles(
+    vttFiles: Array<string>,
+    episodeId: string
+  ) {
     const createdSubtitles = Array<Subtitle>();
-    for (const subtitleFile of files) {
+
+    for (const subtitleFile of vttFiles) {
       const subtitleFileName = path.basename(subtitleFile);
       const lang = subtitleFileName.match(/.*-(.*)\.vtt/);
       if (lang && lang[1]) {
@@ -76,10 +93,11 @@ class SubtitleService {
         createdSubtitles.push(createdEpisode);
       }
     }
+
     return createdSubtitles;
   }
 
-  private async createFromVideo(videoFile: string, episodeId: string) {
+  private static async createFromVideo(videoFile: string, episodeId: string) {
     const createdSubtitles = Array<Subtitle>();
     const fileExists = fs.existsSync(videoFile);
     if (fileExists) {
@@ -96,16 +114,6 @@ class SubtitleService {
       }
     }
     return createdSubtitles;
-  }
-
-  deleteInvalidSubtitles() {
-    const invalidSubtitles = this.list().filter(
-      (subtitle) => !fs.existsSync(subtitle.filePath)
-    );
-
-    invalidSubtitles.forEach((invalidSubtitle) =>
-      SubtitleRepository.deleteById(invalidSubtitle.id!)
-    );
   }
 }
 

@@ -2,12 +2,10 @@ import DirectoryService from '@backend/service/directoryService';
 import fs from 'fs';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const directoryService = new DirectoryService();
-
 class DirectoryController {
   static async list(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const directories = directoryService.list();
+      const directories = DirectoryService.list();
       res.json(directories);
     } catch (error) {
       console.error(error);
@@ -20,12 +18,12 @@ class DirectoryController {
       const { directory } = req.body;
       if (directory && typeof directory === 'string') {
         const isDirectoryDuplicated = Boolean(
-          await directoryService.get(directory)
+          await DirectoryService.get(directory)
         );
         const directoryExists = fs.existsSync(directory);
 
         if (!isDirectoryDuplicated && directoryExists) {
-          await directoryService.create(directory);
+          await DirectoryService.create(directory);
           res.status(201).send('Directory added');
         }
       }
@@ -40,7 +38,7 @@ class DirectoryController {
     try {
       const { directory } = req.query;
       if (directory && typeof directory === 'string') {
-        await directoryService.delete(directory);
+        await DirectoryService.delete(directory);
         res.status(200).end();
       }
     } catch (error) {

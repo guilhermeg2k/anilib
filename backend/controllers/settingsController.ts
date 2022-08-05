@@ -1,13 +1,11 @@
 import SettingsService from '@backend/service/settingsService';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-const settingsService = new SettingsService();
-
 class SettingsController {
   static getIsToDeleteConvertedData(req: NextApiRequest, res: NextApiResponse) {
     try {
       const isToDeleteConvertedData =
-        settingsService.getIsToDeleteConvertedData();
+        SettingsService.getIsToDeleteConvertedData();
       return res.json(isToDeleteConvertedData);
     } catch (error) {
       res.status(500).end();
@@ -17,7 +15,7 @@ class SettingsController {
 
   static getIsToDeleteInvalidData(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const isToDeleteInvalidData = settingsService.getIsToDeleteInvalidData();
+      const isToDeleteInvalidData = SettingsService.getIsToDeleteInvalidData();
       return res.json(isToDeleteInvalidData);
     } catch (error) {
       res.status(500).end();
@@ -35,7 +33,7 @@ class SettingsController {
         isToDeleteConvertedData !== null &&
         isToDeleteConvertedData !== undefined
       ) {
-        settingsService.setIsToDeleteConvertedData(isToDeleteConvertedData);
+        SettingsService.setIsToDeleteConvertedData(isToDeleteConvertedData);
         return res.status(200).end();
       }
       res.status(400).end();
@@ -55,7 +53,7 @@ class SettingsController {
         isToDeleteInvalidData !== null &&
         isToDeleteInvalidData !== undefined
       ) {
-        settingsService.setIsToDeleteInvalidData(isToDeleteInvalidData);
+        SettingsService.setIsToDeleteInvalidData(isToDeleteInvalidData);
         return res.status(200).end();
       }
       res.status(400).end();

@@ -1,19 +1,19 @@
 import SettingsRepository from '@backend/repository/settingsRepository';
 
 class SettingsService {
-  getIsToDeleteConvertedData() {
+  static getIsToDeleteConvertedData() {
     return SettingsRepository.get('isToDeleteConvertedData');
   }
 
-  getIsToDeleteInvalidData() {
+  static getIsToDeleteInvalidData() {
     return SettingsRepository.get('isToDeleteInvalidData');
   }
 
-  setIsToDeleteConvertedData(isToDeleteConvertedData: boolean) {
+  static setIsToDeleteConvertedData(isToDeleteConvertedData: boolean) {
     SettingsRepository.set('isToDeleteConvertedData', isToDeleteConvertedData);
   }
 
-  async setIsToDeleteInvalidData(isToDeleteInvalidData: boolean) {
+  static async setIsToDeleteInvalidData(isToDeleteInvalidData: boolean) {
     SettingsRepository.set('isToDeleteInvalidData', isToDeleteInvalidData);
   }
 }

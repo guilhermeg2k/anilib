@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 import { Page } from './types';
 
 class AnilistService {
-  async getAnimesBySearch(searchText: string) {
+  static async getAnimesBySearch(searchText: string) {
     const query = gql`
     {
       Page(page: 1, perPage: 5) {

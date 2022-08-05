@@ -2,14 +2,12 @@ import EpisodeService from '@backend/service/episodeService';
 import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 
-const episodeService = new EpisodeService();
-
 class EpisodeController {
   static getById(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { id } = req.query;
       if (id) {
-        const episode = episodeService.getById(String(id));
+        const episode = EpisodeService.getById(String(id));
         res.json(episode);
         return;
       }
@@ -24,7 +22,7 @@ class EpisodeController {
     try {
       const { animeId } = req.query;
       if (animeId && typeof animeId === 'string') {
-        const episodes = episodeService.listByAnimeId(animeId);
+        const episodes = EpisodeService.listByAnimeId(animeId);
         res.json(episodes);
         return;
       }
@@ -42,7 +40,7 @@ class EpisodeController {
     try {
       const { episodeId } = req.query;
       if (episodeId && typeof episodeId === 'string') {
-        const imageCoverBase64 = await episodeService.getImageCoverBase64ById(
+        const imageCoverBase64 = await EpisodeService.getImageCoverBase64ById(
           episodeId
         );
         res.send(imageCoverBase64);
@@ -61,7 +59,7 @@ class EpisodeController {
       const { range } = req.headers;
 
       if (id && typeof id === 'string' && range) {
-        const episode = episodeService.getById(id);
+        const episode = EpisodeService.getById(id);
 
         if (episode) {
           const chunkSize = 10 ** 6;

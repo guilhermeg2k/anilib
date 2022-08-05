@@ -2,26 +2,26 @@ import DirectoryRepository from '@backend/repository/directoryRepository';
 import fs from 'fs';
 
 class DirectoryService {
-  list() {
+  static list() {
     const directories = DirectoryRepository.list();
     return directories;
   }
 
-  get(directory: string) {
+  static get(directory: string) {
     const foundDirectory = DirectoryRepository.get(directory);
     return foundDirectory;
   }
 
-  create(directory: string) {
+  static create(directory: string) {
     const newDirectory = DirectoryRepository.create(directory);
     return newDirectory;
   }
 
-  delete(directory: string) {
+  static delete(directory: string) {
     DirectoryRepository.delete(directory);
   }
 
-  deleteInvalidDirectories() {
+  static deleteInvalids() {
     const invalidDirectories = this.list().filter(
       (directory) => !fs.existsSync(directory)
     );
