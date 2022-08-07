@@ -11,7 +11,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, coverUrl }) => {
   return (
     <Link href={`/anime/${id}`}>
       <a className="flex flex-col gap-2 text-center focus:scale-110 hover:scale-110 duration-300   focus:outline-none">
-        <div className="w-full">
+        <div>
           <Image
             src={coverUrl}
             className="rounded-md"

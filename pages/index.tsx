@@ -16,7 +16,7 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({ animes }) => {
-  const [filteredAndSortedAnimeList, setFilteredAndSortedAnimeList] =
+  const [filteredAndSortedAnimes, setFilteredAndSortedAnimes] =
     useState(animes);
   const searchFieldRef = useRef<HTMLInputElement>(null);
   const isLibraryEmpty = animes.length === 0;
@@ -45,7 +45,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
     const searchText = event.target.value;
 
     if (searchText.length === 0) {
-      setFilteredAndSortedAnimeList(animes);
+      setFilteredAndSortedAnimes(animes);
       return;
     }
 
@@ -64,7 +64,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
       animesFilteredBySimilarity
     );
 
-    setFilteredAndSortedAnimeList(animesSorted as Array<Anime>);
+    setFilteredAndSortedAnimes(animesSorted as Array<Anime>);
   };
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
   }, []);
 
   useEffect(() => {
-    setFilteredAndSortedAnimeList(animes);
+    setFilteredAndSortedAnimes(animes);
   }, [animes]);
 
   return (
@@ -93,7 +93,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
             </span>
           </div>
         ) : (
-          <div className="w-full bg-neutral-900 mt-1 lg:mt-5 px-4 md:px-40 lg:px-60 2xl:px-96">
+          <div className="w-full bg-neutral-900 mt-4 lg:mt-5 px-4 md:px-36 lg:px-52">
             <input
               type="text"
               ref={searchFieldRef}
@@ -101,7 +101,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
               id="search_field"
               onChange={onSearchHandler}
               placeholder="Jujutsu Kaisen"
-              className="w-full p-2 outline-none focus:ring-0 bg-neutral-900 border-0 border-b-2  text-base lg:text-xl focus:border-b-2 focus:border-rose-700 "
+              className="w-full p-2 outline-none focus:ring-0 bg-neutral-800 rounded-sm  border-2 border-neutral-800 focus:border-2 focus:border-rose-700"
               autoComplete="off"
               autoFocus
             />
@@ -109,13 +109,13 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
         )}
       </header>
 
-      <Page>
-        <main className="flex flex-col items-center md:items-start">
+      <Page className="lg:py-5">
+        <main>
           <AutoAnimate
             as="ul"
-            className="w-full grid gap-10 justify-center grid-cols-fill-260 md:grid-cols-fill-150 lg:grid-cols-fill-200 2xl:grid-cols-fill-260"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-10 w-full"
           >
-            {filteredAndSortedAnimeList.map((anime) => (
+            {filteredAndSortedAnimes.map((anime) => (
               <AnimeCard
                 key={anime.id}
                 id={anime.id!}
