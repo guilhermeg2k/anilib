@@ -12,13 +12,13 @@ import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
 
-interface PlayerControllersButtonProps {
+interface PlayerButtonProps {
   className?: string;
   children: ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-const PlayerControllersButton: React.FC<PlayerControllersButtonProps> = ({
+const PlayerButton: React.FC<PlayerButtonProps> = ({
   className = '',
   onClick = () => {},
   children,
@@ -268,22 +268,25 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   );
 
   const middleControls = (
-    <div className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center">
-      <PlayerControllersButton
-        className="md-64"
+    <div className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2">
+      <PlayerButton
+        className="md-56 rounded-full bg-neutral-900/10 p-2"
         onClick={onRewind10SecondsHandler}
       >
         replay_10
-      </PlayerControllersButton>
-      <PlayerControllersButton className="md-72" onClick={onPlayToggleHandler}>
+      </PlayerButton>
+      <PlayerButton
+        className="md-72 bg-neutral-900/10 rounded-full p-2"
+        onClick={onPlayToggleHandler}
+      >
         {isPlaying ? 'pause' : 'play_arrow'}
-      </PlayerControllersButton>
-      <PlayerControllersButton
-        className="md-64"
+      </PlayerButton>
+      <PlayerButton
+        className="md-56 bg-neutral-900/10 rounded-full p-2"
         onClick={onForward10SecondsHandler}
       >
         forward_10
-      </PlayerControllersButton>
+      </PlayerButton>
     </div>
   );
 
@@ -291,22 +294,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     <div className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent">
       <div className="w-full flex justify-between items-center">
         <div className="flex items-center gap-5">
-          <PlayerControllersButton onClick={onPlayToggleHandler}>
+          <PlayerButton onClick={onPlayToggleHandler}>
             {isPlaying ? 'pause' : 'play_circle'}
-          </PlayerControllersButton>
+          </PlayerButton>
 
           <div
             className="flex gap-2 items-center"
             onMouseEnter={onToggleIsShowingVolumeSlider}
             onMouseLeave={onToggleIsShowingVolumeSlider}
           >
-            <PlayerControllersButton onClick={onMuteToggleHandler}>
+            <PlayerButton onClick={onMuteToggleHandler}>
               {isMuted ? (
                 <i className="material-icons">volume_off</i>
               ) : (
                 <i className="material-icons">volume_up</i>
               )}
-            </PlayerControllersButton>
+            </PlayerButton>
             <div
               className={`flex w-[110px] items-center justify-center ${
                 !isShowingVolumeSlider && 'hidden'
@@ -343,16 +346,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             menuClassName="bottom-8 bg-neutral-900 opacity-90"
             items={buildSubtitlesOptions()}
           >
-            <PlayerControllersButton>
+            <PlayerButton>
               <i className="material-icons">subtitles</i>
-            </PlayerControllersButton>
+            </PlayerButton>
           </MenuDropdown>
         </div>
-        <PlayerControllersButton onClick={onFullscreenToggleHandler}>
+        <PlayerButton onClick={onFullscreenToggleHandler}>
           <MaterialIcon>
             {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
           </MaterialIcon>
-        </PlayerControllersButton>
+        </PlayerButton>
       </div>
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold">{videoCurrentTime}</span>
