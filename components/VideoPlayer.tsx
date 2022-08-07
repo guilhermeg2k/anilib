@@ -34,6 +34,70 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
   );
 };
 
+interface VolumeBarProps {
+  value: number;
+  onChange: (time: number) => void;
+}
+
+const VolumeBar: React.FC<VolumeBarProps> = ({ value, onChange }) => {
+  return (
+    <InputSlider
+      styles={{
+        track: {
+          cursor: 'pointer',
+          width: '100%',
+          backgroundColor: 'rgba(255, 255, 255, 0.4)',
+          borderRadius: '1px',
+          height: '5px',
+        },
+        active: {
+          backgroundColor: '#fff',
+          borderRadius: '1px',
+        },
+        thumb: {
+          height: '10px',
+          width: '10px',
+          backgroundColor: '#fff',
+        },
+      }}
+      axis="x"
+      x={value}
+      onChange={({ x }) => onChange(x)}
+    />
+  );
+};
+
+interface ProgressBarProps {
+  value: number;
+  onChange: (time: number) => void;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ value, onChange }) => {
+  return (
+    <InputSlider
+      styles={{
+        track: {
+          cursor: 'pointer',
+          width: '100%',
+          backgroundColor: 'rgba(255, 255, 255, 0.4)',
+          borderRadius: '1px',
+          height: '5px',
+        },
+        active: {
+          backgroundColor: '#E11D48',
+          borderRadius: '1px',
+        },
+        thumb: {
+          display: 'none',
+        },
+      }}
+      axis="x"
+      x={value}
+      onChange={({ x }) => onChange(x)}
+    />
+  );
+};
+
 interface VideoPlayerProps {
   videoUrl: string;
   coverImageBase64: string;
@@ -143,6 +207,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setHasMouseMoved(false);
   };
 
+  const onNextEpisodeHandler = () => {
+    onNextEpisode();
+  };
+
   const onVideoKeyUpHandler = (event: KeyboardEvent) => {
     event.preventDefault();
     switch (event.code) {
@@ -203,7 +271,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     rewind(10);
   };
 
-  const onToggleIsShowingVolumeSlider = () => {
+  const toggleIsShowingVolumeSlider = () => {
     setIsShowingVolumeSlider(!isShowingVolumeSlider);
   };
 
@@ -255,138 +323,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     );
   });
 
-  const topControls = (
-    <div className="absolute top-0  px-4 py-2 flex flex-col z-10 bg-gradient-to-b from-neutral-800 to-transparent w-full">
-      <span className="text-xl">{episodeTitle}</span>
-      <button
-        className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200"
-        onClick={onNextEpisode}
-      >
-        Next Episode
-      </button>
-    </div>
-  );
-
-  const middleControls = (
-    <div className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2">
-      <PlayerButton
-        className="md-56 rounded-full bg-neutral-900/10 p-2"
-        onClick={onRewind10SecondsHandler}
-      >
-        replay_10
-      </PlayerButton>
-      <PlayerButton
-        className="md-72 bg-neutral-900/10 rounded-full p-2"
-        onClick={onPlayToggleHandler}
-      >
-        {isPlaying ? 'pause' : 'play_arrow'}
-      </PlayerButton>
-      <PlayerButton
-        className="md-56 bg-neutral-900/10 rounded-full p-2"
-        onClick={onForward10SecondsHandler}
-      >
-        forward_10
-      </PlayerButton>
-    </div>
-  );
-
-  const bottomControls = (
-    <div className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent">
-      <div className="w-full flex justify-between items-center">
-        <div className="flex items-center gap-5">
-          <PlayerButton onClick={onPlayToggleHandler}>
-            {isPlaying ? 'pause' : 'play_circle'}
-          </PlayerButton>
-
-          <div
-            className="flex gap-2 items-center"
-            onMouseEnter={onToggleIsShowingVolumeSlider}
-            onMouseLeave={onToggleIsShowingVolumeSlider}
-          >
-            <PlayerButton onClick={onMuteToggleHandler}>
-              {isMuted ? (
-                <i className="material-icons">volume_off</i>
-              ) : (
-                <i className="material-icons">volume_up</i>
-              )}
-            </PlayerButton>
-            <div
-              className={`flex w-[110px] items-center justify-center ${
-                !isShowingVolumeSlider && 'hidden'
-              }`}
-            >
-              <InputSlider
-                styles={{
-                  track: {
-                    cursor: 'pointer',
-                    width: '100%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                    borderRadius: '1px',
-                    height: '5px',
-                  },
-                  active: {
-                    backgroundColor: '#fff',
-                    borderRadius: '1px',
-                  },
-                  thumb: {
-                    height: '10px',
-                    width: '10px',
-                    backgroundColor: '#fff',
-                  },
-                }}
-                axis="x"
-                x={volume}
-                onChange={({ x }) => onVolumeChangeHandler(x)}
-              />
-            </div>
-          </div>
-
-          <MenuDropdown
-            buttonClassName="flex items-center"
-            menuClassName="bottom-8 bg-neutral-900 opacity-90"
-            items={buildSubtitlesOptions()}
-          >
-            <PlayerButton>
-              <i className="material-icons">subtitles</i>
-            </PlayerButton>
-          </MenuDropdown>
-        </div>
-        <PlayerButton onClick={onFullscreenToggleHandler}>
-          <MaterialIcon>
-            {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
-          </MaterialIcon>
-        </PlayerButton>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold">{videoCurrentTime}</span>
-        <div className={`w-full flex items-center justify-center`}>
-          <InputSlider
-            styles={{
-              track: {
-                cursor: 'pointer',
-                width: '100%',
-                backgroundColor: 'rgba(255, 255, 255, 0.4)',
-                borderRadius: '1px',
-                height: '5px',
-              },
-              active: {
-                backgroundColor: '#E11D48',
-                borderRadius: '1px',
-              },
-              thumb: {
-                display: 'none',
-              },
-            }}
-            axis="x"
-            x={currentTime}
-            onChange={({ x }) => onTimeChangeHandler(x)}
-          />
-        </div>
-        <span className="text-sm font-semibold">{duration}</span>
-      </div>
-    </div>
-  );
-
   useEffect(() => {
     setIsPlaying(false);
     video.current!.load();
@@ -421,10 +357,99 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         <source src={videoUrl} type="video/mp4" />
         {subtitles}
       </video>
-      <FadeTransition show={shouldShowControls}>
-        {topControls}
-        {middleControls}
-        {bottomControls}
+      <FadeTransition key="video-controls" show={shouldShowControls}>
+        <div
+          id="video-top-controls"
+          className="absolute top-0  px-4 py-2 flex flex-col z-10 bg-gradient-to-b from-neutral-800 to-transparent w-full"
+        >
+          <span className="text-xl">{episodeTitle}</span>
+          <button
+            className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200"
+            onClick={onNextEpisodeHandler}
+          >
+            Next Episode
+          </button>
+        </div>
+
+        <div
+          id="video-middle-controls"
+          className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2"
+        >
+          <PlayerButton
+            className="md-56 rounded-full bg-neutral-900/10 p-2"
+            onClick={onRewind10SecondsHandler}
+          >
+            replay_10
+          </PlayerButton>
+          <PlayerButton
+            className="md-72 bg-neutral-900/10 rounded-full p-2"
+            onClick={onPlayToggleHandler}
+          >
+            {isPlaying ? 'pause' : 'play_arrow'}
+          </PlayerButton>
+          <PlayerButton
+            className="md-56 bg-neutral-900/10 rounded-full p-2"
+            onClick={onForward10SecondsHandler}
+          >
+            forward_10
+          </PlayerButton>
+        </div>
+
+        <div
+          id="video-bottom-controls"
+          className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent"
+        >
+          <div className="w-full flex justify-between items-center">
+            <div className="flex items-center gap-5">
+              <PlayerButton onClick={onPlayToggleHandler}>
+                {isPlaying ? 'pause' : 'play_circle'}
+              </PlayerButton>
+
+              <div
+                className="flex gap-2 items-center"
+                onMouseEnter={() => toggleIsShowingVolumeSlider()}
+                onMouseLeave={() => toggleIsShowingVolumeSlider()}
+              >
+                <PlayerButton onClick={onMuteToggleHandler}>
+                  {isMuted ? (
+                    <i className="material-icons">volume_off</i>
+                  ) : (
+                    <i className="material-icons">volume_up</i>
+                  )}
+                </PlayerButton>
+                <div
+                  className={`flex w-[110px] items-center justify-center ${
+                    !isShowingVolumeSlider && 'hidden'
+                  }`}
+                >
+                  <VolumeBar value={volume} onChange={onVolumeChangeHandler} />
+                </div>
+              </div>
+
+              <MenuDropdown
+                buttonClassName="flex items-center"
+                menuClassName="bottom-8 bg-neutral-900 opacity-90"
+                items={buildSubtitlesOptions()}
+              >
+                <PlayerButton>
+                  <i className="material-icons">subtitles</i>
+                </PlayerButton>
+              </MenuDropdown>
+            </div>
+            <PlayerButton onClick={onFullscreenToggleHandler}>
+              <MaterialIcon>
+                {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
+              </MaterialIcon>
+            </PlayerButton>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold">{videoCurrentTime}</span>
+            <div className={`w-full flex items-center justify-center`}>
+              <ProgressBar value={currentTime} onChange={onTimeChangeHandler} />
+            </div>
+            <span className="text-sm font-semibold">{duration}</span>
+          </div>
+        </div>
       </FadeTransition>
     </div>
   );
