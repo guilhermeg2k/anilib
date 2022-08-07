@@ -82,38 +82,36 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
       <Head>
         <title>Anilib</title>
       </Head>
-
-      <header>
-        <Navbar />
-        {isLibraryEmpty ? (
-          <div className="flex flex-col justify-center w-full items-center mt-1 lg:mt-5">
-            <span>Your library its empty</span>
-            <span className="text-xs">
-              Try to add directories and update your library on settings
-            </span>
-          </div>
-        ) : (
-          <div className="w-full bg-neutral-900 mt-4 lg:mt-5 px-4 md:px-36 lg:px-52">
-            <input
-              type="text"
-              ref={searchFieldRef}
-              name="search_field"
-              id="search_field"
-              onChange={onSearchHandler}
-              placeholder="Jujutsu Kaisen"
-              className="w-full p-2 outline-none focus:ring-0 bg-neutral-800 rounded-sm  border-2 border-neutral-800 focus:border-2 focus:border-rose-700"
-              autoComplete="off"
-              autoFocus
-            />
-          </div>
-        )}
-      </header>
-
+      <Navbar />
       <Page className="lg:py-5">
+        <header className="pb-3 lg:pb-5">
+          {isLibraryEmpty ? (
+            <div className="flex flex-col justify-center w-full items-center mt-1 lg:mt-5">
+              <span>Your library its empty</span>
+              <span className="text-xs">
+                Try to add directories and update your library on settings
+              </span>
+            </div>
+          ) : (
+            <div className="">
+              <input
+                type="text"
+                ref={searchFieldRef}
+                name="search_field"
+                id="search_field"
+                onChange={onSearchHandler}
+                placeholder="Jujutsu Kaisen"
+                className="w-full p-2 outline-none focus:ring-0 bg-neutral-800 rounded-sm  border-2 border-neutral-800 focus:border-2 focus:border-rose-700"
+                autoComplete="off"
+                autoFocus
+              />
+            </div>
+          )}
+        </header>
         <main>
           <AutoAnimate
             as="ul"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-10 w-full"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-10 gap-y-5 gap-r w-full"
           >
             {filteredAndSortedAnimes.map((anime) => (
               <AnimeCard
