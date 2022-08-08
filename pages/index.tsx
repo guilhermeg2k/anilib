@@ -7,7 +7,7 @@ import AnimeService from '@services/animeService';
 import { getAnimesWithTitleSimilarityToTextAppended } from '@utils/animeUtils';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type AnimeWithSimilarity = Anime & { titleSimilarity: number };
 
@@ -18,7 +18,6 @@ interface HomeProps {
 const Home: NextPage<HomeProps> = ({ animes }) => {
   const [filteredAndSortedAnimes, setFilteredAndSortedAnimes] =
     useState(animes);
-  const searchFieldRef = useRef<HTMLInputElement>(null);
   const isLibraryEmpty = animes.length === 0;
 
   const getAnimesFilteredByTitleSimilarity = (
@@ -68,12 +67,6 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
   };
 
   useEffect(() => {
-    if (searchFieldRef.current) {
-      searchFieldRef.current.focus();
-    }
-  }, []);
-
-  useEffect(() => {
     setFilteredAndSortedAnimes(animes);
   }, [animes]);
 
@@ -83,8 +76,8 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
         <title>Anilib</title>
       </Head>
       <Navbar />
-      <Page className="lg:py-5">
-        <header className="pb-3 lg:pb-5">
+      <Page className="lg:py-6">
+        <header className="pb-3 lg:pb-6">
           {isLibraryEmpty ? (
             <div className="flex flex-col justify-center w-full items-center mt-1 lg:mt-5">
               <span>Your library its empty</span>
@@ -96,14 +89,12 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
             <div className="">
               <input
                 type="text"
-                ref={searchFieldRef}
                 name="search_field"
                 id="search_field"
                 onChange={onSearchHandler}
                 placeholder="Jujutsu Kaisen"
-                className="w-full p-2 outline-none focus:ring-0 bg-neutral-800 rounded-sm  border-2 border-neutral-800 focus:border-2 focus:border-rose-700"
+                className="w-full p-2 outline-none focus:ring-0 bg-neutral-800 rounded-sm  border-2 border-neutral-800  focus:border-rose-700"
                 autoComplete="off"
-                autoFocus
               />
             </div>
           )}
@@ -111,7 +102,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
         <main>
           <AutoAnimate
             as="ul"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-10 gap-y-5 gap-r w-full"
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-10 gap-y-5 gap-r w-full"
           >
             {filteredAndSortedAnimes.map((anime) => (
               <AnimeCard

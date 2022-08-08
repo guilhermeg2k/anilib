@@ -13,54 +13,44 @@ import { useRouter } from 'next/router';
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
   const episode = await EpisodeService.getById(id);
-  const episodesList = await EpisodeService.listByAnimeId(episode.animeId);
+  const episodes = await EpisodeService.listByAnimeId(episode.animeId);
 
-  episodesList.sort((a, b) => (a.title > b.title ? 1 : -1));
+  episodes.sort((a, b) => (a.title > b.title ? 1 : -1));
 
-  const subtitlesList = await SubtitleService.listByEpisodeId(id);
+  const subtitles = await SubtitleService.listByEpisodeId(id);
   const coverImageBase64 = await EpisodeService.getCoverImageBase64ById(id);
+
   const watchProps: WatchProps = {
     episode,
-    episodesList,
-    subtitlesList,
+    episodes: episodes,
+    subtitles: subtitles,
     coverImageBase64,
   };
+
   return { props: watchProps };
 };
 
 interface WatchProps {
   episode: Episode;
-  episodesList: Array<Episode>;
-  subtitlesList: Array<Subtitle>;
+  episodes: Array<Episode>;
+  subtitles: Array<Subtitle>;
   coverImageBase64: string;
 }
 
 const Watch: NextPage<WatchProps> = ({
   episode,
-  episodesList,
-  subtitlesList,
+  episodes,
+  subtitles,
   coverImageBase64,
 }) => {
   const router = useRouter();
-  const episodes = episodesList.map((episodeItem) => {
-    return (
-      <EpisodeCard
-        className={`w-full`}
-        key={episodeItem.id}
-        episodeId={episodeItem.id!}
-        active={episode.id === episodeItem.id}
-      >
-        {episodeItem.title}
-      </EpisodeCard>
-    );
-  });
 
   const onNextEpisodeHandler = () => {
-    const currentEpisodeIndex = episodesList.findIndex(
+    const currentEpisodeIndex = episodes.findIndex(
       (episodeItem) => episodeItem.id === episode.id
     );
-    if (episodesList.length > currentEpisodeIndex + 1) {
-      const nextEpisode = episodesList[currentEpisodeIndex + 1];
+    if (episodes.length > currentEpisodeIndex + 1) {
+      const nextEpisode = episodes[currentEpisodeIndex + 1];
       router.push(`/episode/watch/${nextEpisode.id}`);
     }
   };
@@ -79,14 +69,25 @@ const Watch: NextPage<WatchProps> = ({
               onNextEpisode={onNextEpisodeHandler}
               videoUrl={`/api/episode/video-stream/${episode.id}`}
               coverImageBase64={coverImageBase64}
-              subtitlesList={subtitlesList}
+              subtitles={subtitles}
             />
           </section>
           <aside className="flex flex-col gap-2 2xl:w-[40%]">
             <h1 className="font-bold uppercase text-lg text-rose-700">
               Episodes
             </h1>
-            <div className="flex flex-col gap-2">{episodes}</div>
+            <div className="flex flex-col gap-2">
+              {episodes.map((episodeItem) => (
+                <EpisodeCard
+                  className={`w-full`}
+                  key={episodeItem.id}
+                  episodeId={episodeItem.id!}
+                  active={episode.id === episodeItem.id}
+                >
+                  {episodeItem.title}
+                </EpisodeCard>
+              ))}
+            </div>
           </aside>
         </main>
       </Page>

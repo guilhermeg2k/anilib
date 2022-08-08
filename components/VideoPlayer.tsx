@@ -12,6 +12,11 @@ import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
 
+const getDefaultSubtitle = (subtitles: Array<Subtitle>) =>
+  subtitles.length === 1
+    ? subtitles[0].id
+    : subtitles.find((subtitle) => subtitle.language === 'por')?.id;
+
 interface PlayerButtonProps {
   className?: string;
   children: ReactNode;
@@ -102,7 +107,7 @@ interface VideoPlayerProps {
   videoUrl: string;
   coverImageBase64: string;
   episodeTitle: string;
-  subtitlesList: Array<Subtitle>;
+  subtitles: Array<Subtitle>;
   onNextEpisode: () => void;
 }
 
@@ -110,13 +115,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   videoUrl,
   episodeTitle,
   coverImageBase64: coverImage,
-  subtitlesList,
+  subtitles,
   onNextEpisode,
 }) => {
   const [currentSubtitleId, setCurrentSubtitleId] = useState(
-    subtitlesList.length === 1
-      ? subtitlesList[0].id
-      : subtitlesList.find((subtitle) => subtitle.language === 'por')?.id
+    getDefaultSubtitle(subtitles)
   );
   const [volume, setVolume] = useState(100);
   const [currentTime, setCurrentTime] = useState(0);
@@ -287,11 +290,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         Disable
       </button>
     );
+
     subtitles.push(disableSubtitlesOption);
+
     if (video.current) {
       const items = Array.from(video.current!.textTracks).map((trackText) => {
         const isCurrentSubtitle = trackText.id === currentSubtitleId;
         const selectedClass = isCurrentSubtitle && 'bg-rose-700';
+        console.log(trackText.label);
         return (
           <button
             key={trackText.id}
@@ -308,29 +314,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return subtitles;
   };
 
-  const subtitles = subtitlesList.map((subtitle) => {
-    const isSubtitleDefault = currentSubtitleId === subtitle.id;
-    return (
-      <track
-        id={subtitle.id}
-        key={subtitle.id}
-        src={`/api/subtitle/vtt-file/${subtitle.id}`}
-        srcLang={subtitle.language}
-        label={subtitle.label}
-        kind="subtitles"
-        default={isSubtitleDefault}
-      />
-    );
-  });
+  useEffect(() => {
+    document!.addEventListener('fullscreenchange', onFullscreenUpdateHandler);
+  }, []);
 
   useEffect(() => {
     setIsPlaying(false);
     video.current!.load();
   }, [videoUrl]);
-
-  useEffect(() => {
-    document!.addEventListener('fullscreenchange', onFullscreenUpdateHandler);
-  }, []);
 
   return (
     <div
@@ -355,7 +346,20 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         onVolumeChange={onVolumeUpdateHandler}
       >
         <source src={videoUrl} type="video/mp4" />
-        {subtitles}
+        {subtitles.map((subtitle) => {
+          const isSubtitleDefault = currentSubtitleId === subtitle.id;
+          return (
+            <track
+              id={subtitle.id}
+              key={subtitle.id}
+              src={`/api/subtitle/vtt-file/${subtitle.id}`}
+              srcLang={subtitle.language}
+              label={subtitle.label}
+              kind="subtitles"
+              default={isSubtitleDefault}
+            />
+          );
+        })}
       </video>
       <FadeTransition key="video-controls" show={shouldShowControls}>
         <div
@@ -428,7 +432,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
               <MenuDropdown
                 buttonClassName="flex items-center"
-                menuClassName="bottom-8 bg-neutral-900 opacity-90"
+                menuClassName="bottom-8 bg-neutral-900 opacity-90 w-[150px]"
                 items={buildSubtitlesOptions()}
               >
                 <PlayerButton>
