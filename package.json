@@ -26,6 +26,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "tailwind-merge": "^1.5.1",
     "@tailwindcss/forms": "^0.5.2",
     "@types/axios": "^0.14.0",
     "@types/ffprobe": "^1.1.3",
