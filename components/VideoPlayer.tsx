@@ -319,6 +319,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   }, []);
 
   useEffect(() => {
+    setCurrentSubtitleId(getDefaultSubtitle(subtitles));
+  }, [subtitles]);
+
+  useEffect(() => {
     setIsPlaying(false);
     video.current!.load();
   }, [videoUrl]);
