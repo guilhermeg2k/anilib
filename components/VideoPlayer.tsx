@@ -297,7 +297,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       const items = Array.from(video.current!.textTracks).map((trackText) => {
         const isCurrentSubtitle = trackText.id === currentSubtitleId;
         const selectedClass = isCurrentSubtitle && 'bg-rose-700';
-        console.log(trackText.label);
         return (
           <button
             key={trackText.id}

@@ -15,9 +15,25 @@ interface Subtitle {
 export const convertMkvToMp4 = async (mkvFilePath: string) => {
   const mp4FilePath = mkvFilePath.replace('.mkv', '.mp4');
   const videoAlreadyExists = fs.existsSync(mp4FilePath);
+  const notSupportedCodecs = ['hevc'];
   if (!videoAlreadyExists) {
-    const ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -strict experimental -codec copy "${mp4FilePath}"`;
+    const mkvProb = await ffprobe(mkvFilePath, {
+      path: ffprobeStatic.path,
+    });
+
+    const isCodecSupported = !notSupportedCodecs.includes(
+      mkvProb.streams[0].codec_name!
+    );
+
+    let ffmpegExecCommand = '';
+    if (isCodecSupported) {
+      ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -strict experimental -codec copy "${mp4FilePath}"`;
+    } else {
+      ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -strict experimental -vcodec h264 "${mp4FilePath}"`;
+    }
+
     const { error } = await exec(ffmpegExecCommand);
+
     if (error) {
       throw new Error(`Failed to convert ${mkvFilePath} to mp4`);
     }
@@ -44,20 +60,22 @@ export const extractImageCoverFromVideo = async (videoFilePath: string) => {
 
 export const extractSubtitlesFromVideo = async (videoFilePath: string) => {
   const subtitles = Array<Subtitle>();
+  const notSupportedCodecs = ['hdmv_pgs_subtitle'];
   const fileProb = await ffprobe(videoFilePath, {
     path: ffprobeStatic.path,
   });
 
   const subtitleStreams = fileProb.streams.filter(
-    // @ts-ignore
-    (stream) => stream.codec_type == 'subtitle'
+    (stream) =>
+      // @ts-ignore
+      stream.codec_type == 'subtitle' &&
+      !notSupportedCodecs.includes(stream.codec_name!)
   );
 
   if (subtitleStreams.length > 0) {
     let subtitlesCount = 1;
     const fileExt = path.extname(videoFilePath);
     let ffmpegExecCommand = `ffmpeg -i "${videoFilePath}"`;
-
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
       const language =
