@@ -5,6 +5,7 @@ import path from 'path';
 import util from 'util';
 
 const exec = util.promisify(require('child_process').exec);
+const fsPromises = fs.promises;
 
 interface Subtitle {
   title: string;
@@ -12,10 +13,20 @@ interface Subtitle {
   filePath: string;
 }
 
-export const convertMkvToMp4 = async (mkvFilePath: string) => {
-  const mp4FilePath = mkvFilePath.replace('.mkv', '.mp4');
+export const convertMkvToMp4 = async (
+  mkvFilePath: string,
+  outputDir: string
+) => {
+  const mp4FileName = path.basename(mkvFilePath).replace('.mkv', '.mp4');
+  const mp4FilePath = path.join(outputDir, mp4FileName);
   const videoAlreadyExists = fs.existsSync(mp4FilePath);
   const notSupportedCodecs = ['hevc'];
+
+  const outputDirDoesNotExists = !fs.existsSync(outputDir);
+  if (outputDirDoesNotExists) {
+    await fsPromises.mkdir(outputDir);
+  }
+
   if (!videoAlreadyExists) {
     const mkvProb = await ffprobe(mkvFilePath, {
       path: ffprobeStatic.path,
@@ -41,29 +52,45 @@ export const convertMkvToMp4 = async (mkvFilePath: string) => {
   return mp4FilePath;
 };
 
-export const extractImageCoverFromVideo = async (videoFilePath: string) => {
+export const extractImageCoverFromVideo = async (
+  videoFilePath: string,
+  outputDir: string
+) => {
+  const outputDirDoesNotExists = !fs.existsSync(outputDir);
+  if (outputDirDoesNotExists) {
+    await fsPromises.mkdir(outputDir);
+  }
+
   const fileExt = path.extname(videoFilePath);
-  const coverImageFilePath = videoFilePath.replace(fileExt, '.jpg');
+  const jpgFileName = path.basename(videoFilePath).replace(fileExt, '.jpg');
+  const jpgFilePath = path.join(outputDir, jpgFileName);
 
-  const imageAlreadyExists = fs.existsSync(coverImageFilePath);
+  const imageDoesNotExists = !fs.existsSync(jpgFilePath);
 
-  if (!imageAlreadyExists) {
-    const ffmpegExecCommand = `ffmpeg -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${coverImageFilePath}"`;
+  if (imageDoesNotExists) {
+    const ffmpegExecCommand = `ffmpeg -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${jpgFilePath}"`;
     const { error } = await exec(ffmpegExecCommand);
     if (error) {
       throw new Error(`Failed to extract image cover from ${videoFilePath}`);
     }
   }
 
-  return coverImageFilePath;
+  return jpgFilePath;
 };
 
-export const extractSubtitlesFromVideo = async (videoFilePath: string) => {
+export const extractSubtitlesFromVideo = async (
+  videoFilePath: string,
+  outputDir: string
+) => {
   const subtitles = Array<Subtitle>();
   const notSupportedCodecs = ['hdmv_pgs_subtitle'];
   const fileProb = await ffprobe(videoFilePath, {
     path: ffprobeStatic.path,
   });
+  const outputDirDoesNotExists = !fs.existsSync(outputDir);
+  if (outputDirDoesNotExists) {
+    await fsPromises.mkdir(outputDir);
+  }
 
   const subtitleStreams = fileProb.streams.filter(
     (stream) =>
@@ -80,15 +107,16 @@ export const extractSubtitlesFromVideo = async (videoFilePath: string) => {
       const subtitleIndex = subtitleStream.index;
       const language =
         subtitleStream.tags?.language || `Language ${subtitlesCount}`;
-      const subtitleFilePath = videoFilePath.replace(
-        fileExt,
-        `-${subtitleIndex}-${language}.vtt`
-      );
 
-      ffmpegExecCommand += ` -map 0:${subtitleIndex} "${subtitleFilePath}"`;
+      const vttFileName = path
+        .basename(videoFilePath)
+        .replace(fileExt, `-${subtitleIndex}-${language}.vtt`);
+      const vttFilePath = path.join(outputDir, vttFileName);
+
+      ffmpegExecCommand += ` -map 0:${subtitleIndex} "${vttFilePath}"`;
 
       const subtitle = <Subtitle>{
-        filePath: subtitleFilePath,
+        filePath: vttFilePath,
         title: subtitleStream.tags?.title || language,
         language,
       };
