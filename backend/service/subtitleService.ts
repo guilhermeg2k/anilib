@@ -117,16 +117,7 @@ class SubtitleService {
     const createdSubtitles = Array<Subtitle>();
     const fileExists = fs.existsSync(videoFilePath);
     if (fileExists) {
-      const videoFileExt = path.extname(videoFilePath);
-      const videoFileName = path
-        .basename(videoFilePath)
-        .replace(videoFileExt, '');
-      const videoCurrentDir = path.dirname(videoFilePath);
-      const subtitlesOutputDir = path.join(videoCurrentDir, videoFileName);
-      const videoSubtitles = await extractSubtitlesFromVideo(
-        videoFilePath,
-        subtitlesOutputDir
-      );
+      const videoSubtitles = await extractSubtitlesFromVideo(videoFilePath);
       for (const subtitle of videoSubtitles) {
         const newSubtitle = <Subtitle>{
           label: subtitle.title,

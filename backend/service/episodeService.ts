@@ -112,19 +112,14 @@ class EpisodeService {
     episodeFilePath: string
   ) {
     const episodeFileExt = path.extname(episodeFilePath);
-    const episodeCurrentDir = path.dirname(episodeFilePath);
     const episodeFileName = path
       .basename(episodeFilePath)
       .replace(episodeFileExt, '');
 
-    const episodeNewFilesOutputDir = path.join(
-      episodeCurrentDir,
-      path.basename(episodeFilePath).replace(episodeFileExt, '')
-    );
     const episodeCoverImagePath = await extractImageCoverFromVideo(
-      episodeFilePath,
-      episodeNewFilesOutputDir
+      episodeFilePath
     );
+
     const episodeTitle = episodeFileName
       .replaceAll(SQUARE_BRACKET_CONTENT_EXPRESSION, '')
       .trim();
@@ -139,10 +134,7 @@ class EpisodeService {
     };
 
     if (episodeFileExt === '.mkv') {
-      const episodeFileMp4 = await convertMkvToMp4(
-        episodeFilePath,
-        episodeNewFilesOutputDir
-      );
+      const episodeFileMp4 = await convertMkvToMp4(episodeFilePath);
       newEpisode.wasConverted = true;
       newEpisode.filePath = episodeFileMp4;
     }

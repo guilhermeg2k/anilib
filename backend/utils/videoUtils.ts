@@ -13,25 +13,34 @@ interface Subtitle {
   filePath: string;
 }
 
+const getDefaultOutputDir = (filePath: string) => {
+  const fileExt = path.extname(filePath);
+  const fileCurrentDir = path.dirname(filePath);
+  const fileName = path.basename(filePath).replace(fileExt, '');
+  const fileOutputDir = path.join(fileCurrentDir, fileName);
+
+  return fileOutputDir;
+};
+
 export const convertMkvToMp4 = async (
   mkvFilePath: string,
-  outputDir: string
+  outputDir = getDefaultOutputDir(mkvFilePath)
 ) => {
-  const mp4FileName = path.basename(mkvFilePath).replace('.mkv', '.mp4');
-  const mp4FilePath = path.join(outputDir, mp4FileName);
-  const videoAlreadyExists = fs.existsSync(mp4FilePath);
-  const notSupportedCodecs = ['hevc'];
-
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
     await fsPromises.mkdir(outputDir);
   }
 
-  if (!videoAlreadyExists) {
+  const mp4FileName = path.basename(mkvFilePath).replace('.mkv', '.mp4');
+  const mp4FilePath = path.join(outputDir, mp4FileName);
+  const videoDoesNotExists = !fs.existsSync(mp4FilePath);
+
+  if (videoDoesNotExists) {
     const mkvProb = await ffprobe(mkvFilePath, {
       path: ffprobeStatic.path,
     });
 
+    const notSupportedCodecs = ['hevc'];
     const isCodecSupported = !notSupportedCodecs.includes(
       mkvProb.streams[0].codec_name!
     );
@@ -49,12 +58,13 @@ export const convertMkvToMp4 = async (
       throw new Error(`Failed to convert ${mkvFilePath} to mp4`);
     }
   }
+
   return mp4FilePath;
 };
 
 export const extractImageCoverFromVideo = async (
   videoFilePath: string,
-  outputDir: string
+  outputDir = getDefaultOutputDir(videoFilePath)
 ) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
@@ -80,18 +90,20 @@ export const extractImageCoverFromVideo = async (
 
 export const extractSubtitlesFromVideo = async (
   videoFilePath: string,
-  outputDir: string
+  outputDir = getDefaultOutputDir(videoFilePath)
 ) => {
-  const subtitles = Array<Subtitle>();
-  const notSupportedCodecs = ['hdmv_pgs_subtitle'];
-  const fileProb = await ffprobe(videoFilePath, {
-    path: ffprobeStatic.path,
-  });
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
     await fsPromises.mkdir(outputDir);
   }
 
+  const subtitles = Array<Subtitle>();
+
+  const fileProb = await ffprobe(videoFilePath, {
+    path: ffprobeStatic.path,
+  });
+
+  const notSupportedCodecs = ['hdmv_pgs_subtitle'];
   const subtitleStreams = fileProb.streams.filter(
     (stream) =>
       // @ts-ignore
