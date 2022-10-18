@@ -1,6 +1,9 @@
 import database from '@backend/database/';
 
-type Settings = 'isToDeleteConvertedData' | 'isToDeleteInvalidData';
+type Settings =
+  | 'isToDeleteConvertedData'
+  | 'isToDeleteInvalidData'
+  | 'shouldUseNVENC';
 
 class SettingsRepository {
   static list() {
@@ -9,7 +12,7 @@ class SettingsRepository {
   }
 
   static get(settings: Settings) {
-    return <Boolean>database.get('settings', settings);
+    return <boolean>database.get('settings', settings);
   }
 
   static set(settings: string, value: Boolean) {

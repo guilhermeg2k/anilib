@@ -1,6 +1,9 @@
 import SettingsRepository from '@backend/repository/settingsRepository';
 
 class SettingsService {
+  static getShouldUseNVENC() {
+    return SettingsRepository.get('shouldUseNVENC');
+  }
   static getIsToDeleteConvertedData() {
     return SettingsRepository.get('isToDeleteConvertedData');
   }

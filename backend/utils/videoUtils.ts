@@ -24,6 +24,7 @@ const getDefaultOutputDir = (filePath: string) => {
 
 export const convertMkvToMp4 = async (
   mkvFilePath: string,
+  shouldUseNVENC = false,
   outputDir = getDefaultOutputDir(mkvFilePath)
 ) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
@@ -45,21 +46,55 @@ export const convertMkvToMp4 = async (
       mkvProb.streams[0].codec_name!
     );
 
-    let ffmpegExecCommand = '';
     if (isCodecSupported) {
-      ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -strict experimental -codec copy "${mp4FilePath}"`;
+      await convertToMp4CopyingEncoder(mkvFilePath, mp4FilePath);
     } else {
-      ffmpegExecCommand = `ffmpeg -i "${mkvFilePath}" -strict experimental -vcodec h264 "${mp4FilePath}"`;
-    }
-
-    const { error } = await exec(ffmpegExecCommand);
-
-    if (error) {
-      throw new Error(`Failed to convert ${mkvFilePath} to mp4`);
+      if (shouldUseNVENC) {
+        await convertToMp4ReencodingWithH264NVENC(mkvFilePath, mp4FilePath);
+      } else {
+        await convertToMp4ReencodingWithH264(mkvFilePath, mp4FilePath);
+      }
     }
   }
 
   return mp4FilePath;
+};
+
+const convertToMp4CopyingEncoder = async (input: string, output: string) => {
+  const ffmpegExecCommand = `ffmpeg -i "${input}" -strict experimental -codec copy "${output}"`;
+  const { error } = await exec(ffmpegExecCommand);
+
+  if (error) {
+    throw new Error(`Failed to convert ${input} to mp4`, { cause: error });
+  }
+};
+
+const convertToMp4ReencodingWithH264 = async (
+  input: string,
+  output: string
+) => {
+  const ffmpegExecCommand = `ffmpeg -i "${input}" -strict experimental -vcodec h264 "${output}"`;
+  const { error } = await exec(ffmpegExecCommand);
+
+  if (error) {
+    throw new Error(`Failed to convert ${input} to mp4 using h264`, {
+      cause: error,
+    });
+  }
+};
+
+const convertToMp4ReencodingWithH264NVENC = async (
+  input: string,
+  output: string
+) => {
+  const ffmpegExecCommand = `ffmpeg -i "${input}" -strict experimental -c:v h264_nvenc -pix_fmt yuv420p "${output}"`;
+  const { error } = await exec(ffmpegExecCommand);
+
+  if (error) {
+    throw new Error(`Failed to convert ${input} to mp4 using h264_nvenc`, {
+      cause: error,
+    });
+  }
 };
 
 export const extractImageCoverFromVideo = async (

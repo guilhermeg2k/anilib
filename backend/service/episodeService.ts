@@ -12,6 +12,7 @@ import {
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
+import SettingsService from './settingsService';
 
 const fsPromises = fs.promises;
 
@@ -134,7 +135,11 @@ class EpisodeService {
     };
 
     if (episodeFileExt === '.mkv') {
-      const episodeFileMp4 = await convertMkvToMp4(episodeFilePath);
+      const shouldUseNVENC = SettingsService.getShouldUseNVENC();
+      const episodeFileMp4 = await convertMkvToMp4(
+        episodeFilePath,
+        shouldUseNVENC
+      );
       newEpisode.wasConverted = true;
       newEpisode.filePath = episodeFileMp4;
     }
