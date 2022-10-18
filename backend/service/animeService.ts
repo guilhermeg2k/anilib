@@ -68,22 +68,24 @@ class AnimeService {
     folderDirectoryPath: string
   ) {
     const folderPath = path.join(folderDirectoryPath, folder);
-    const fileStat = await fsPromises.stat(folderPath);
+    const folderInfo = await fsPromises.stat(folderPath);
 
-    if (fileStat.isDirectory()) {
-      const localAnime = AnimeRepository.listByPath(folderPath);
-      if (!localAnime) {
-        const searchText = folder.replaceAll(
-          SQUARE_BRACKET_CONTENT_EXPRESSION,
-          ''
-        );
-        const createdAnime =
-          await this.createFromFolderPathBySearchingOnAnilist(
-            folderPath,
-            searchText
-          );
-        return createdAnime;
+    if (folderInfo.isDirectory()) {
+      const animeAlreadyExists = Boolean(
+        AnimeRepository.listByPath(folderPath)
+      );
+      if (animeAlreadyExists) {
+        return null;
       }
+      const searchTitle = folder.replaceAll(
+        SQUARE_BRACKET_CONTENT_EXPRESSION,
+        ''
+      );
+      const createdAnime = await this.createFromFolderPathBySearchingOnAnilist(
+        folderPath,
+        searchTitle
+      );
+      return createdAnime;
     }
     return null;
   }
