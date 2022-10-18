@@ -13,6 +13,7 @@ export interface AnilistAnime {
     english: string;
     native: string;
   };
+  bannerImage: string;
   coverImage: {
     extraLarge: string;
   };

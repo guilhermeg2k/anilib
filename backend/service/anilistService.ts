@@ -21,6 +21,7 @@ class AnilistService {
             english
             native
           }
+          bannerImage
           coverImage {
             extraLarge
           }

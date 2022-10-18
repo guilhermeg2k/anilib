@@ -114,6 +114,7 @@ class AnimeService {
       const animeParsed = {
         anilistId: anime.id,
         title: anime.title,
+        bannerUrl: anime.bannerImage,
         coverUrl: anime.coverImage.extraLarge,
         description: anime.description,
         episodes: anime.episodes,
