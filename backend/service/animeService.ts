@@ -3,13 +3,15 @@ import { Anime } from '@backend/database/types';
 import AnimeRepository from '@backend/repository/animeRepository';
 import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
 import fs from 'fs';
+import pLimit from 'p-limit';
 import path from 'path';
 import AnilistService from './anilistService';
 import { AnilistAnime } from './types';
 
 const fsPromises = fs.promises;
-
 class AnimeService {
+  private static createFromDirectoryPromiseLimiter = pLimit(5);
+
   static list() {
     const animes = AnimeRepository.list();
     return animes;
@@ -26,7 +28,7 @@ class AnimeService {
   }
 
   static deleteInvalids() {
-    const invalidAnimes = AnimeService.list().filter(
+    const invalidAnimes = this.list().filter(
       (anime) => !fs.existsSync(anime.folderPath)
     );
 
@@ -37,7 +39,9 @@ class AnimeService {
 
   static async createFromDirectories(directories: Array<string>) {
     const createdAnimesPromises = directories.map(async (directory) =>
-      this.createFromDirectory(directory)
+      this.createFromDirectoryPromiseLimiter(() =>
+        this.createFromDirectory(directory)
+      )
     );
     const createdAnimes = await Promise.all(createdAnimesPromises);
     return createdAnimes.flat(Infinity);
@@ -50,7 +54,7 @@ class AnimeService {
     if (directoryExists) {
       const directoryFolders = await fsPromises.readdir(directoryPath);
       for (const folder of directoryFolders) {
-        const createdAnime = await AnimeService.createFromFolderOnDirectory(
+        const createdAnime = await this.createFromFolderOnDirectory(
           folder,
           directoryPath
         );

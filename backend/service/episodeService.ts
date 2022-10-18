@@ -10,6 +10,7 @@ import {
   extractImageCoverFromVideo,
 } from '@backend/utils/videoUtils';
 import fs from 'fs';
+import pLimit from 'p-limit';
 import path from 'path';
 
 const fsPromises = fs.promises;
@@ -17,6 +18,8 @@ const fsPromises = fs.promises;
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 
 class EpisodeService {
+  private static createFromAnimeAndFilePathPromiseLimiter = pLimit(5);
+
   static list() {
     const episodes = EpisodeRepository.list();
     return episodes;
@@ -74,28 +77,34 @@ class EpisodeService {
     );
   }
 
+  static async createFromAnimes(animes: Array<Anime>) {
+    const createEpisodesPromises = animes.map(async (anime) => {
+      await this.createFromAnime(anime);
+    });
+
+    const createdEpisodes = await Promise.all(createEpisodesPromises);
+    return createdEpisodes.flat(Infinity);
+  }
+
   static async createFromAnime(anime: Anime) {
-    const createdEpisodes = Array<Episode>();
     const episodeFilePaths = await getFilesInDirectoryByExtensions(
       anime.folderPath,
       EPISODE_FILES_EXTENSIONS
     );
+    const episodePromises = episodeFilePaths.map((episodeFilePath) => {
+      const episodeDoesNotExists =
+        !this.getByPath(episodeFilePath) &&
+        !this.getByOriginalPath(episodeFilePath);
 
-    for (const episodeFilePath of episodeFilePaths) {
-      const episodeAlreadyExists =
-        this.getByPath(episodeFilePath) ||
-        this.getByOriginalPath(episodeFilePath);
-
-      if (!episodeAlreadyExists) {
-        const createdEpisode = await EpisodeService.createFromAnimeAndFilePath(
-          anime,
-          episodeFilePath
+      if (episodeDoesNotExists) {
+        return this.createFromAnimeAndFilePathPromiseLimiter(() =>
+          this.createFromAnimeAndFilePath(anime, episodeFilePath)
         );
-        createdEpisodes.push(createdEpisode);
       }
-    }
+    });
 
-    return createdEpisodes;
+    const createdEpisodes = await Promise.all(episodePromises);
+    return createdEpisodes.flat(Infinity);
   }
 
   private static async createFromAnimeAndFilePath(

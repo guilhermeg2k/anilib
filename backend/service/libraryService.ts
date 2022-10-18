@@ -17,15 +17,10 @@ class LibraryService {
     await AnimeService.createFromDirectories(directories);
 
     const animes = AnimeService.list();
-    const createEpisodesPromises = animes.map(async (anime) => {
-      await EpisodeService.createFromAnime(anime);
-    });
-    await Promise.all(createEpisodesPromises);
+    await EpisodeService.createFromAnimes(animes);
 
     const episodes = EpisodeService.list();
-    for (const episode of episodes) {
-      await SubtitleService.createFromEpisode(episode);
-    }
+    await SubtitleService.createFromEpisodes(episodes);
 
     if (SettingsService.getIsToDeleteConvertedData()) {
       await EpisodeService.deleteConverted();

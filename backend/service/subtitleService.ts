@@ -3,9 +3,12 @@ import SubtitleRepository from '@backend/repository/subtitleRepository';
 import { getFolderVttFilesByFileNamePrefix } from '@backend/utils/fileUtils';
 import { extractSubtitlesFromVideo } from '@backend/utils/videoUtils';
 import fs from 'fs';
+import pLimit from 'p-limit';
 import path from 'path';
 
 class SubtitleService {
+  private static createFromEpisodePromiseLimiter = pLimit(5);
+
   static list() {
     const subtitles = SubtitleRepository.list();
     return subtitles;
@@ -29,6 +32,16 @@ class SubtitleService {
     invalidSubtitles.forEach((invalidSubtitle) =>
       SubtitleRepository.deleteById(invalidSubtitle.id!)
     );
+  }
+
+  static async createFromEpisodes(episodes: Array<Episode>) {
+    const createEpisodesPromises = episodes.map((episode) =>
+      this.createFromEpisodePromiseLimiter(() =>
+        SubtitleService.createFromEpisode(episode)
+      )
+    );
+    const createdSubtitles = await Promise.all(createEpisodesPromises);
+    return createdSubtitles.flat(Infinity);
   }
 
   static async createFromEpisode(episode: Episode) {
