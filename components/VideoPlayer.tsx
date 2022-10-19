@@ -383,19 +383,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2 select-none"
         >
           <PlayerButton
-            className="md-56 rounded-full bg-neutral-900/10 p-2"
+            className="md-56 rounded-full bg-neutral-900/25 p-2"
             onClick={onRewind10SecondsHandler}
           >
             replay_10
           </PlayerButton>
           <PlayerButton
-            className="md-72 bg-neutral-900/10 rounded-full p-2"
+            className="md-72 bg-neutral-900/25 rounded-full p-2"
             onClick={onPlayToggleHandler}
           >
             {isPlaying ? 'pause' : 'play_arrow'}
           </PlayerButton>
           <PlayerButton
-            className="md-56 bg-neutral-900/10 rounded-full p-2"
+            className="md-56 bg-neutral-900/25 rounded-full p-2"
             onClick={onForward10SecondsHandler}
           >
             forward_10

@@ -5,12 +5,13 @@
 /* ===== Subtitles CSS ===== */
 video::cue {
   color: white;
-  font-size: 36px;
+  font-size: 1em;
   font-family: 'Helvetica', sans-serif;
   background-color: transparent;
   text-shadow: #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px,
     #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px;
   -webkit-font-smoothing: antialiased;
+  bottom: 50px;
 }
 
 /* ===== MD Icons CSS ===== */
