@@ -25,6 +25,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
+  const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
   const [directories, setDirectoriesList] = useState(Array<string>());
   const router = useRouter();
 
@@ -50,8 +51,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
         await SettingsService.getIsToDeleteConvertedData();
       const isToDeleteInvalidData =
         await SettingsService.getIsToDeleteInvalidData();
+      const shouldUseNVENC = await SettingsService.getShouldUseNVENC();
       setIsToDeleteConvertedData(isToDeleteConvertedData);
       setIsToDeleteInvalidData(isToDeleteInvalidData);
+      setShouldUseNVENC(shouldUseNVENC);
     } catch (error) {
       toastError('Failed to load settings');
     } finally {
@@ -97,7 +100,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
       setIsToDeleteConvertedData(value);
       await SettingsService.setIsToDeleteConvertedData(value);
     } catch (error) {
-      toastError('Failed to update delete converted data');
+      toastError('Failed to update is to delete converted data setting');
     }
   };
 
@@ -106,7 +109,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
       setIsToDeleteInvalidData(value);
       await SettingsService.setIsToDeleteInvalidData(value);
     } catch (error) {
-      toastError('Failed to update delete invalid data');
+      toastError('Failed to update is to delete invalid data setting');
+    }
+  };
+
+  const onShouldUseNVENCChangeHandler = async (value: boolean) => {
+    try {
+      setShouldUseNVENC(value);
+      await SettingsService.setShouldUseNVENC(value);
+    } catch (error) {
+      toastError('Failed to update should use nvenc setting');
     }
   };
 
@@ -188,6 +200,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
             onChange={onIsToDeleteConvertedDataChangeHandler}
           >
             Delete original converted files
+          </CheckBox>
+          <CheckBox
+            className="text-sm"
+            value={shouldUseNVENC}
+            onChange={onShouldUseNVENCChangeHandler}
+          >
+            Use Nvidia NVENC as encoder
           </CheckBox>
         </div>
       </div>

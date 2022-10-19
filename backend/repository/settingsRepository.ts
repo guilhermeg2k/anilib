@@ -15,7 +15,7 @@ class SettingsRepository {
     return <boolean>database.get('settings', settings);
   }
 
-  static set(settings: string, value: Boolean) {
+  static set(settings: Settings, value: Boolean) {
     database.insertOrUpdate('settings', settings, value);
   }
 }

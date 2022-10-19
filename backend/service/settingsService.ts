@@ -22,7 +22,7 @@ class SettingsService {
   }
 
   static setShouldUseNVENC = (shouldUseNVENC: boolean) => {
-    SettingsRepository.set('isToDeleteInvalidData', shouldUseNVENC);
+    SettingsRepository.set('shouldUseNVENC', shouldUseNVENC);
   };
 }
 
