@@ -25,8 +25,8 @@ class SettingsController {
 
   static getShouldUseNVENC(req: NextApiRequest, res: NextApiResponse) {
     try {
-      const isToDeleteInvalidData = SettingsService.getIsToDeleteInvalidData();
-      return res.json(isToDeleteInvalidData);
+      const shouldUseNVENC = SettingsService.getShouldUseNVENC();
+      return res.json(shouldUseNVENC);
     } catch (error) {
       res.status(500).end();
       console.error(error);

@@ -6,7 +6,8 @@ import util from 'util';
 
 const exec = util.promisify(require('child_process').exec);
 const fsPromises = fs.promises;
-
+const VIDEO_SUPPORTED_CODECS = ['h264', 'vp8', 'vp9', 'av1'];
+const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
 interface Subtitle {
   title: string;
   language: string;
@@ -37,16 +38,15 @@ export const convertMkvToMp4 = async (
   const videoDoesNotExists = !fs.existsSync(mp4FilePath);
 
   if (videoDoesNotExists) {
-    const mkvProb = await ffprobe(mkvFilePath, {
+    const mkvFileProb = await ffprobe(mkvFilePath, {
       path: ffprobeStatic.path,
     });
 
-    const notSupportedCodecs = ['hevc'];
-    const isCodecSupported = !notSupportedCodecs.includes(
-      mkvProb.streams[0].codec_name!
+    const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
+      mkvFileProb.streams[0].codec_name!
     );
 
-    if (isCodecSupported) {
+    if (isVideoCodecSupported) {
       await convertToMp4CopyingEncoder(mkvFilePath, mp4FilePath);
     } else {
       if (shouldUseNVENC) {
@@ -138,12 +138,11 @@ export const extractSubtitlesFromVideo = async (
     path: ffprobeStatic.path,
   });
 
-  const notSupportedCodecs = ['hdmv_pgs_subtitle'];
   const subtitleStreams = fileProb.streams.filter(
     (stream) =>
       // @ts-ignore
       stream.codec_type == 'subtitle' &&
-      !notSupportedCodecs.includes(stream.codec_name!)
+      !UNSUPPORTED_SUBTITLE_CODECS.includes(stream.codec_name!)
   );
 
   if (subtitleStreams.length > 0) {
