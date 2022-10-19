@@ -371,7 +371,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         >
           <span className="text-xl">{episodeTitle}</span>
           <button
-            className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200"
+            className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200 select-none"
             onClick={onNextEpisodeHandler}
           >
             Next Episode
@@ -380,7 +380,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         <div
           id="video-middle-controls"
-          className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2"
+          className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2 select-none"
         >
           <PlayerButton
             className="md-56 rounded-full bg-neutral-900/10 p-2"
@@ -404,7 +404,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         <div
           id="video-bottom-controls"
-          className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent"
+          className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent select-none"
         >
           <div className="w-full flex justify-between items-center">
             <div className="flex items-center gap-5">
