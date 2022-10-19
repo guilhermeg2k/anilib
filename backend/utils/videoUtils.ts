@@ -8,6 +8,7 @@ const exec = util.promisify(require('child_process').exec);
 const fsPromises = fs.promises;
 const VIDEO_SUPPORTED_CODECS = ['h264', 'vp8', 'vp9', 'av1'];
 const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
+
 interface Subtitle {
   title: string;
   language: string;
@@ -61,7 +62,7 @@ export const convertMkvToMp4 = async (
 };
 
 const convertToMp4CopyingEncoder = async (input: string, output: string) => {
-  const ffmpegExecCommand = `ffmpeg -i "${input}" -strict experimental -codec copy "${output}"`;
+  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -codec copy "${output}"`;
   const { error } = await exec(ffmpegExecCommand);
 
   if (error) {
@@ -73,7 +74,7 @@ const convertToMp4ReencodingWithH264 = async (
   input: string,
   output: string
 ) => {
-  const ffmpegExecCommand = `ffmpeg -i "${input}" -strict experimental -vcodec h264 "${output}"`;
+  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -vcodec h264 "${output}"`;
   const { error } = await exec(ffmpegExecCommand);
 
   if (error) {
@@ -87,7 +88,7 @@ const convertToMp4ReencodingWithH264NVENC = async (
   input: string,
   output: string
 ) => {
-  const ffmpegExecCommand = `ffmpeg -i "${input}" -strict experimental -c:v h264_nvenc -pix_fmt yuv420p "${output}"`;
+  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -c:v h264_nvenc -pix_fmt yuv420p "${output}"`;
   const { error } = await exec(ffmpegExecCommand);
 
   if (error) {
@@ -113,7 +114,7 @@ export const extractImageCoverFromVideo = async (
   const imageDoesNotExists = !fs.existsSync(jpgFilePath);
 
   if (imageDoesNotExists) {
-    const ffmpegExecCommand = `ffmpeg -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${jpgFilePath}"`;
+    const ffmpegExecCommand = `ffmpeg -y -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${jpgFilePath}"`;
     const { error } = await exec(ffmpegExecCommand);
     if (error) {
       throw new Error(`Failed to extract image cover from ${videoFilePath}`);
@@ -148,7 +149,7 @@ export const extractSubtitlesFromVideo = async (
   if (subtitleStreams.length > 0) {
     let subtitlesCount = 1;
     const fileExt = path.extname(videoFilePath);
-    let ffmpegExecCommand = `ffmpeg -i "${videoFilePath}"`;
+    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath}"`;
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
       const language =
