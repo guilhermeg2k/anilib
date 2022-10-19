@@ -6,6 +6,7 @@ import util from 'util';
 
 const exec = util.promisify(require('child_process').exec);
 const fsPromises = fs.promises;
+const VIDEO_SUPPORTED_EXTENSIONS = ['.mp4', '.webm'];
 const VIDEO_SUPPORTED_CODECS = ['h264', 'vp8', 'vp9', 'av1'];
 const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
 
@@ -14,6 +15,27 @@ interface Subtitle {
   language: string;
   filePath: string;
 }
+
+export const isVideoCodecSupported = async (videoFilePath: string) => {
+  const mkvFileProb = await ffprobe(videoFilePath, {
+    path: ffprobeStatic.path,
+  });
+
+  const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
+    mkvFileProb.streams[0].codec_name!
+  );
+
+  return isVideoCodecSupported;
+};
+
+export const isVideoContainerSupported = (videoFilePath: string) => {
+  const videoExt = path.extname(videoFilePath);
+
+  const isVideoContainerSupported =
+    VIDEO_SUPPORTED_EXTENSIONS.includes(videoExt);
+
+  return isVideoContainerSupported;
+};
 
 const getDefaultOutputDir = (filePath: string) => {
   const fileExt = path.extname(filePath);
@@ -24,36 +46,31 @@ const getDefaultOutputDir = (filePath: string) => {
   return fileOutputDir;
 };
 
-export const convertMkvToMp4 = async (
-  mkvFilePath: string,
+export const convertVideoToMp4 = async (
+  videoFilePath: string,
   shouldUseNVENC = false,
-  outputDir = getDefaultOutputDir(mkvFilePath)
+  outputDir = getDefaultOutputDir(videoFilePath)
 ) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
     await fsPromises.mkdir(outputDir);
   }
 
-  const mp4FileName = path.basename(mkvFilePath).replace('.mkv', '.mp4');
+  const videoFileExt = path.extname(videoFilePath);
+  const mp4FileName = path
+    .basename(videoFilePath)
+    .replace(videoFileExt, '.mp4');
   const mp4FilePath = path.join(outputDir, mp4FileName);
   const videoDoesNotExists = !fs.existsSync(mp4FilePath);
 
   if (videoDoesNotExists) {
-    const mkvFileProb = await ffprobe(mkvFilePath, {
-      path: ffprobeStatic.path,
-    });
-
-    const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
-      mkvFileProb.streams[0].codec_name!
-    );
-
-    if (isVideoCodecSupported) {
-      await convertToMp4CopyingEncoder(mkvFilePath, mp4FilePath);
+    if (await isVideoCodecSupported(videoFilePath)) {
+      await convertToMp4CopyingEncoder(videoFilePath, mp4FilePath);
     } else {
       if (shouldUseNVENC) {
-        await convertToMp4ReencodingWithH264NVENC(mkvFilePath, mp4FilePath);
+        await convertToMp4ReencodingWithH264NVENC(videoFilePath, mp4FilePath);
       } else {
-        await convertToMp4ReencodingWithH264(mkvFilePath, mp4FilePath);
+        await convertToMp4ReencodingWithH264(videoFilePath, mp4FilePath);
       }
     }
   }

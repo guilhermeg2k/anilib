@@ -6,8 +6,10 @@ import {
   getFilesInDirectoryByExtensions,
 } from '@backend/utils/fileUtils';
 import {
-  convertMkvToMp4,
+  convertVideoToMp4,
   extractImageCoverFromVideo,
+  isVideoCodecSupported,
+  isVideoContainerSupported,
 } from '@backend/utils/videoUtils';
 import fs from 'fs';
 import pLimit from 'p-limit';
@@ -113,17 +115,15 @@ class EpisodeService {
     episodeFilePath: string
   ) {
     const episodeFileExt = path.extname(episodeFilePath);
-    const episodeFileName = path
-      .basename(episodeFilePath)
-      .replace(episodeFileExt, '');
-
-    const episodeCoverImagePath = await extractImageCoverFromVideo(
-      episodeFilePath
-    );
+    const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
 
     const episodeTitle = episodeFileName
       .replaceAll(SQUARE_BRACKET_CONTENT_EXPRESSION, '')
       .trim();
+
+    const episodeCoverImagePath = await extractImageCoverFromVideo(
+      episodeFilePath
+    );
 
     const newEpisode = {
       title: episodeTitle,
@@ -134,9 +134,19 @@ class EpisodeService {
       wasConverted: false,
     };
 
-    if (episodeFileExt === '.mkv') {
+    const isVideoCodecNotSupported = !(await isVideoCodecSupported(
+      episodeFilePath
+    ));
+
+    const isVideoContainerNotSupported =
+      !isVideoContainerSupported(episodeFilePath);
+
+    const needsToConvertEpisodeVideo =
+      isVideoCodecNotSupported || isVideoContainerNotSupported;
+
+    if (needsToConvertEpisodeVideo) {
       const shouldUseNVENC = SettingsService.getShouldUseNVENC();
-      const episodeFileMp4 = await convertMkvToMp4(
+      const episodeFileMp4 = await convertVideoToMp4(
         episodeFilePath,
         shouldUseNVENC
       );
