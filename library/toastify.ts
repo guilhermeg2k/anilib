@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 export const toastError = (message: string) => {
   toast(message, {
@@ -12,4 +12,15 @@ export const toastSuccess = (message: string) => {
     type: 'success',
     autoClose: 2000,
   });
+};
+
+export const toastPromise = (
+  promise: Promise<unknown>,
+  messages: {
+    pending: string;
+    success: string;
+    error: string;
+  }
+) => {
+  return toast.promise(promise, messages, { autoClose: 2000 });
 };
