@@ -101,7 +101,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                       <Menu.Item
                         as="button"
                         key="sync_data_from_anilist"
-                        className="uppercase p-1 px-2 rounded-none hover:bg-neutral-100 flex justify-between items-center"
+                        className="uppercase p-1 px-2 hover:bg-neutral-700 text-white flex justify-between items-center"
                       >
                         Sync data from anilist
                         <MaterialIcon className="md-18">sync</MaterialIcon>

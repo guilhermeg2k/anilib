@@ -24,7 +24,7 @@ const DropDownMenu = ({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-50 flex w-[250px] origin-top-left flex-col  bg-white text-sm uppercase shadow-md text-black rounded-sm">
+        <Menu.Items className="absolute right-0 z-50 flex w-[250px] origin-top-left flex-col  bg-neutral-800 text-sm uppercase shadow-md text-white rounded-sm p-1">
           {items}
         </Menu.Items>
       </Transition>

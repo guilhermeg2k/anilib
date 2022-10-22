@@ -18,6 +18,7 @@ const EpisodeCard: React.FC<EpisodeCardProps> = ({
   const activeClass = active
     ? 'bg-rose-700'
     : 'bg-neutral-800 hover:bg-neutral-700';
+
   return (
     <Link href={`/episode/watch/${episodeId}`}>
       <a
