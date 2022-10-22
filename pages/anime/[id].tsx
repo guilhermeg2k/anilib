@@ -1,8 +1,11 @@
 import { Anime, Episode } from '@backend/database/types';
 import Badge from '@components/Badge';
+import DropDownMenu from '@components/DropDownMenu';
 import EpisodeCard from '@components/EpisodeCard';
+import MaterialIcon from '@components/MaterialIcon';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
+import { Menu } from '@headlessui/react';
 import AnimeService from '@services/animeService';
 import EpisodeService from '@services/episodeService';
 import { removeHTMLTags } from '@utils/stringUtils';
@@ -89,10 +92,24 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
             </div>
             <div className="flex flex-col gap-4">
               <header className="flex flex-col items-center lg:items-start  gap-2 lg:gap-0">
-                <div className="flex justify-between items-center lg:items-start gap-2 md:w-full ">
+                <div className="flex justify-between items-center gap-2 md:w-full ">
                   <h1 className="text-rose-700 text-2xl lg:text-4xl font-bold">
                     {anime.title.romaji}
                   </h1>
+                  <DropDownMenu
+                    items={[
+                      <Menu.Item
+                        as="button"
+                        key="sync_data_from_anilist"
+                        className="uppercase p-1 px-2 rounded-none hover:bg-neutral-100 flex justify-between items-center"
+                      >
+                        Sync data from anilist
+                        <MaterialIcon className="md-18">sync</MaterialIcon>
+                      </Menu.Item>,
+                    ]}
+                  >
+                    <MaterialIcon>more_vert</MaterialIcon>
+                  </DropDownMenu>
                 </div>
                 <figure className="w-[130px] md:w-[170px] lg:hidden">
                   {imageCover}
