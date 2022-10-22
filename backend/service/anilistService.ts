@@ -1,6 +1,6 @@
 import client from '@backend/library/graphql';
 import { gql } from 'graphql-request';
-import { Page } from './types';
+import { AnilistAnime, Page } from './types';
 
 class AnilistService {
   static async getAnimesBySearch(searchText: string) {
@@ -44,6 +44,36 @@ class AnilistService {
       return queryPage.media;
     }
     return [];
+  }
+
+  static async getAnimeById(id: number) {
+    const query = gql`{
+      Media(id: ${id}) {
+        id
+          title {
+            romaji
+            english
+            native
+          }
+          bannerImage
+          coverImage {
+            extraLarge
+          }
+          description
+          episodes
+          startDate {
+            year
+            month
+            day
+          }
+          status
+          genres
+          format
+        }
+    }`;
+
+    const queryResult = await client.request(query);
+    return queryResult.Media as AnilistAnime;
   }
 }
 

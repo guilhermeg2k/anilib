@@ -36,6 +36,10 @@ class AnimeRepository {
     return <Anime>createdAnime;
   }
 
+  static update(anime: Anime) {
+    database.insertOrUpdate('animes', anime.id!, anime);
+  }
+
   static deleteById(id: string) {
     database.delete('animes', id);
     EpisodeRepository.deleteByAnimeId(id);
