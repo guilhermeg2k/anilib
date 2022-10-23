@@ -11,6 +11,12 @@ class AnimeService {
     const anime = await axiosClient.get<Anime>(`/anime/${id}`);
     return anime.data;
   }
+
+  static async syncDataWithAnilistById(id: string) {
+    await axiosClient.patch(`/anime/sync-data-with-anilist-by-id`, {
+      id,
+    });
+  }
 }
 
 export default AnimeService;

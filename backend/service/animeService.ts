@@ -1,6 +1,7 @@
 import { SQUARE_BRACKET_CONTENT_EXPRESSION } from '@backend/constants/regexConstants';
 import { Anime } from '@backend/database/types';
 import AnimeRepository from '@backend/repository/animeRepository';
+import { createDateByDayMonthAndYear } from '@backend/utils/dateUtils';
 import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
 import fs from 'fs';
 import pLimit from 'p-limit';
@@ -36,6 +37,31 @@ class AnimeService {
       AnimeRepository.deleteById(invalidAnime.id!)
     );
   }
+
+  static syncDataWithAnilistById = async (animeId: string) => {
+    const anime = this.getById(animeId);
+    const anilistAnime = await AnilistService.getAnimeById(anime.anilistId);
+    const releaseDate = createDateByDayMonthAndYear(
+      anilistAnime.startDate.day,
+      anilistAnime.startDate.month,
+      anilistAnime.startDate.year
+    );
+
+    const updateAnime = <Anime>{
+      ...anime,
+      title: anilistAnime.title,
+      bannerUrl: anilistAnime.bannerImage,
+      coverUrl: anilistAnime.coverImage.extraLarge,
+      description: anilistAnime.description,
+      episodes: anilistAnime.episodes,
+      releaseDate: releaseDate,
+      status: anilistAnime.status,
+      genres: anilistAnime.genres,
+      format: anilistAnime.format,
+    };
+
+    AnimeRepository.update(updateAnime);
+  };
 
   static async createFromDirectories(directories: Array<string>) {
     const createdAnimesPromises = directories.map(async (directory) =>
@@ -106,10 +132,11 @@ class AnimeService {
     ) as AnilistAnime;
 
     if (anime) {
-      const releaseDate = new Date();
-      releaseDate.setFullYear(anime.startDate.year);
-      releaseDate.setMonth(anime.startDate.month);
-      releaseDate.setDate(anime.startDate.day);
+      const releaseDate = createDateByDayMonthAndYear(
+        anime.startDate.day,
+        anime.startDate.month,
+        anime.startDate.year
+      );
 
       const animeParsed = {
         anilistId: anime.id,

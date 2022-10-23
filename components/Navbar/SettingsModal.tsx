@@ -14,6 +14,8 @@ import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
+const VERSION = 'Version 0.4 (Maki)';
+
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
@@ -214,7 +216,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
       <Button color="green" onClick={onLibraryUpdateHandler}>
         Update Library
       </Button>
-      <div className="text-xs text-right">Version 0.3 (Jujutsu)</div>
+      <div className="text-xs text-right">{VERSION}</div>
     </Modal>
   );
 };

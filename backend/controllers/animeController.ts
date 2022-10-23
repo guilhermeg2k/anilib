@@ -23,6 +23,29 @@ class AnimeController {
       res.status(500).send('Failed get animes');
     }
   }
+
+  static async syncDataWithAnilistById(
+    req: NextApiRequest,
+    res: NextApiResponse
+  ) {
+    try {
+      const { id } = req.body;
+
+      if (id && typeof id === 'string') {
+        const animeDoesNotExists = !Boolean(AnimeService.getById(id));
+        if (animeDoesNotExists) {
+          res.status(400).end();
+        }
+
+        await AnimeService.syncDataWithAnilistById(id);
+
+        res.status(200).end();
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).end();
+    }
+  }
 }
 
 export default AnimeController;
