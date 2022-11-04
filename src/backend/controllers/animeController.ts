@@ -32,7 +32,7 @@ class AnimeController {
       const { id } = req.body;
 
       if (id && typeof id === 'string') {
-        const animeDoesNotExists = !Boolean(AnimeService.getById(id));
+        const animeDoesNotExists = !AnimeService.getById(id);
         if (animeDoesNotExists) {
           res.status(400).end();
         }

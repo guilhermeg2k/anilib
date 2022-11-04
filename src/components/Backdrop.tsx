@@ -1,4 +1,3 @@
-import { FunctionComponent } from 'react';
 import Spinner from './Spinner';
 
 interface BackdropProps {
