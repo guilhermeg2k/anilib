@@ -116,10 +116,7 @@ class EpisodeService {
   ) {
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
-
-    const episodeTitle = episodeFileName
-      .replaceAll(SQUARE_BRACKET_CONTENT_EXPRESSION, '')
-      .trim();
+    const episodeTitle = this.buildEpisodeTitle(episodeFileName);
 
     const episodeCoverImagePath = await extractImageCoverFromVideo(
       episodeFilePath
@@ -162,6 +159,14 @@ class EpisodeService {
     const createdEpisode = EpisodeRepository.create(episode);
     return createdEpisode;
   }
+
+  private static buildEpisodeTitle = (episodeFileName: string) => {
+    const episodeTitle = episodeFileName
+      .replaceAll(SQUARE_BRACKET_CONTENT_EXPRESSION, '')
+      .replaceAll('_', ' ')
+      .trim();
+    return episodeTitle;
+  };
 }
 
 export default EpisodeService;
