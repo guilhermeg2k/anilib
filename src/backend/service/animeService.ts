@@ -1,5 +1,5 @@
 import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
-import { SQUARE_BRACKET_CONTENT_EXPRESSION } from 'backend/constants/regexConstants';
+import { SQUARE_BRACKET_OR_PARENTHESES_CONTENT } from 'backend/constants/regexConstants';
 import { Anime } from 'backend/database/types';
 import AnimeRepository from 'backend/repository/animeRepository';
 import { createDateByDayMonthAndYear } from 'backend/utils/dateUtils';
@@ -108,7 +108,7 @@ class AnimeService {
         return null;
       }
       const searchTitle = folder.replaceAll(
-        SQUARE_BRACKET_CONTENT_EXPRESSION,
+        SQUARE_BRACKET_OR_PARENTHESES_CONTENT,
         ''
       );
       const createdAnime = await this.createFromFolderPathBySearchingOnAnilist(

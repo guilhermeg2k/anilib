@@ -1,5 +1,5 @@
 import { getNumbersSumFromString } from '@utils/stringUtils';
-import { SQUARE_BRACKET_CONTENT_EXPRESSION } from 'backend/constants/regexConstants';
+import { SQUARE_BRACKET_OR_PARENTHESES_CONTENT } from 'backend/constants/regexConstants';
 import { Anime, Episode } from 'backend/database/types';
 import EpisodeRepository from 'backend/repository/episodeRepository';
 import {
@@ -163,7 +163,7 @@ class EpisodeService {
 
   private static buildEpisodeTitle = (episodeFileName: string) => {
     const episodeTitle = episodeFileName
-      .replaceAll(SQUARE_BRACKET_CONTENT_EXPRESSION, '')
+      .replaceAll(SQUARE_BRACKET_OR_PARENTHESES_CONTENT, '')
       .replaceAll('_', ' ')
       .trim();
     return episodeTitle;
