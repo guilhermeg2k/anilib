@@ -18,7 +18,7 @@ export interface AnilistAnime {
     extraLarge: string;
   };
   description: string;
-  episodes: number;
+  episodes?: number;
   startDate: {
     year: number;
     month: number;

@@ -1,4 +1,3 @@
-import { Anime, Episode } from 'backend/database/types';
 import Badge from '@components/Badge';
 import DropDownMenu from '@components/DropDownMenu';
 import EpisodeCard from '@components/EpisodeCard';
@@ -6,14 +5,15 @@ import MaterialIcon from '@components/MaterialIcon';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import { Menu } from '@headlessui/react';
-import AnimeService from 'services/animeService';
-import EpisodeService from 'services/episodeService';
 import { removeHTMLTags } from '@utils/stringUtils';
+import { Anime, Episode } from 'backend/database/types';
 import { toastPromise } from 'library/toastify';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import AnimeService from 'services/animeService';
+import EpisodeService from 'services/episodeService';
 
 const getCategoryColorClass = (colorSeed: number) => {
   const colorIndex = (colorSeed + 1) % 4;
@@ -119,7 +119,10 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                 </div>
               </header>
               <div className="flex flex-col gap-1">
-                <span className="font-bold">{`${anime.format} - ${anime.episodes} EPISODES`}</span>
+                <span className="font-bold uppercase">
+                  {`${anime.format}`}
+                  {anime.episodes && ` - ${anime.episodes} Episodes`}
+                </span>
                 <span className="text-sm font-semibold capitalize">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
               </div>
               <p className="text-sm lg:text-base">

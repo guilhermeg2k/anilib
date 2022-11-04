@@ -12,9 +12,11 @@ import LibraryService from 'services/libraryService';
 import SettingsService from 'services/settingsService';
 import { toastError, toastSuccess } from 'library/toastify';
 import { useRouter } from 'next/router';
+import PackageJSON from '../../../package.json';
+
 import React, { useEffect, useState } from 'react';
 
-const VERSION = 'Version 0.4 (Maki)';
+const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;
 
 interface SettingsModalProps {
   open: boolean;
