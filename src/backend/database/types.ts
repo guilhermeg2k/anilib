@@ -8,7 +8,7 @@ export interface Anime {
   };
   coverUrl: string;
   description: string;
-  episodes: number;
+  episodes?: number;
   releaseDate: Date;
   status: string;
   genres: Array<string>;

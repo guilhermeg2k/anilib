@@ -117,7 +117,6 @@ class EpisodeService {
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
     const episodeTitle = this.buildEpisodeTitle(episodeFileName);
-
     const episodeCoverImagePath = await extractImageCoverFromVideo(
       episodeFilePath
     );
