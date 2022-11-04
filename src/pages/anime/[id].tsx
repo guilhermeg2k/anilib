@@ -5,7 +5,7 @@ import MaterialIcon from '@components/MaterialIcon';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import { Menu } from '@headlessui/react';
-import { getNumbersSumFromString, removeHTMLTags } from '@utils/stringUtils';
+import { removeHTMLTags } from '@utils/stringUtils';
 import { Anime, Episode } from 'backend/database/types';
 import { toastPromise } from 'library/toastify';
 import type { GetServerSideProps, NextPage } from 'next';
@@ -30,12 +30,6 @@ const getCategoryColorClass = (colorSeed: number) => {
     default:
       return '';
   }
-};
-
-const sortByStringNumbersSum = (episodeA: Episode, episodeB: Episode) => {
-  const episodeANumbersSum = getNumbersSumFromString(episodeA.title);
-  const episodeBNumbersSum = getNumbersSumFromString(episodeB.title);
-  return episodeANumbersSum > episodeBNumbersSum ? 1 : -1;
 };
 
 interface AnimeProps {
@@ -163,9 +157,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
   const anime = await AnimeService.getById(id);
   const animeEpisodes = await EpisodeService.listByAnimeId(id);
-
-  animeEpisodes.sort(sortByStringNumbersSum);
-
   const animeProps: AnimeProps = { anime, episodesList: animeEpisodes };
   return { props: animeProps };
 };

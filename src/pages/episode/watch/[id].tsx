@@ -14,16 +14,13 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
   const episode = await EpisodeService.getById(id);
   const episodes = await EpisodeService.listByAnimeId(episode.animeId);
-
-  episodes.sort((a, b) => (a.title > b.title ? 1 : -1));
-
   const subtitles = await SubtitleService.listByEpisodeId(id);
   const coverImageBase64 = await EpisodeService.getCoverImageBase64ById(id);
 
   const watchProps: WatchProps = {
     episode,
-    episodes: episodes,
-    subtitles: subtitles,
+    episodes,
+    subtitles,
     coverImageBase64,
   };
 

@@ -1,8 +1,8 @@
+import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
 import { SQUARE_BRACKET_CONTENT_EXPRESSION } from 'backend/constants/regexConstants';
 import { Anime } from 'backend/database/types';
 import AnimeRepository from 'backend/repository/animeRepository';
 import { createDateByDayMonthAndYear } from 'backend/utils/dateUtils';
-import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
@@ -54,10 +54,10 @@ class AnimeService {
       coverUrl: anilistAnime.coverImage.extraLarge,
       description: anilistAnime.description,
       episodes: anilistAnime.episodes,
-      releaseDate: releaseDate,
       status: anilistAnime.status,
       genres: anilistAnime.genres,
       format: anilistAnime.format,
+      releaseDate,
     };
 
     AnimeRepository.update(updateAnime);
@@ -145,10 +145,10 @@ class AnimeService {
         coverUrl: anime.coverImage.extraLarge,
         description: anime.description,
         episodes: anime.episodes,
-        releaseDate: releaseDate,
         status: anime.status,
         genres: anime.genres,
         format: anime.format,
+        releaseDate,
         folderPath,
       };
 

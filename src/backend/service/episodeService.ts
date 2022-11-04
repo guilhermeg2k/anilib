@@ -1,3 +1,4 @@
+import { getNumbersSumFromString } from '@utils/stringUtils';
 import { SQUARE_BRACKET_CONTENT_EXPRESSION } from 'backend/constants/regexConstants';
 import { Anime, Episode } from 'backend/database/types';
 import EpisodeRepository from 'backend/repository/episodeRepository';
@@ -30,6 +31,7 @@ class EpisodeService {
 
   static listByAnimeId(animeId: string) {
     const episodes = EpisodeRepository.listByAnimeId(animeId);
+    episodes.sort(this.sortByStringNumbersSum);
     return episodes;
   }
 
@@ -165,6 +167,15 @@ class EpisodeService {
       .replaceAll('_', ' ')
       .trim();
     return episodeTitle;
+  };
+
+  private static sortByStringNumbersSum = (
+    episodeA: Episode,
+    episodeB: Episode
+  ) => {
+    const episodeANumbersSum = getNumbersSumFromString(episodeA.title);
+    const episodeBNumbersSum = getNumbersSumFromString(episodeB.title);
+    return episodeANumbersSum > episodeBNumbersSum ? 1 : -1;
   };
 }
 
