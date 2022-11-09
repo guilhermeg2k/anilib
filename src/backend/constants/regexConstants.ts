@@ -1,1 +1,2 @@
-export const SQUARE_BRACKET_OR_PARENTHESES_CONTENT = /(\[[^\].*]*\]|\(.*\))/gi;
+export const SQUARE_BRACKET_CONTENT_REGEX = /(\[[^\].*]*\])/gi;
+export const PARENTHESES_CONTENT_REGEX = /(\([^).*]*\))/gi;

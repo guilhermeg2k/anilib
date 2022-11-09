@@ -1,5 +1,8 @@
 import { getNumbersSumFromString } from '@utils/stringUtils';
-import { SQUARE_BRACKET_OR_PARENTHESES_CONTENT } from 'backend/constants/regexConstants';
+import {
+  PARENTHESES_CONTENT_REGEX,
+  SQUARE_BRACKET_CONTENT_REGEX,
+} from 'backend/constants/regexConstants';
 import { Anime, Episode } from 'backend/database/types';
 import EpisodeRepository from 'backend/repository/episodeRepository';
 import {
@@ -100,7 +103,6 @@ class EpisodeService {
       const episodeDoesNotExists =
         !this.getByPath(episodeFilePath) &&
         !this.getByOriginalPath(episodeFilePath);
-
       if (episodeDoesNotExists) {
         return this.createFromAnimeAndFilePathPromiseLimiter(() =>
           this.createFromAnimeAndFilePath(anime, episodeFilePath)
@@ -163,7 +165,8 @@ class EpisodeService {
 
   private static buildEpisodeTitle = (episodeFileName: string) => {
     const episodeTitle = episodeFileName
-      .replaceAll(SQUARE_BRACKET_OR_PARENTHESES_CONTENT, '')
+      .replaceAll(SQUARE_BRACKET_CONTENT_REGEX, '')
+      .replaceAll(PARENTHESES_CONTENT_REGEX, '')
       .replaceAll('_', ' ')
       .trim();
     return episodeTitle;
