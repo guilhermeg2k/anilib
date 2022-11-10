@@ -131,7 +131,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
       setIsLoadingDirectories(true);
       await LibraryService.update();
       await loadDirectories();
-      router.replace(router.asPath);
     } finally {
       setIsLoadingDirectories(false);
     }

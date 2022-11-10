@@ -2,6 +2,7 @@ import { LibraryStatus as LibraryStatusEnum } from '@backend/constants/librarySt
 import { WebsocketEvent } from '@backend/constants/websocketEvents';
 import LibraryService from '@services/libraryService';
 import socketIOClient from 'library/socketIOClient';
+import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 import { Flip, Id, toast, ToastPosition } from 'react-toastify';
 import Spinner from './Spinner';
@@ -26,6 +27,7 @@ const ToastContent = ({
 
 const LibraryStatus = () => {
   const toastId = useRef<Id | null>();
+  const router = useRouter();
 
   const onCloseHandler = () => {
     toastId.current = null;
@@ -107,6 +109,7 @@ const LibraryStatus = () => {
         break;
       case LibraryStatusEnum.Updated:
         showUpdatedToast();
+        router.replace(router.asPath);
         break;
       case LibraryStatusEnum.Failed:
         showFailedToast();
