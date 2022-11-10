@@ -25,6 +25,8 @@
     "react-input-slider": "^6.0.1",
     "react-toastify": "^9.0.5",
     "sharp": "^0.30.7",
+    "socket.io": "^4.5.3",
+    "socket.io-client": "^4.5.3",
     "string-similarity-js": "^2.1.4",
     "uuid": "^8.3.2"
   },
