@@ -1,5 +1,5 @@
 export enum LibraryStatus {
   Updated = 'UPDATED',
   Updating = 'UPDATING',
-  Failed = 'Failed',
+  Failed = 'FAILED',
 }
