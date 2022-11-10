@@ -13,6 +13,7 @@ class SocketIO {
       if (global.hasSocketIOServerStarted) {
         return;
       }
+      console.log('Starting SocketIO');
       const SocketIOServer = new Server(3001);
       global.socketIOServer = SocketIOServer;
       global.hasSocketIOServerStarted = true;

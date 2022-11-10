@@ -46,6 +46,10 @@ class LibraryService {
     }
   }
 
+  getStatus() {
+    return LibraryService.status;
+  }
+
   updateStatus(status: Status) {
     LibraryService.status = status;
     SocketIO.send(WebsocketEvent.UpdateLibraryStatus, status);
