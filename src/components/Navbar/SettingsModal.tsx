@@ -129,12 +129,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const onLibraryUpdateHandler = async () => {
     try {
       setIsLoadingDirectories(true);
-      await LibraryService.updateLibrary();
-      toastSuccess('Library updated');
+      await LibraryService.update();
       await loadDirectories();
       router.replace(router.asPath);
-    } catch {
-      toastError('Failed to update library');
     } finally {
       setIsLoadingDirectories(false);
     }

@@ -1,13 +1,13 @@
-import { Anime } from 'backend/database/types';
 import AnimeCard from '@components/AnimeCard';
 import AutoAnimate from '@components/AutoAnimate';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
-import AnimeService from 'services/animeService';
 import { getAnimesWithTitleSimilarityToTextAppended } from '@utils/animeUtils';
+import { Anime } from 'backend/database/types';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
+import AnimeService from 'services/animeService';
 
 type AnimeWithSimilarity = Anime & { titleSimilarity: number };
 

@@ -1,3 +1,4 @@
+import { LibraryStatus } from '@backend/constants/libraryStatus';
 import { WebsocketEvent } from '@backend/constants/websocketEvents';
 import SocketIO from '@backend/websocket/socketIO';
 import AnimeService from 'backend/service/animeService';
@@ -6,18 +7,12 @@ import SubtitleService from 'backend/service/subtitleService';
 import DirectoryService from './directoryService';
 import SettingsService from './settingsService';
 
-enum Status {
-  Updated = 'UPDATED',
-  Updating = 'UPDATING',
-  Failed = 'Failed',
-}
-
 class LibraryService {
-  static status = Status.Updated;
+  static status = LibraryStatus.Updated;
 
   async update() {
     try {
-      this.updateStatus(Status.Updating);
+      this.updateStatus(LibraryStatus.Updating);
 
       if (SettingsService.getIsToDeleteInvalidData()) {
         await DirectoryService.deleteInvalids();
@@ -39,9 +34,9 @@ class LibraryService {
         await EpisodeService.deleteConverted();
       }
 
-      this.updateStatus(Status.Updated);
+      this.updateStatus(LibraryStatus.Updated);
     } catch (error) {
-      this.updateStatus(Status.Failed);
+      this.updateStatus(LibraryStatus.Failed);
       console.log(error);
     }
   }
@@ -50,7 +45,7 @@ class LibraryService {
     return LibraryService.status;
   }
 
-  updateStatus(status: Status) {
+  updateStatus(status: LibraryStatus) {
     LibraryService.status = status;
     SocketIO.send(WebsocketEvent.UpdateLibraryStatus, status);
   }
