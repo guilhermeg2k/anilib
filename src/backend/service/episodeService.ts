@@ -1,5 +1,7 @@
 import { getNumbersSumFromString } from '@utils/stringUtils';
 import {
+  BRACES_CONTENT_REGEX,
+  NOT_ALPHANUMERIC_REGEX,
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
 } from 'backend/constants/regexConstants';
@@ -167,7 +169,8 @@ class EpisodeService {
     const episodeTitle = episodeFileName
       .replaceAll(SQUARE_BRACKET_CONTENT_REGEX, '')
       .replaceAll(PARENTHESES_CONTENT_REGEX, '')
-      .replaceAll('_', ' ')
+      .replaceAll(BRACES_CONTENT_REGEX, '')
+      .replaceAll(NOT_ALPHANUMERIC_REGEX, ' ')
       .trim();
     return episodeTitle;
   };
