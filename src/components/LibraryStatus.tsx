@@ -3,10 +3,10 @@ import { WebsocketEvent } from '@backend/constants/websocketEvents';
 import LibraryService from '@services/libraryService';
 import socketIOClient from 'library/socketIOClient';
 import { useEffect, useRef } from 'react';
-import { Id, toast, Flip } from 'react-toastify';
+import { Flip, Id, toast, ToastPosition } from 'react-toastify';
 import Spinner from './Spinner';
 
-const TOAST_POSITION = 'bottom-right';
+const TOAST_POSITION = 'bottom-right' as ToastPosition;
 const TOAST_TRANSITION = Flip;
 
 const ToastContent = ({
@@ -25,23 +25,50 @@ const ToastContent = ({
 };
 
 const LibraryStatus = () => {
-  const toastId = useRef<Id>();
+  const toastId = useRef<Id | null>();
+
+  const onCloseHandler = () => {
+    toastId.current = null;
+  };
+
+  const updatedToastOptions = {
+    autoClose: 5000,
+    closeButton: false,
+    type: toast.TYPE.SUCCESS,
+    position: TOAST_POSITION,
+    transition: TOAST_TRANSITION,
+    onClose: onCloseHandler,
+  };
+
+  const updatingToastOptions = {
+    autoClose: false as false,
+    closeButton: false,
+    type: toast.TYPE.DEFAULT,
+    position: TOAST_POSITION,
+    transition: TOAST_TRANSITION,
+    onClose: onCloseHandler,
+  };
+
+  const failedToastOptions = {
+    autoClose: 5000,
+    closeButton: false,
+    type: toast.TYPE.ERROR,
+    position: TOAST_POSITION,
+    transition: TOAST_TRANSITION,
+    onClose: onCloseHandler,
+  };
 
   const showUpdatedToast = () => {
     if (toastId.current) {
       toast.update(toastId.current, {
-        autoClose: 5000,
         render: <ToastContent text="Library Updated" />,
-        type: toast.TYPE.SUCCESS,
-        position: TOAST_POSITION,
-        transition: TOAST_TRANSITION,
+        ...updatedToastOptions,
       });
     } else {
-      toastId.current = toast(<ToastContent text="Library Updated" />, {
-        autoClose: 5000,
-        type: toast.TYPE.SUCCESS,
-        position: TOAST_POSITION,
-      });
+      toastId.current = toast(
+        <ToastContent text="Library Updated" />,
+        updatedToastOptions
+      );
     }
   };
 
@@ -49,21 +76,12 @@ const LibraryStatus = () => {
     if (toastId.current) {
       toast.update(toastId.current, {
         render: <ToastContent text="Updating Library" showSpinner />,
-        autoClose: false,
-        type: toast.TYPE.DEFAULT,
-        closeButton: false,
-        position: TOAST_POSITION,
-        transition: TOAST_TRANSITION,
+        ...updatingToastOptions,
       });
     } else {
       toastId.current = toast(
         <ToastContent text="Updating Library" showSpinner />,
-        {
-          autoClose: false,
-          type: toast.TYPE.DEFAULT,
-          closeButton: false,
-          position: TOAST_POSITION,
-        }
+        updatingToastOptions
       );
     }
   };
@@ -72,19 +90,12 @@ const LibraryStatus = () => {
     if (toastId.current) {
       toast.update(toastId.current, {
         render: <ToastContent text="Failed to update library" />,
-        autoClose: 5000,
-        type: toast.TYPE.ERROR,
-        position: TOAST_POSITION,
-        transition: TOAST_TRANSITION,
+        ...failedToastOptions,
       });
     } else {
       toastId.current = toast(
         <ToastContent text="Failed to update library" />,
-        {
-          autoClose: 5000,
-          type: toast.TYPE.ERROR,
-          position: TOAST_POSITION,
-        }
+        failedToastOptions
       );
     }
   };
