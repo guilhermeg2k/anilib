@@ -33,7 +33,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
   const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
   const [directories, setDirectoriesList] = useState(Array<string>());
-  const { status } = useLibraryStatusStore((state) => state);
+  const { status } = useLibraryStatusStore();
   const router = useRouter();
   const isLibraryUpdating = status === LibraryStatus.Updating;
 
