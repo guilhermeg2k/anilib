@@ -1,12 +1,14 @@
 {
   "name": "anilib",
-  "version": "0.4.0",
+  "version": "0.5.0",
+  "versionName": "Nanami",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint --dir .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@formkit/auto-animate": "^1.0.0-beta.1",
@@ -23,8 +25,11 @@
     "react-input-slider": "^6.0.1",
     "react-toastify": "^9.0.5",
     "sharp": "^0.30.7",
+    "socket.io": "^4.5.3",
+    "socket.io-client": "^4.5.3",
     "string-similarity-js": "^2.1.4",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zustand": "^4.1.4"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.2",
@@ -35,13 +40,16 @@
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
     "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.42.0",
+    "@typescript-eslint/parser": "^5.42.0",
     "autoprefixer": "^10.4.7",
     "eslint": "8.19.0",
     "eslint-config-next": "12.2.0",
+    "husky": "^8.0.1",
     "postcss": "^8.4.14",
     "tailwind-merge": "^1.5.1",
     "tailwindcss": "^3.1.4",
-    "typescript": "4.7.4"
+    "typescript": "^4.8.4"
   },
   "overrides": {
     "@formkit/auto-animate": {
