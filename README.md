@@ -48,6 +48,8 @@ If you want to use on other devices you need to put your local ipv4
 
 ```sh
 NEXT_PUBLIC_BASE_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_WEBSOCKET_CLIENT_ADDRESS=localhost:3001
+WEBSOCKET_SERVER_PORT=3001
 ```
 
 ### In the project folder install dependencies and build

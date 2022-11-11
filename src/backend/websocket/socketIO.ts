@@ -4,23 +4,25 @@ import { WebsocketEvent } from '../constants/websocketEvents';
 
 declare global {
   var socketIOServer: Server;
-  var hasSocketIOServerStarted: boolean;
 }
+
+const SERVER_PORT = process.env.WEBSOCKET_SERVER_PORT || 3001;
 
 class SocketIO {
   static init() {
     try {
-      if (global.hasSocketIOServerStarted) {
+      if (global.socketIOServer) {
         return;
       }
+      const port =
+        typeof SERVER_PORT === 'string' ? parseInt(SERVER_PORT) : SERVER_PORT;
+
       console.log('Starting SocketIO');
-      const SocketIOServer = new Server(3001);
+      const SocketIOServer = new Server(port);
       global.socketIOServer = SocketIOServer;
-      global.hasSocketIOServerStarted = true;
     } catch (error) {
       console.log('Failed to init SocketIO');
       console.log(error);
-      global.hasSocketIOServerStarted = true;
     }
   }
 
