@@ -15,6 +15,8 @@ import { useRouter } from 'next/router';
 import PackageJSON from '../../../package.json';
 
 import React, { useEffect, useState } from 'react';
+import useLibraryStatusStore from 'store/libraryStatusStore';
+import { LibraryStatus } from '@backend/constants/libraryStatus';
 
 const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;
 
@@ -31,7 +33,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
   const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
   const [directories, setDirectoriesList] = useState(Array<string>());
+  const { status } = useLibraryStatusStore((state) => state);
   const router = useRouter();
+  const isLibraryUpdating = status === LibraryStatus.Updating;
 
   const isDirectoriesEmpty = directories.length === 0;
   const isLoading = isLoadingDirectories || isLoadingSettings;
@@ -211,7 +215,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
         </div>
       </div>
       <Label>Update Library</Label>
-      <Button color="green" onClick={onLibraryUpdateHandler}>
+      <Button
+        color="green"
+        onClick={onLibraryUpdateHandler}
+        disabled={isLibraryUpdating}
+      >
         Update Library
       </Button>
       <div className="text-xs text-right">{VERSION}</div>

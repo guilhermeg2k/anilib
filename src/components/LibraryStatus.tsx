@@ -5,6 +5,7 @@ import socketIOClient from 'library/socketIOClient';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 import { Flip, Id, toast, ToastPosition } from 'react-toastify';
+import useLibraryStatusStore from 'store/libraryStatusStore';
 import Spinner from './Spinner';
 
 const TOAST_POSITION = 'bottom-right' as ToastPosition;
@@ -28,6 +29,7 @@ const ToastContent = ({
 const LibraryStatus = () => {
   const toastId = useRef<Id | null>();
   const router = useRouter();
+  const { status, setStatus } = useLibraryStatusStore((state) => state);
 
   const onCloseHandler = () => {
     toastId.current = null;
@@ -102,14 +104,13 @@ const LibraryStatus = () => {
     }
   };
 
-  const updateStatus = (status: LibraryStatusEnum) => {
+  const showStatusToast = (status: LibraryStatusEnum) => {
     switch (status) {
       case LibraryStatusEnum.Updating:
         showUpdatingToast();
         break;
       case LibraryStatusEnum.Updated:
         showUpdatedToast();
-        router.replace(router.asPath);
         break;
       case LibraryStatusEnum.Failed:
         showFailedToast();
@@ -123,16 +124,30 @@ const LibraryStatus = () => {
       status === LibraryStatusEnum.Updating ||
       status === LibraryStatusEnum.Failed
     ) {
-      updateStatus(status);
+      showStatusToast(status);
+      setStatus(status);
     }
+  };
+
+  const onLibraryUpdateListener = (status: LibraryStatusEnum) => {
+    setStatus(status);
+    showStatusToast(status);
   };
 
   useEffect(() => {
     fetchInitialStatus();
-    socketIOClient.on(WebsocketEvent.UpdateLibraryStatus, (status) => {
-      updateStatus(status);
-    });
+    socketIOClient.on(
+      WebsocketEvent.UpdateLibraryStatus,
+      onLibraryUpdateListener
+    );
   }, []);
+
+  useEffect(() => {
+    if (status && status === LibraryStatusEnum.Updated) {
+      router.replace(router.asPath);
+    }
+  }, [status]);
+
   return <></>;
 };
 
