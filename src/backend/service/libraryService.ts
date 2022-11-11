@@ -12,29 +12,33 @@ class LibraryService {
 
   async update() {
     try {
-      this.updateStatus(LibraryStatus.Updating);
+      const libraryIsNotUpdating =
+        LibraryService.status !== LibraryStatus.Updating;
 
-      if (SettingsService.getIsToDeleteInvalidData()) {
-        await DirectoryService.deleteInvalids();
-        await AnimeService.deleteInvalids();
-        await EpisodeService.deleteInvalids();
-        await SubtitleService.deleteInvalids();
+      if (libraryIsNotUpdating) {
+        this.updateStatus(LibraryStatus.Updating);
+        if (SettingsService.getIsToDeleteInvalidData()) {
+          await DirectoryService.deleteInvalids();
+          await AnimeService.deleteInvalids();
+          await EpisodeService.deleteInvalids();
+          await SubtitleService.deleteInvalids();
+        }
+
+        const directories = DirectoryService.list();
+        await AnimeService.createFromDirectories(directories);
+
+        const animes = AnimeService.list();
+        await EpisodeService.createFromAnimes(animes);
+
+        const episodes = EpisodeService.list();
+        await SubtitleService.createFromEpisodes(episodes);
+
+        if (SettingsService.getIsToDeleteConvertedData()) {
+          await EpisodeService.deleteConverted();
+        }
+
+        this.updateStatus(LibraryStatus.Updated);
       }
-
-      const directories = DirectoryService.list();
-      await AnimeService.createFromDirectories(directories);
-
-      const animes = AnimeService.list();
-      await EpisodeService.createFromAnimes(animes);
-
-      const episodes = EpisodeService.list();
-      await SubtitleService.createFromEpisodes(episodes);
-
-      if (SettingsService.getIsToDeleteConvertedData()) {
-        await EpisodeService.deleteConverted();
-      }
-
-      this.updateStatus(LibraryStatus.Updated);
     } catch (error) {
       this.updateStatus(LibraryStatus.Failed);
       console.log(error);
