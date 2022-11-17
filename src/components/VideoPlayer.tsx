@@ -135,6 +135,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const shouldShowControls = hasMouseMoved || !isPlaying;
   const isMuted = volume === 0;
   const videoCurrentTime = formatSecondsInTime(video.current?.currentTime);
+  const shouldShowSubtitleButton = subtitles.length > 0;
 
   const seekToTime = (timeInSeconds: number) => {
     video.current!.currentTime = timeInSeconds;
@@ -284,7 +285,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     const disableSubtitlesOption = (
       <button
         key="disable-option"
-        className="text-left p-2 font-semibold uppercase hover:bg-rose-700"
+        className="text-left p-2 font-semibold uppercase hover:bg-rose-700 whitespace-nowrap text-ellipsis overflow-hidden"
         onClick={onDisableSubtitlesHandler}
       >
         Disable
@@ -301,7 +302,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <button
             key={trackText.id}
             onClick={() => onSelectSubtitleHandler(trackText.id)}
-            className={`${selectedClass} text-left p-2 font-semibold uppercase hover:bg-rose-600`}
+            className={`${selectedClass} text-left p-2 font-semibold uppercase hover:bg-rose-600 whitespace-nowrap text-ellipsis overflow-hidden`}
           >
             {trackText.label}
           </button>
@@ -383,19 +384,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2 select-none"
         >
           <PlayerButton
-            className="md-56 rounded-full bg-neutral-900/25 p-2"
+            className="scale-75 md:scale-100 md-56 rounded-full bg-neutral-900/25 p-2"
             onClick={onRewind10SecondsHandler}
           >
             replay_10
           </PlayerButton>
           <PlayerButton
-            className="md-72 bg-neutral-900/25 rounded-full p-2"
+            className="scale-75 md:scale-100 md-72 bg-neutral-900/25 rounded-full p-2"
             onClick={onPlayToggleHandler}
           >
             {isPlaying ? 'pause' : 'play_arrow'}
           </PlayerButton>
           <PlayerButton
-            className="md-56 bg-neutral-900/25 rounded-full p-2"
+            className="scale-75 md:scale-100 md-56 bg-neutral-900/25 rounded-full p-2"
             onClick={onForward10SecondsHandler}
           >
             forward_10
@@ -407,7 +408,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent select-none"
         >
           <div className="w-full flex justify-between items-center">
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3">
               <PlayerButton onClick={onPlayToggleHandler}>
                 {isPlaying ? 'pause' : 'play_circle'}
               </PlayerButton>
@@ -432,16 +433,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   <VolumeBar value={volume} onChange={onVolumeChangeHandler} />
                 </div>
               </div>
-
-              <MenuDropdown
-                buttonClassName="flex items-center"
-                menuClassName="bottom-8 bg-neutral-900 opacity-90 w-[150px]"
-                items={buildSubtitlesOptions()}
-              >
-                <PlayerButton>
-                  <i className="material-icons">subtitles</i>
-                </PlayerButton>
-              </MenuDropdown>
+              {shouldShowSubtitleButton && (
+                <MenuDropdown
+                  buttonClassName="flex items-center"
+                  menuClassName="bottom-8 bg-neutral-900 opacity-90 w-[170px]"
+                  items={buildSubtitlesOptions()}
+                >
+                  <PlayerButton>
+                    <i className="material-icons">subtitles</i>
+                  </PlayerButton>
+                </MenuDropdown>
+              )}
             </div>
             <PlayerButton onClick={onFullscreenToggleHandler}>
               <MaterialIcon>

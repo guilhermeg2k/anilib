@@ -1,7 +1,7 @@
 {
   "name": "anilib",
-  "version": "0.5.0",
-  "versionName": "Nanami",
+  "version": "0.6.0",
+  "versionName": "genryuusai-dev",
   "private": true,
   "scripts": {
     "dev": "next dev",
