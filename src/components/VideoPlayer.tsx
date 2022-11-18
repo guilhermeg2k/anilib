@@ -1,8 +1,8 @@
 import { formatSecondsInTime } from '@utils/timeUtils';
 import { Subtitle } from 'backend/database/types';
 import React, {
-  KeyboardEvent,
   ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -66,8 +66,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const videoPlayer = useRef<HTMLDivElement>(null);
+  const onKeyUpListenerRef = useRef<((event: KeyboardEvent) => void) | null>(
+    null
+  );
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
-
   const shouldShowControls = hasMouseMoved || !isPlaying;
   const isMuted = volume === 0;
   const videoCurrentTime = formatSecondsInTime(video.current?.currentTime);
@@ -77,13 +79,35 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     video.current!.currentTime = timeInSeconds;
   };
 
-  const forward = (seconds: number) => {
+  const forward = useCallback((seconds: number) => {
     seekToTime(video.current!.currentTime + seconds);
-  };
+  }, []);
 
-  const rewind = (seconds: number) => {
+  const rewind = useCallback((seconds: number) => {
     seekToTime(video.current!.currentTime - seconds);
-  };
+  }, []);
+
+  const increaseVolume = useCallback(
+    (amount: number) => {
+      video.current!.volume = Math.min((volume + amount) / 100, 1);
+    },
+    [volume]
+  );
+
+  const decreaseVolume = useCallback(
+    (amount: number) => {
+      video.current!.volume = Math.max((volume - amount) / 100, 0);
+    },
+    [volume]
+  );
+
+  const onPlayToggleHandler = useCallback(() => {
+    if (!video.current!.paused) {
+      video.current!.pause();
+    } else {
+      video.current!.play();
+    }
+  }, []);
 
   const onDisableSubtitlesHandler = () => {
     Array.from(video.current!.textTracks).forEach(
@@ -101,14 +125,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         setCurrentSubtitleId(textTrack.id);
       }
     });
-  };
-
-  const onPlayToggleHandler = () => {
-    if (isPlaying) {
-      video.current!.pause();
-    } else {
-      video.current!.play();
-    }
   };
 
   const onPauseHandler = () => {
@@ -149,31 +165,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     onNextEpisode();
   };
 
-  const onVideoKeyUpHandler = (event: KeyboardEvent) => {
-    event.preventDefault();
-    switch (event.code) {
-      case 'Space':
-        onPlayToggleHandler();
-        break;
-      case 'ArrowLeft':
-        rewind(10);
-        break;
-      case 'ArrowRight':
-        forward(10);
-        break;
-      default:
-        break;
-    }
-  };
-
   const onVolumeUpdateHandler = () => {
     setVolume(video.current!.volume * 100);
   };
 
   const onVolumeChangeHandler = (newVolume: number) => {
-    if (newVolume) {
-      video.current!.volume = newVolume / 100;
-    }
+    video.current!.volume = newVolume / 100;
   };
 
   const onMuteToggleHandler = () => {
@@ -248,8 +245,53 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     return subtitles;
   };
 
+  const onKeyUpListener = useCallback(
+    (event: KeyboardEvent) => {
+      switch (event.code) {
+        case 'Space':
+          onPlayToggleHandler();
+          break;
+        case 'ArrowLeft':
+          rewind(10);
+          break;
+        case 'ArrowRight':
+          forward(10);
+          break;
+        case 'ArrowUp':
+          increaseVolume(10);
+          break;
+        case 'ArrowDown':
+          decreaseVolume(10);
+          break;
+        default:
+          break;
+      }
+    },
+    [onPlayToggleHandler, increaseVolume, decreaseVolume, rewind, forward]
+  );
+
+  useEffect(() => {
+    if (onKeyUpListenerRef.current) {
+      document!.removeEventListener('keyup', onKeyUpListenerRef.current);
+    }
+    onKeyUpListenerRef.current = onKeyUpListener;
+    document!.addEventListener('keyup', onKeyUpListener);
+
+    return () => {
+      if (onKeyUpListenerRef.current) {
+        document!.removeEventListener('keyup', onKeyUpListenerRef.current);
+      }
+    };
+  }, [onKeyUpListener]);
+
   useEffect(() => {
     document!.addEventListener('fullscreenchange', onFullscreenUpdateHandler);
+    return () => {
+      document!.removeEventListener(
+        'fullscreenchange',
+        onFullscreenUpdateHandler
+      );
+    };
   }, []);
 
   useEffect(() => {
@@ -267,7 +309,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       ref={videoPlayer}
       onMouseMove={onMouseMoveHandler}
       onMouseLeave={onMouseLeaveHandler}
-      onKeyUp={onVideoKeyUpHandler}
     >
       <video
         id="videoPlayer"
