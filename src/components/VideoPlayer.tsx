@@ -1,5 +1,5 @@
-import { Subtitle } from 'backend/database/types';
 import { formatSecondsInTime } from '@utils/timeUtils';
+import { Subtitle } from 'backend/database/types';
 import React, {
   KeyboardEvent,
   ReactNode,
@@ -7,10 +7,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import InputSlider from 'react-input-slider';
 import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
+import Slider from './Slider';
 
 const getDefaultSubtitle = (subtitles: Array<Subtitle>) =>
   subtitles.length === 1
@@ -39,70 +39,6 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
   );
 };
 
-interface VolumeBarProps {
-  value: number;
-  onChange: (time: number) => void;
-}
-
-const VolumeBar: React.FC<VolumeBarProps> = ({ value, onChange }) => {
-  return (
-    <InputSlider
-      styles={{
-        track: {
-          cursor: 'pointer',
-          width: '100%',
-          backgroundColor: 'rgba(255, 255, 255, 0.4)',
-          borderRadius: '1px',
-          height: '5px',
-        },
-        active: {
-          backgroundColor: '#fff',
-          borderRadius: '1px',
-        },
-        thumb: {
-          height: '10px',
-          width: '10px',
-          backgroundColor: '#fff',
-        },
-      }}
-      axis="x"
-      x={value}
-      onChange={({ x }) => onChange(x)}
-    />
-  );
-};
-
-interface ProgressBarProps {
-  value: number;
-  onChange: (time: number) => void;
-}
-
-const ProgressBar: React.FC<ProgressBarProps> = ({ value, onChange }) => {
-  return (
-    <InputSlider
-      styles={{
-        track: {
-          cursor: 'pointer',
-          width: '100%',
-          backgroundColor: 'rgba(255, 255, 255, 0.4)',
-          borderRadius: '1px',
-          height: '5px',
-        },
-        active: {
-          backgroundColor: '#E11D48',
-          borderRadius: '1px',
-        },
-        thumb: {
-          display: 'none',
-        },
-      }}
-      axis="x"
-      x={value}
-      onChange={({ x }) => onChange(x)}
-    />
-  );
-};
-
 interface VideoPlayerProps {
   videoUrl: string;
   coverImageBase64: string;
@@ -122,7 +58,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     getDefaultSubtitle(subtitles)
   );
   const [volume, setVolume] = useState(100);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTimePercentage, setCurrentTimePercentage] = useState(0);
   const [duration, setDuration] = useState('0:00:00');
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasMouseMoved, setHasMouseMoved] = useState(true);
@@ -184,14 +120,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   const onTimeChangeHandler = (time: number) => {
-    if (time) {
-      const currentTimeOnSeconds = (video.current!.duration * time) / 100;
-      seekToTime(currentTimeOnSeconds);
-    }
+    const currentTimeOnSeconds = (video.current!.duration * time) / 100;
+    seekToTime(currentTimeOnSeconds);
   };
 
   const onTimeUpdateHandler = () => {
-    setCurrentTime(
+    setCurrentTimePercentage(
       (video.current!.currentTime * 100) / video.current!.duration
     );
   };
@@ -430,7 +364,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     !isShowingVolumeSlider && 'hidden'
                   }`}
                 >
-                  <VolumeBar value={volume} onChange={onVolumeChangeHandler} />
+                  <Slider
+                    value={volume}
+                    onChange={onVolumeChangeHandler}
+                    activeClassName="bg-neutral-50"
+                    thumbClassName="bg-neutral-50"
+                    alwaysShowThumb
+                  />
                 </div>
               </div>
               {shouldShowSubtitleButton && (
@@ -451,10 +391,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               </MaterialIcon>
             </PlayerButton>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-sm font-semibold">{videoCurrentTime}</span>
             <div className={`w-full flex items-center justify-center`}>
-              <ProgressBar value={currentTime} onChange={onTimeChangeHandler} />
+              <Slider
+                value={currentTimePercentage}
+                onChange={onTimeChangeHandler}
+              />
             </div>
             <span className="text-sm font-semibold">{duration}</span>
           </div>

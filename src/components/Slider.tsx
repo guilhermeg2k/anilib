@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { MouseEvent, useRef, useState } from 'react';
 
 interface SliderProps {
   value?: number;
@@ -6,9 +6,10 @@ interface SliderProps {
   onHover?: (value: number) => void;
   onChange?: (value: number) => void;
   backgroundClassName?: string;
-  trackClassName?: string;
+  hoverClassName?: string;
   activeClassName?: string;
   thumbClassName?: string;
+  alwaysShowThumb?: boolean;
 }
 
 const Slider = ({
@@ -17,54 +18,64 @@ const Slider = ({
   onChange = () => {},
   onHover = () => {},
   backgroundClassName = '',
-  trackClassName = '',
+  hoverClassName = '',
   activeClassName = '',
   thumbClassName = '',
+  alwaysShowThumb = false,
 }: SliderProps) => {
-  const [percentage, setPercentage] = useState(0);
   const [hoverPercentage, setHoverPercentage] = useState(0);
   const timeline = useRef<HTMLDivElement>(null);
-  const thumb = useRef<HTMLDivElement>(null);
+  const activePercentage = (100 * value) / maxValue;
+
+  const onClickHandler = (e: MouseEvent<HTMLDivElement>) => {
+    if (timeline.current) {
+      const clickedPercentage = Math.floor(
+        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100
+      );
+      const value = (maxValue * clickedPercentage) / 100;
+      onChange(value);
+    }
+  };
+
+  const onMouseMoveHandler = (e: MouseEvent<HTMLDivElement>) => {
+    if (timeline.current) {
+      const hoverPercentage = Math.floor(
+        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100
+      );
+      const hoverValue = (maxValue * hoverPercentage) / 100;
+      onHover(hoverValue);
+      setHoverPercentage(
+        Math.floor((e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100)
+      );
+    }
+  };
 
   return (
-    <div className="p-10">
+    <div
+      ref={timeline}
+      className={`w-full bg-neutral-400 rounded-sm h-1.5 relative flex items-center cursor-pointer group ${backgroundClassName}`}
+      onClick={onClickHandler}
+      onMouseMove={onMouseMoveHandler}
+    >
       <div
-        ref={timeline}
-        className="w-full bg-neutral-100 h-4 opacity-90 relative flex items-center cursor-pointer group"
-        onClick={(e) => {
-          if (e.nativeEvent.target !== thumb.current) {
-            setPercentage(
-              Math.floor(
-                (e.nativeEvent.offsetX / timeline.current?.offsetWidth) * 100
-              )
-            );
-          }
+        style={{ width: `${activePercentage}%` }}
+        className={`bg-rose-600 h-1.5 relative z-10 ${activeClassName}`}
+      />
+      <div
+        style={{
+          left: `${activePercentage - 1}%`,
         }}
-        onMouseMove={(e) => {
-          setHoverPercentage(
-            Math.floor(
-              (e.nativeEvent.offsetX / timeline.current?.offsetWidth) * 100
-            )
-          );
+        className={` bg-rose-600 h-3 w-3 absolute rounded-full z-10 ${
+          !alwaysShowThumb &&
+          'transition duration-100 scale-0 group-hover:scale-100'
+        } ${thumbClassName}`}
+      />
+      <div
+        style={{
+          width: `${hoverPercentage}%`,
         }}
-      >
-        <div
-          style={{ width: `${percentage}%` }}
-          className={`bg-rose-600 h-4 relative z-10`}
-        />
-        <div
-          style={{
-            left: `${percentage - 1}%`,
-          }}
-          className={` bg-rose-600 h-8 w-8 absolute rounded-full z-10 transition duration-100 scale-0 group-hover:scale-100`}
-        />
-        <div
-          style={{
-            width: `${hoverPercentage + 1}%`,
-          }}
-          className={`bg-neutral-500 h-4 absolute z-0 transition duration-200 opacity-0 group-hover:opacity-100`}
-        />
-      </div>
+        className={`bg-neutral-300 h-1.5 absolute z-0 transition duration-200 opacity-0 group-hover:opacity-100 ${hoverClassName}`}
+      />
     </div>
   );
 };
