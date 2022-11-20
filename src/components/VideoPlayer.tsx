@@ -31,7 +31,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
   return (
     <button onClick={onClick}>
       <MaterialIcon
-        className={`${className} opacity-90 hover:opacity-100 text-white duration-200 ease-in-out  flex items-center`}
+        className={`${className} flex items-center text-white opacity-90 duration-200  ease-in-out hover:opacity-100`}
       >
         {children}
       </MaterialIcon>
@@ -64,6 +64,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [hasMouseMoved, setHasMouseMoved] = useState(true);
   const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hoverTimePercentage, setHoverTimePercentage] = useState(0);
   const video = useRef<HTMLVideoElement>(null);
   const videoPlayer = useRef<HTMLDivElement>(null);
   const onKeyUpHandlerRef = useRef<((event: KeyboardEvent) => void) | null>(
@@ -73,6 +74,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const shouldShowControls = hasMouseMoved || !isPlaying;
   const isMuted = volume === 0;
   const videoCurrentTime = formatSecondsInTime(video.current?.currentTime);
+  const formattedHoverTime = formatSecondsInTime(
+    (video.current!.duration * hoverTimePercentage) / 100
+  );
   const shouldShowSubtitleButton = subtitles.length > 0;
 
   const seekToTime = (timeInSeconds: number) => {
@@ -202,7 +206,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     const disableSubtitlesOption = (
       <button
         key="disable-option"
-        className="text-left p-2 font-semibold uppercase hover:bg-rose-700 whitespace-nowrap text-ellipsis overflow-hidden"
+        className="overflow-hidden text-ellipsis whitespace-nowrap p-2 text-left font-semibold uppercase hover:bg-rose-700"
         onClick={onDisableSubtitlesHandler}
       >
         Disable
@@ -219,7 +223,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <button
             key={trackText.id}
             onClick={() => onSelectSubtitleHandler(trackText.id)}
-            className={`${selectedClass} text-left p-2 font-semibold uppercase hover:bg-rose-600 whitespace-nowrap text-ellipsis overflow-hidden`}
+            className={`${selectedClass} overflow-hidden text-ellipsis whitespace-nowrap p-2 text-left font-semibold uppercase hover:bg-rose-600`}
           >
             {trackText.label}
           </button>
@@ -282,7 +286,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       <video
         id="videoPlayer"
         key={videoUrl}
-        className="w-full h-full"
+        className="h-full w-full"
         ref={video}
         poster={`data:image/png;base64,${coverImage}`}
         preload="auto"
@@ -316,11 +320,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       <FadeTransition key="video-controls" show={shouldShowControls}>
         <div
           id="video-top-controls"
-          className="absolute top-0  px-4 py-2 flex flex-col z-10 bg-gradient-to-b from-neutral-800 to-transparent w-full"
+          className="absolute top-0  z-10 flex w-full flex-col bg-gradient-to-b from-neutral-800 to-transparent px-4 py-2"
         >
           <span className="text-xl">{episodeTitle}</span>
           <button
-            className="text-sm font-semibold text-start hover:text-rose-600 ease-in-out duration-200 select-none"
+            className="select-none text-start text-sm font-semibold duration-200 ease-in-out hover:text-rose-600"
             onClick={() => onNextEpisode()}
           >
             Next Episode
@@ -329,22 +333,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         <div
           id="video-middle-controls"
-          className="flex absolute m-auto left-0 right-0 top-0 bottom-0 items-center justify-center gap-2 select-none"
+          className="absolute left-0 right-0 top-0 bottom-0 m-auto flex select-none items-center justify-center gap-2"
         >
           <PlayerButton
-            className="scale-75 md:scale-100 md-56 rounded-full bg-neutral-900/25 p-2"
+            className="md-56 scale-75 rounded-full bg-neutral-900/25 p-2 md:scale-100"
             onClick={() => rewind(10)}
           >
             replay_10
           </PlayerButton>
           <PlayerButton
-            className="scale-75 md:scale-100 md-72 bg-neutral-900/25 rounded-full p-2"
+            className="md-72 scale-75 rounded-full bg-neutral-900/25 p-2 md:scale-100"
             onClick={onPlayToggleHandler}
           >
             {isPlaying ? 'pause' : 'play_arrow'}
           </PlayerButton>
           <PlayerButton
-            className="scale-75 md:scale-100 md-56 bg-neutral-900/25 rounded-full p-2"
+            className="md-56 scale-75 rounded-full bg-neutral-900/25 p-2 md:scale-100"
             onClick={() => forward(10)}
           >
             forward_10
@@ -353,16 +357,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         <div
           id="video-bottom-controls"
-          className="absolute bottom-0 w-full px-4 py-2 flex flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent select-none"
+          className="absolute bottom-0 flex w-full select-none flex-col gap-2 bg-gradient-to-t from-neutral-800 to-transparent px-4 py-2"
         >
-          <div className="w-full flex justify-between items-center">
+          <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-3">
               <PlayerButton onClick={onPlayToggleHandler}>
                 {isPlaying ? 'pause' : 'play_circle'}
               </PlayerButton>
 
               <div
-                className="flex gap-2 items-center"
+                className="flex items-center gap-2"
                 onMouseEnter={() => toggleIsShowingVolumeSlider()}
                 onMouseLeave={() => toggleIsShowingVolumeSlider()}
               >
@@ -409,7 +413,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold">{videoCurrentTime}</span>
-            <div className={`w-full flex items-center justify-center`}>
+            <div className="group relative w-full">
+              <div
+                style={{
+                  left: `calc(${hoverTimePercentage}% - 5.5rem)`,
+                }}
+                className="absolute -top-[8.5rem] hidden flex-col items-center group-hover:flex"
+              >
+                <div className="h-28 w-44 bg-rose-600"></div>
+                <span className="text-sm">{formattedHoverTime}</span>
+              </div>
               <Slider
                 value={currentTimePercentage}
                 onChange={(time) => {
@@ -417,6 +430,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     (video.current!.duration * time) / 100;
                   seekToTime(currentTimeOnSeconds);
                 }}
+                onHover={(time) => setHoverTimePercentage(time)}
               />
             </div>
             <span className="text-sm font-semibold">{duration}</span>
