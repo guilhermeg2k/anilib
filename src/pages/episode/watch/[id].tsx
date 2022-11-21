@@ -1,4 +1,4 @@
-import { Episode, Subtitle } from 'backend/database/types';
+import { Episode, EpisodePreview, Subtitle } from 'backend/database/types';
 import EpisodeCard from '@components/EpisodeCard';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
@@ -9,36 +9,44 @@ import SubtitleService from 'services/subtitleService';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import EpisodePreviewService from '@services/episodePreviewService';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
-  const episode = await EpisodeService.getById(id);
+  const [episode, subtitles, coverImageBase64, previews] = await Promise.all([
+    EpisodeService.getById(id),
+    SubtitleService.listByEpisodeId(id),
+    EpisodeService.getCoverImageBase64ById(id),
+    EpisodePreviewService.listByEpisodeId(id),
+  ]);
+
   const episodes = await EpisodeService.listByAnimeId(episode.animeId);
-  const subtitles = await SubtitleService.listByEpisodeId(id);
-  const coverImageBase64 = await EpisodeService.getCoverImageBase64ById(id);
 
   const watchProps: WatchProps = {
     episode,
     episodes,
     subtitles,
     coverImageBase64,
+    previews,
   };
 
   return { props: watchProps };
 };
 
 interface WatchProps {
+  coverImageBase64: string;
   episode: Episode;
   episodes: Array<Episode>;
   subtitles: Array<Subtitle>;
-  coverImageBase64: string;
+  previews: Array<EpisodePreview>;
 }
 
 const Watch: NextPage<WatchProps> = ({
+  coverImageBase64,
   episode,
   episodes,
   subtitles,
-  coverImageBase64,
+  previews,
 }) => {
   const router = useRouter();
 
@@ -59,18 +67,19 @@ const Watch: NextPage<WatchProps> = ({
       </Head>
       <Navbar />
       <Page>
-        <main className="flex gap-2 2xl:gap-4 flex-col 2xl:flex-row">
+        <main className="flex flex-col gap-2 2xl:flex-row 2xl:gap-4">
           <section className="w-full">
             <VideoPlayer
               episodeTitle={episode.title}
-              onNextEpisode={onNextEpisodeHandler}
               videoUrl={`/api/episode/video-stream/${episode.id}`}
               coverImageBase64={coverImageBase64}
               subtitles={subtitles}
+              previews={previews}
+              onNextEpisode={onNextEpisodeHandler}
             />
           </section>
           <aside className="flex flex-col gap-2 2xl:w-[40%]">
-            <h1 className="font-bold uppercase text-lg text-rose-700">
+            <h1 className="text-lg font-bold uppercase text-rose-700">
               Episodes
             </h1>
             <div className="flex flex-col gap-2">

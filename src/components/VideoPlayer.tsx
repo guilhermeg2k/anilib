@@ -1,5 +1,6 @@
 import { formatSecondsInTime } from '@utils/timeUtils';
-import { Subtitle } from 'backend/database/types';
+import { EpisodePreview, Subtitle } from 'backend/database/types';
+import Image from 'next/image';
 import React, {
   ReactNode,
   useCallback,
@@ -44,6 +45,7 @@ interface VideoPlayerProps {
   coverImageBase64: string;
   episodeTitle: string;
   subtitles: Array<Subtitle>;
+  previews: Array<EpisodePreview>;
   onNextEpisode: () => void;
 }
 
@@ -52,6 +54,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   episodeTitle,
   coverImageBase64: coverImage,
   subtitles,
+  previews,
   onNextEpisode,
 }) => {
   const [currentSubtitleId, setCurrentSubtitleId] = useState(
@@ -72,12 +75,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   );
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
   const shouldShowControls = hasMouseMoved || !isPlaying;
+  const shouldShowSubtitleButton = subtitles.length > 0;
   const isMuted = volume === 0;
   const videoCurrentTime = formatSecondsInTime(video.current?.currentTime);
-  const formattedHoverTime = formatSecondsInTime(
-    (video.current!.duration * hoverTimePercentage) / 100
-  );
-  const shouldShowSubtitleButton = subtitles.length > 0;
+  const hoverTimeInSeconds =
+    video.current &&
+    Math.floor((video.current.duration * hoverTimePercentage) / 100);
+  const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
+  const currentHoverPreview =
+    hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
+  const currentHoverPreviewSrc =
+    currentHoverPreview &&
+    `data:image/jpg;base64,${currentHoverPreview.base64}`;
 
   const seekToTime = (timeInSeconds: number) => {
     video.current!.currentTime = timeInSeconds;
@@ -414,15 +423,25 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold">{videoCurrentTime}</span>
             <div className="group relative w-full">
-              <div
-                style={{
-                  left: `calc(${hoverTimePercentage}% - 5.5rem)`,
-                }}
-                className="absolute -top-[8.5rem] hidden flex-col items-center group-hover:flex"
-              >
-                <div className="h-28 w-44 bg-rose-600"></div>
-                <span className="text-sm">{formattedHoverTime}</span>
-              </div>
+              {currentHoverPreviewSrc && (
+                <div
+                  style={{
+                    left: `calc(${hoverTimePercentage}% - 5.5rem)`,
+                  }}
+                  className="absolute -top-[8rem] hidden flex-col items-center gap-1 group-hover:flex"
+                >
+                  <figure className="w-44">
+                    <Image
+                      src={currentHoverPreviewSrc}
+                      alt="Episode preview"
+                      layout="responsive"
+                      width={500}
+                      height={281}
+                    />
+                  </figure>
+                  <span className="text-sm">{formattedHoverTime}</span>
+                </div>
+              )}
               <Slider
                 value={currentTimePercentage}
                 onChange={(time) => {

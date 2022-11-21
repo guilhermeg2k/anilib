@@ -31,6 +31,7 @@ export interface EpisodePreview {
   order: number;
   filePath: string;
   episodeId: string;
+  base64?: string;
 }
 
 export interface Subtitle {
