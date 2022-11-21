@@ -5,6 +5,7 @@ import AnimeService from 'backend/service/animeService';
 import EpisodeService from 'backend/service/episodeService';
 import SubtitleService from 'backend/service/subtitleService';
 import DirectoryService from './directoryService';
+import EpisodePreviewService from './episodePreviewService';
 import SettingsService from './settingsService';
 
 class LibraryService {
@@ -32,6 +33,7 @@ class LibraryService {
 
         const episodes = EpisodeService.list();
         await SubtitleService.createFromEpisodes(episodes);
+        await EpisodePreviewService.createFromEpisodes(episodes);
 
         if (SettingsService.getIsToDeleteConvertedData()) {
           await EpisodeService.deleteConverted();

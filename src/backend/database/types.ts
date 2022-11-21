@@ -26,6 +26,13 @@ export interface Episode {
   animeId: string;
 }
 
+export interface EpisodePreview {
+  id?: string;
+  order: number;
+  filePath: string;
+  episodeId: string;
+}
+
 export interface Subtitle {
   id?: string;
   filePath: string;
@@ -33,11 +40,11 @@ export interface Subtitle {
   label: string;
   episodeId?: string;
 }
-
 export interface DatabaseData {
   directories: Map<string, string>;
   animes: Map<string, Anime>;
   episodes: Map<string, Episode>;
+  episodePreviews: Map<string, EpisodePreview>;
   subtitles: Map<string, Subtitle>;
   settings: Map<string, Boolean>;
 }

@@ -1,4 +1,4 @@
-import { default as database, default as dataBase } from 'backend/database';
+import database from 'backend/database';
 import { Subtitle } from 'backend/database/types';
 import { v4 as uuid } from 'uuid';
 
@@ -16,7 +16,7 @@ class SubtitleRepository {
   }
 
   static getById(id: string) {
-    const subtitle = <Subtitle>dataBase.get('subtitles', id);
+    const subtitle = <Subtitle>database.get('subtitles', id);
     return subtitle;
   }
 

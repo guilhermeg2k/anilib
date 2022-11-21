@@ -141,6 +141,32 @@ export const extractImageCoverFromVideo = async (
   return jpgFilePath;
 };
 
+export const extractJpgImageFromVideo = async (
+  videoFilePath: string,
+  timeInSeconds: number,
+  jpgFileName: string,
+  outputDir: string,
+  scale = '500'
+) => {
+  const outputDirDoesNotExists = !fs.existsSync(outputDir);
+  if (outputDirDoesNotExists) {
+    await fsPromises.mkdir(outputDir);
+  }
+
+  const jpgFilePath = path.join(outputDir, jpgFileName);
+  const imageDoesNotExists = !fs.existsSync(jpgFilePath);
+
+  if (imageDoesNotExists) {
+    const ffmpegExecCommand = `ffmpeg -y -ss ${timeInSeconds} -i "${videoFilePath}" -vf scale=${scale}:-1 -frames:v 1 -q:v 2 "${jpgFilePath}"`;
+    const { error } = await exec(ffmpegExecCommand);
+    if (error) {
+      throw new Error(`Failed to extract image cover from ${videoFilePath}`);
+    }
+  }
+
+  return jpgFilePath;
+};
+
 export const extractSubtitlesFromVideo = async (
   videoFilePath: string,
   outputDir = getDefaultOutputDir(videoFilePath)
@@ -196,4 +222,20 @@ export const extractSubtitlesFromVideo = async (
   }
 
   return subtitles;
+};
+
+export const getVideoDurationInSeconds = async (videoPath: string) => {
+  const fileProb = await ffprobe(videoPath, {
+    path: ffprobeStatic.path,
+  });
+
+  const streamHasDuration =
+    (fileProb.streams[0] && fileProb.streams[0].duration) !== null;
+
+  if (streamHasDuration) {
+    const durationInSeconds = Math.floor(fileProb.streams[0].duration!);
+    return durationInSeconds;
+  }
+
+  throw new Error(`Duration not found on stream[0] of the video ${videoPath}`);
 };
