@@ -70,11 +70,15 @@ class EpisodePreviewService {
 
     for (
       let currentPreviewCount = 0;
-      currentPreviewCount < numberOfPreviewsToGenerate;
+      currentPreviewCount <= numberOfPreviewsToGenerate;
       currentPreviewCount++
     ) {
-      const currentFrameToExtract =
+      let currentFrameToExtract =
         currentPreviewCount * previewIntervalInSeconds;
+
+      if (currentPreviewCount == numberOfPreviewsToGenerate) {
+        currentFrameToExtract = episodeDurationInSeconds;
+      }
 
       const jpgFileName = path
         .basename(episode.filePath)
