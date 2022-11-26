@@ -25,23 +25,24 @@ const Slider = ({
 }: SliderProps) => {
   const [hoverPercentage, setHoverPercentage] = useState(0);
   const timeline = useRef<HTMLDivElement>(null);
+  const thumb = useRef<HTMLDivElement>(null);
   const activePercentage = (100 * value) / maxValue;
 
+
   const onClickHandler = (e: MouseEvent<HTMLDivElement>) => {
-    if (timeline.current) {
-      const clickedPercentage = Math.floor(
-        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100
-      );
+    const isValidEvent = timeline.current && e.target !== thumb.current;
+    if (isValidEvent) {
+      const clickedPercentage = (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
       const value = (maxValue * clickedPercentage) / 100;
       onChange(value);
     }
   };
 
   const onMouseMoveHandler = (e: MouseEvent<HTMLDivElement>) => {
-    if (timeline.current) {
-      const hoverPercentage = Math.floor(
-        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100
-      );
+    const isValidEvent = timeline.current && e.target !== thumb.current;
+    if (isValidEvent) {
+      const hoverPercentage = 
+        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
       const hoverValue = (maxValue * hoverPercentage) / 100;
       onHover(hoverValue);
       setHoverPercentage(
@@ -62,6 +63,7 @@ const Slider = ({
         className={`bg-rose-600 h-1.5 relative z-10 ${activeClassName}`}
       />
       <div
+        ref={thumb}
         style={{
           left: `${activePercentage - 1}%`,
         }}

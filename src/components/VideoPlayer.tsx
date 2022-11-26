@@ -61,27 +61,26 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     getDefaultSubtitle(subtitles)
   );
   const [volume, setVolume] = useState(100);
-  const [currentTimePercentage, setCurrentTimePercentage] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [hoverTimeInSeconds, setHoverTimeInSeconds] = useState(0);
   const [duration, setDuration] = useState('0:00:00');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasMouseMoved, setHasMouseMoved] = useState(true);
   const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [hoverTimePercentage, setHoverTimePercentage] = useState(0);
+  const [hasMouseMoved, setHasMouseMoved] = useState(true);
   const video = useRef<HTMLVideoElement>(null);
   const videoPlayer = useRef<HTMLDivElement>(null);
   const onKeyUpHandlerRef = useRef<((event: KeyboardEvent) => void) | null>(
     null
   );
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
+
+  const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
+  const formattedCurrentTime = formatSecondsInTime(currentTime);
+  const hoverTimePercentage = hoverTimeInSeconds * 100 / (video.current?.duration || 1);
   const shouldShowControls = hasMouseMoved || !isPlaying;
   const shouldShowSubtitleButton = subtitles.length > 0;
   const isMuted = volume === 0;
-  const videoCurrentTime = formatSecondsInTime(video.current?.currentTime);
-  const hoverTimeInSeconds =
-    video.current &&
-    Math.floor((video.current.duration * hoverTimePercentage) / 100);
-  const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
   const currentHoverPreview =
     hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
   const currentHoverPreviewSrc =
@@ -267,6 +266,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     if (onKeyUpHandlerRef.current) {
       document!.removeEventListener('keyup', onKeyUpHandlerRef.current);
     }
+
     onKeyUpHandlerRef.current = onKeyUpHandler;
     document!.addEventListener('keyup', onKeyUpHandler);
 
@@ -303,12 +303,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         onLoadedMetadata={onLoadMetadataHandler}
         onPause={() => setIsPlaying(false)}
         onPlay={() => setIsPlaying(true)}
-        onTimeUpdate={() => {
-          setCurrentTimePercentage(
-            (video.current!.currentTime * 100) / video.current!.duration
-          );
-        }}
         onVolumeChange={() => setVolume(video.current!.volume * 100)}
+        onTimeUpdate={() => setCurrentTime(video.current?.currentTime!)}
       >
         <source src={videoUrl} type="video/mp4" />
         {subtitles.map((subtitle) => {
@@ -421,7 +417,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </PlayerButton>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold">{videoCurrentTime}</span>
+            <span className="text-sm font-semibold">{formattedCurrentTime}</span>
             <div className="group relative w-full">
               {currentHoverPreviewSrc && (
                 <div
@@ -443,13 +439,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </div>
               )}
               <Slider
-                value={currentTimePercentage}
-                onChange={(time) => {
-                  const currentTimeOnSeconds =
-                    (video.current!.duration * time) / 100;
-                  seekToTime(currentTimeOnSeconds);
-                }}
-                onHover={(time) => setHoverTimePercentage(time)}
+                value={video.current?.currentTime}
+                maxValue={video.current?.duration}
+                onChange={(time) => seekToTime(time)}
+                onHover={(time) => setHoverTimeInSeconds(time)}
               />
             </div>
             <span className="text-sm font-semibold">{duration}</span>
