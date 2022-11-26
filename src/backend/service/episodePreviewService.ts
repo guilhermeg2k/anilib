@@ -9,8 +9,6 @@ import pLimit from 'p-limit';
 import path from 'path';
 
 class EpisodePreviewService {
-  private static createFromEpisodePromiseLimiter = pLimit(10);
-
   static list() {
     const previews = EpisodePreviewRepository.list();
     return previews;
@@ -39,12 +37,17 @@ class EpisodePreviewService {
   }
 
   static async createFromEpisodes(episodes: Array<Episode>) {
-    const createFromEpisodePromises = episodes.map((episode) =>
-      EpisodePreviewService.createFromEpisodePromiseLimiter(() =>
-        EpisodePreviewService.createFromEpisode(episode)
-      )
-    );
-    const createdPreviews = await Promise.all(createFromEpisodePromises);
+    const createdPreviews = Array<EpisodePreview>();
+
+    for (const episode of episodes) {
+      const episodePreviews = await EpisodePreviewService.createFromEpisode(
+        episode
+      );
+      if (episodePreviews) {
+        createdPreviews.push(...episodePreviews);
+      }
+    }
+
     return createdPreviews.flat(Infinity);
   }
 
@@ -53,13 +56,12 @@ class EpisodePreviewService {
       episode.id!
     );
     const episodeHasPreviews = episodePreviews.length > 0;
-
     if (episodeHasPreviews) {
       return;
     }
 
-    const createdPreviews = Array<EpisodePreview>();
-    const episodeFileExt = path.extname(episode.filePath);
+    const createFromFramePromises = Array<Promise<EpisodePreview>>();
+    const createFromFramePromisesLimiter = pLimit(6);
     const episodeDurationInSeconds = await getVideoDurationInSeconds(
       episode.filePath
     );
@@ -80,32 +82,48 @@ class EpisodePreviewService {
         currentFrameToExtract = episodeDurationInSeconds;
       }
 
-      const jpgFileName = path
-        .basename(episode.filePath)
-        .replace(episodeFileExt, `-${currentFrameToExtract}.jpg`);
-
-      const jpgOutputDir = path.join(
-        path.dirname(episode.coverImagePath),
-        'preview'
-      );
-
-      const previewFilePath = await extractJpgImageFromVideo(
-        episode.filePath,
+      const createPreviewFromFramePromise = this.createFromFrame(
+        episode,
         currentFrameToExtract,
-        jpgFileName,
-        jpgOutputDir
+        currentPreviewCount
       );
 
-      const createdPreview = await EpisodePreviewService.create({
-        episodeId: episode.id!,
-        filePath: previewFilePath,
-        order: currentPreviewCount,
-      });
-
-      createdPreviews.push(createdPreview);
+      createFromFramePromises.push(
+        createFromFramePromisesLimiter(() => createPreviewFromFramePromise)
+      );
     }
 
+    const createdPreviews = await Promise.all(createFromFramePromises);
     return createdPreviews;
+  }
+
+  private static async createFromFrame(
+    episode: Episode,
+    frame: number,
+    order: number
+  ) {
+    const episodeFileName = path.parse(episode.filePath).name;
+    const jpgFileName = `${episodeFileName}-${frame}.jpg`;
+
+    const jpgOutputDir = path.join(
+      path.dirname(episode.coverImagePath),
+      'preview'
+    );
+
+    const previewFilePath = await extractJpgImageFromVideo(
+      episode.filePath,
+      frame,
+      jpgFileName,
+      jpgOutputDir
+    );
+
+    const createdPreview = await EpisodePreviewService.create({
+      episodeId: episode.id!,
+      filePath: previewFilePath,
+      order,
+    });
+
+    return createdPreview;
   }
 }
 

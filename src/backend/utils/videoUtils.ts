@@ -146,18 +146,25 @@ export const extractJpgImageFromVideo = async (
   timeInSeconds: number,
   jpgFileName: string,
   outputDir: string,
-  scale = '500'
+  scaleWidth = '500'
 ) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
-    await fsPromises.mkdir(outputDir);
+    try {
+      await fsPromises.mkdir(outputDir);
+    } catch (error) {
+      const err = error as NodeJS.ErrnoException;
+      if (err.code !== 'EEXIST') {
+        throw error;
+      }
+    }
   }
 
   const jpgFilePath = path.join(outputDir, jpgFileName);
   const imageDoesNotExists = !fs.existsSync(jpgFilePath);
 
   if (imageDoesNotExists) {
-    const ffmpegExecCommand = `ffmpeg -y -ss ${timeInSeconds} -i "${videoFilePath}" -vf scale=${scale}:-1 -frames:v 1 -q:v 2 "${jpgFilePath}"`;
+    const ffmpegExecCommand = `ffmpeg -y -ss ${timeInSeconds} -i "${videoFilePath}" -vf scale=${scaleWidth}:-1 -frames:v 1 -q:v 2 "${jpgFilePath}"`;
     const { error } = await exec(ffmpegExecCommand);
     if (error) {
       throw new Error(`Failed to extract image cover from ${videoFilePath}`);

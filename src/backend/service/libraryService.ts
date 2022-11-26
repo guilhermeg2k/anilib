@@ -13,6 +13,8 @@ class LibraryService {
 
   async update() {
     try {
+      const startTime = Date.now();
+
       const libraryIsNotUpdating =
         LibraryService.status !== LibraryStatus.Updating;
 
@@ -33,14 +35,17 @@ class LibraryService {
 
         const episodes = EpisodeService.list();
         await SubtitleService.createFromEpisodes(episodes);
-        await EpisodePreviewService.createFromEpisodes(episodes);
 
+        await EpisodePreviewService.createFromEpisodes(episodes);
         if (SettingsService.getIsToDeleteConvertedData()) {
           await EpisodeService.deleteConverted();
         }
 
         this.updateStatus(LibraryStatus.Updated);
       }
+
+      const endTime = Date.now();
+      console.log(`Library update elapsed time: ${endTime - startTime} ms`);
     } catch (error) {
       this.updateStatus(LibraryStatus.Failed);
       console.log(error);
