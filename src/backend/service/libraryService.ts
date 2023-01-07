@@ -29,17 +29,22 @@ class LibraryService {
 
         const directories = DirectoryService.list();
         await AnimeService.createFromDirectories(directories);
+        console.log('Animes updated!');
 
         const animes = AnimeService.list();
         await EpisodeService.createFromAnimes(animes);
+        console.log('Episodes updated!');
 
         const episodes = EpisodeService.list();
         await SubtitleService.createFromEpisodes(episodes);
+        console.log('Subtitles updated!');
 
         await EpisodePreviewService.createFromEpisodes(episodes);
+        console.log('Episode previews updated!');
 
         if (SettingsService.getIsToDeleteConvertedData()) {
           await EpisodeService.deleteConverted();
+          console.log('Converted episodes deleted!');
         }
 
         this.updateStatus(LibraryStatus.Updated);

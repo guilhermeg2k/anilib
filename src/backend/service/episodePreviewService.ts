@@ -82,17 +82,16 @@ class EpisodePreviewService {
         currentFrameToExtract = episodeDurationInSeconds;
       }
 
-      const createPreviewFromFramePromise = this.createFromFrame(
-        episode,
-        currentFrameToExtract,
-        currentPreviewCount
-      );
-
       createFromFramePromises.push(
-        createFromFramePromisesLimiter(() => createPreviewFromFramePromise)
+        createFromFramePromisesLimiter(() =>
+          this.createFromFrame(
+            episode,
+            currentFrameToExtract,
+            currentPreviewCount
+          )
+        )
       );
     }
-
     const createdPreviews = await Promise.all(createFromFramePromises);
     return createdPreviews;
   }
