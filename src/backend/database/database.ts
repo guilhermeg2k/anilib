@@ -36,14 +36,14 @@ class Database {
       const fileData = fs.readFileSync(filePath);
       const databaseObject = <DatabaseData>JSON.parse(fileData.toString());
       const database = <DatabaseData>{
-        animes: new Map(Object.entries(databaseObject.animes)),
-        episodes: new Map(Object.entries(databaseObject.episodes)),
-        subtitles: new Map(Object.entries(databaseObject.subtitles)),
+        animes: new Map(Object.entries(databaseObject.animes || {})),
+        episodes: new Map(Object.entries(databaseObject.episodes || {})),
+        subtitles: new Map(Object.entries(databaseObject.subtitles || {})),
         episodePreviews: new Map(
-          Object.entries(databaseObject.episodePreviews)
+          Object.entries(databaseObject.episodePreviews || {})
         ),
-        directories: new Map(Object.entries(databaseObject.directories)),
-        settings: new Map(Object.entries(databaseObject.settings)),
+        directories: new Map(Object.entries(databaseObject.directories || {})),
+        settings: new Map(Object.entries(databaseObject.settings || {})),
       };
       this.database = database;
     } else {

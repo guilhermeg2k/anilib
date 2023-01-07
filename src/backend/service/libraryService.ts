@@ -37,6 +37,7 @@ class LibraryService {
         await SubtitleService.createFromEpisodes(episodes);
 
         await EpisodePreviewService.createFromEpisodes(episodes);
+
         if (SettingsService.getIsToDeleteConvertedData()) {
           await EpisodeService.deleteConverted();
         }
