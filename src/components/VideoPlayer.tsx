@@ -257,9 +257,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     };
   };
 
+  console.log(isPlaying);
+
   const pauseAndLoadCurrentVideo = () => {
-    setIsPlaying(false);
     video.current!.load();
+    video.current!.volume = volume / 100;
   };
 
   const updateKeyUpHandler = () => {
