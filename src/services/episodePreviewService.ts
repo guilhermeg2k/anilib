@@ -5,7 +5,6 @@ class EpisodePreviewService {
     const previews = await axiosClient.get<Array<string>>(
       `/episode-preview/by-episode-id/${episodeId}`
     );
-    console.log(previews.data);
     return previews.data;
   }
 }

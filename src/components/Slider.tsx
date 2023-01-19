@@ -28,11 +28,11 @@ const Slider = ({
   const thumb = useRef<HTMLDivElement>(null);
   const activePercentage = (100 * value) / maxValue;
 
-
   const onClickHandler = (e: MouseEvent<HTMLDivElement>) => {
     const isValidEvent = timeline.current && e.target !== thumb.current;
     if (isValidEvent) {
-      const clickedPercentage = (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
+      const clickedPercentage =
+        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
       const value = (maxValue * clickedPercentage) / 100;
       onChange(value);
     }
@@ -41,42 +41,43 @@ const Slider = ({
   const onMouseMoveHandler = (e: MouseEvent<HTMLDivElement>) => {
     const isValidEvent = timeline.current && e.target !== thumb.current;
     if (isValidEvent) {
-      const hoverPercentage = 
+      const hoverPercentage =
         (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
+
       const hoverValue = (maxValue * hoverPercentage) / 100;
+
       onHover(hoverValue);
-      setHoverPercentage(
-        Math.floor((e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100)
-      );
+
+      setHoverPercentage(hoverPercentage);
     }
   };
 
   return (
     <div
       ref={timeline}
-      className={`w-full bg-neutral-400 rounded-sm h-1.5 relative flex items-center cursor-pointer group ${backgroundClassName}`}
+      className={`group relative flex h-1.5 w-full cursor-pointer items-center rounded-sm bg-neutral-400 ${backgroundClassName}`}
       onClick={onClickHandler}
       onMouseMove={onMouseMoveHandler}
     >
       <div
         style={{ width: `${activePercentage}%` }}
-        className={`bg-rose-600 h-1.5 relative z-10 ${activeClassName}`}
+        className={`relative z-10 h-1.5 bg-rose-600 ${activeClassName}`}
       />
       <div
         ref={thumb}
         style={{
-          left: `${activePercentage - 1}%`,
+          left: `calc(${activePercentage}% - 6px)`,
         }}
-        className={` bg-rose-600 h-3 w-3 absolute rounded-full z-10 ${
+        className={` absolute z-10 h-3 w-3 rounded-full bg-rose-600 ${
           !alwaysShowThumb &&
-          'transition duration-100 scale-0 group-hover:scale-100'
+          'scale-0 transition duration-100 group-hover:scale-100'
         } ${thumbClassName}`}
       />
       <div
         style={{
           width: `${hoverPercentage}%`,
         }}
-        className={`bg-neutral-300 h-1.5 absolute z-0 transition duration-200 opacity-0 group-hover:opacity-100 ${hoverClassName}`}
+        className={`absolute z-0 h-1.5 bg-neutral-300 opacity-0 transition duration-200 group-hover:opacity-100 ${hoverClassName}`}
       />
     </div>
   );
