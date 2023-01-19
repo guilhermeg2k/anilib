@@ -1,43 +1,48 @@
-import EpisodePreviewRepository from '@backend/repository/episodePreviewRepository';
+import {
+  getFileInBase64,
+  getFilesInDirectoryByExtensions,
+} from '@backend/utils/fileUtils';
 import {
   extractJpgImageFromVideo,
   getVideoDurationInSeconds,
 } from '@backend/utils/videoUtils';
-import { Episode, EpisodePreview } from 'backend/database/types';
-import fs from 'fs';
+import { sortByStringNumbersSum } from '@utils/stringUtils';
+import { Episode } from 'backend/database/types';
 import pLimit from 'p-limit';
 import path from 'path';
+import EpisodeService from './episodeService';
+
+const PREVIEW_EXTENSIONS = ['.jpg'];
 
 class EpisodePreviewService {
-  static list() {
-    const previews = EpisodePreviewRepository.list();
-    return previews;
-  }
+  static async listByEpisodeId(episodeId: string) {
+    const episode = await EpisodeService.getById(episodeId);
+    const episodeFileExt = path.extname(episode.filePath);
+    const episodePath = episode.filePath.replace(episodeFileExt, '');
 
-  static listByEpisodeId(episodeId: string) {
-    const previews = EpisodePreviewRepository.listByEpisodeId(episodeId);
-    return previews;
-  }
+    const previewFolder = path.join(episodePath, 'preview');
 
-  static deleteInvalids() {
-    const invalidPreviews = this.list().filter(
-      (preview) => !fs.existsSync(preview.filePath)
+    const previewFiles = await getFilesInDirectoryByExtensions(
+      previewFolder,
+      PREVIEW_EXTENSIONS
     );
 
-    invalidPreviews.forEach((invalidPreview) =>
-      EpisodePreviewRepository.deleteById(invalidPreview.id!)
-    );
+    return previewFiles;
   }
 
-  private static async create(episodePreview: EpisodePreview) {
-    const createdPreview = await EpisodePreviewRepository.create(
-      episodePreview
-    );
-    return createdPreview;
+  static async listByEpisodeIdInBase64(episodeId: string) {
+    const previews = await this.listByEpisodeId(episodeId);
+    const previewsInBase64Promises = previews
+      .sort(sortByStringNumbersSum)
+      .map(async (preview) => await getFileInBase64(preview));
+
+    const previewsInBase64 = await Promise.all(previewsInBase64Promises);
+
+    return previewsInBase64.flat(Infinity);
   }
 
   static async createFromEpisodes(episodes: Array<Episode>) {
-    const createdPreviews = Array<EpisodePreview>();
+    const createdPreviews = Array<string>();
 
     for (const episode of episodes) {
       const episodePreviews = await EpisodePreviewService.createFromEpisode(
@@ -52,15 +57,15 @@ class EpisodePreviewService {
   }
 
   private static async createFromEpisode(episode: Episode) {
-    const episodePreviews = EpisodePreviewRepository.listByEpisodeId(
-      episode.id!
-    );
+    const episodePreviews = await this.listByEpisodeId(episode.id!);
+
     const episodeHasPreviews = episodePreviews.length > 0;
+
     if (episodeHasPreviews) {
       return;
     }
 
-    const createFromFramePromises = Array<Promise<EpisodePreview>>();
+    const createFromFramePromises = Array<Promise<string>>();
     const createFromFramePromisesLimiter = pLimit(6);
     const episodeDurationInSeconds = await getVideoDurationInSeconds(
       episode.filePath
@@ -84,11 +89,7 @@ class EpisodePreviewService {
 
       createFromFramePromises.push(
         createFromFramePromisesLimiter(() =>
-          this.createFromFrame(
-            episode,
-            currentFrameToExtract,
-            currentPreviewCount
-          )
+          this.createFromFrame(episode, currentFrameToExtract)
         )
       );
     }
@@ -96,11 +97,7 @@ class EpisodePreviewService {
     return createdPreviews;
   }
 
-  private static async createFromFrame(
-    episode: Episode,
-    frame: number,
-    order: number
-  ) {
+  private static async createFromFrame(episode: Episode, frame: number) {
     const episodeFileName = path.parse(episode.filePath).name;
     const jpgFileName = `${episodeFileName}-${frame}.jpg`;
 
@@ -116,13 +113,7 @@ class EpisodePreviewService {
       jpgOutputDir
     );
 
-    const createdPreview = await EpisodePreviewService.create({
-      episodeId: episode.id!,
-      filePath: previewFilePath,
-      order,
-    });
-
-    return createdPreview;
+    return previewFilePath;
   }
 }
 

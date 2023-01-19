@@ -1,15 +1,15 @@
-import { Episode, EpisodePreview, Subtitle } from 'backend/database/types';
 import EpisodeCard from '@components/EpisodeCard';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import VideoPlayer from '@components/VideoPlayer';
+import { Episode, Subtitle } from 'backend/database/types';
 import EpisodeService from 'services/episodeService';
 import SubtitleService from 'services/subtitleService';
 
+import EpisodePreviewService from '@services/episodePreviewService';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import EpisodePreviewService from '@services/episodePreviewService';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
@@ -38,7 +38,7 @@ interface WatchProps {
   episode: Episode;
   episodes: Array<Episode>;
   subtitles: Array<Subtitle>;
-  previews: Array<EpisodePreview>;
+  previews: Array<string>;
 }
 
 const Watch: NextPage<WatchProps> = ({

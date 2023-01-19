@@ -1,17 +1,10 @@
 import fs from 'fs';
-import {
-  Anime,
-  DatabaseData,
-  Episode,
-  EpisodePreview,
-  Subtitle,
-} from './types';
+import { Anime, DatabaseData, Episode, Subtitle } from './types';
 
 type DatabaseProperty =
   | 'animes'
   | 'episodes'
   | 'subtitles'
-  | 'episodePreviews'
   | 'directories'
   | 'settings';
 
@@ -21,7 +14,6 @@ class Database {
     animes: new Map<string, Anime>(),
     episodes: new Map<string, Episode>(),
     subtitles: new Map<string, Subtitle>(),
-    episodePreviews: new Map<string, EpisodePreview>(),
     directories: new Map<string, string>(),
     settings: new Map<string, Boolean>([
       ['isToDeleteConvertedData', false],
@@ -39,9 +31,6 @@ class Database {
         animes: new Map(Object.entries(databaseObject.animes || {})),
         episodes: new Map(Object.entries(databaseObject.episodes || {})),
         subtitles: new Map(Object.entries(databaseObject.subtitles || {})),
-        episodePreviews: new Map(
-          Object.entries(databaseObject.episodePreviews || {})
-        ),
         directories: new Map(Object.entries(databaseObject.directories || {})),
         settings: new Map(Object.entries(databaseObject.settings || {})),
       };
@@ -56,7 +45,6 @@ class Database {
       animes: Object.fromEntries(this.database.animes),
       episodes: Object.fromEntries(this.database.episodes),
       subtitles: Object.fromEntries(this.database.subtitles),
-      episodePreviews: Object.fromEntries(this.database.episodePreviews),
       directories: Object.fromEntries(this.database.directories),
       settings: Object.fromEntries(this.database.settings),
     };

@@ -1,4 +1,3 @@
-import { getFileInBase64 } from '@backend/utils/fileUtils';
 import EpisodePreviewService from 'backend/service/episodePreviewService';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -10,17 +9,9 @@ class EpisodePreviewController {
     try {
       const { episodeId } = req.query;
       if (episodeId && typeof episodeId === 'string') {
-        const previews = EpisodePreviewService.listByEpisodeId(episodeId);
-
-        const previewsWithBase64Promises = previews.map(async (preview) => ({
-          ...preview,
-          base64: await getFileInBase64(preview.filePath),
-        }));
-        const previewsWithBase64 = await Promise.all(
-          previewsWithBase64Promises
-        );
-
-        res.json(previewsWithBase64.flat(Infinity));
+        const previewsInBase64 =
+          await EpisodePreviewService.listByEpisodeIdInBase64(episodeId);
+        res.json(previewsInBase64);
         return;
       }
       res.status(400).end();

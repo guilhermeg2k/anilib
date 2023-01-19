@@ -1,5 +1,5 @@
 import { formatSecondsInTime } from '@utils/timeUtils';
-import { EpisodePreview, Subtitle } from 'backend/database/types';
+import { Subtitle } from 'backend/database/types';
 import Image from 'next/image';
 import React, {
   ReactNode,
@@ -45,7 +45,7 @@ interface VideoPlayerProps {
   coverImageBase64: string;
   episodeTitle: string;
   subtitles: Array<Subtitle>;
-  previews: Array<EpisodePreview>;
+  previews: Array<string>;
   onNextEpisode: () => void;
 }
 
@@ -77,15 +77,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
   const formattedCurrentTime = formatSecondsInTime(currentTime);
-  const hoverTimePercentage = hoverTimeInSeconds * 100 / (video.current?.duration || 1);
+  const hoverTimePercentage =
+    (hoverTimeInSeconds * 100) / (video.current?.duration || 1);
   const shouldShowControls = hasMouseMoved || !isPlaying;
   const shouldShowSubtitleButton = subtitles.length > 0;
   const isMuted = volume === 0;
   const currentHoverPreview =
     hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
   const currentHoverPreviewSrc =
-    currentHoverPreview &&
-    `data:image/jpg;base64,${currentHoverPreview.base64}`;
+    currentHoverPreview && `data:image/jpg;base64,${currentHoverPreview}`;
 
   const seekToTime = (timeInSeconds: number) => {
     video.current!.currentTime = timeInSeconds;
@@ -417,7 +417,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </PlayerButton>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold">{formattedCurrentTime}</span>
+            <span className="text-sm font-semibold">
+              {formattedCurrentTime}
+            </span>
             <div className="group relative w-full">
               {currentHoverPreviewSrc && (
                 <div
