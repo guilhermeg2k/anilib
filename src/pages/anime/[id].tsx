@@ -76,16 +76,16 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
       <Navbar />
       <Page>
         <main className="flex flex-col items-center lg:items-start">
-          <section className="flex flex-col items-center lg:items-start lg:justify-center lg:flex-row lg:gap-8 w-full">
+          <section className="flex w-full flex-col items-center lg:flex-row lg:items-start lg:justify-center lg:gap-8">
             <div>
               <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
                 {imageCover}
               </figure>
             </div>
-            <div className="flex flex-col gap-4">
-              <header className="flex flex-col items-center lg:items-start  gap-2 lg:gap-0">
-                <div className="flex justify-between items-center gap-2 md:w-full ">
-                  <h1 className="text-rose-700 text-2xl lg:text-4xl font-bold">
+            <div className="flex flex-col gap-4 lg:w-full">
+              <header className="flex flex-col items-center gap-2  lg:items-start lg:gap-0">
+                <div className="flex items-center justify-between gap-2 md:w-full ">
+                  <h1 className="text-white-700 text-2xl font-bold lg:text-4xl">
                     {anime.title.romaji}
                   </h1>
                   <DropDownMenu
@@ -93,13 +93,14 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                       <Menu.Item
                         as="button"
                         key="sync_data_from_anilist"
-                        className="uppercase p-1 px-2 hover:bg-neutral-700 text-white flex justify-between items-center"
+                        className="flex items-center justify-between p-1 px-2 uppercase text-white hover:bg-neutral-700"
                         onClick={() => syncDataWithAnilist()}
                       >
                         Sync data from anilist
                         <MaterialIcon className="md-18">sync</MaterialIcon>
                       </Menu.Item>,
                     ]}
+                    className="flex  justify-center"
                   >
                     <MaterialIcon>more_vert</MaterialIcon>
                   </DropDownMenu>
@@ -107,7 +108,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                 <figure className="w-[130px] md:w-[170px] lg:hidden">
                   {imageCover}
                 </figure>
-                <div className="flex gap-3 mt-4 flex-wrap">
+                <div className="mt-4 flex flex-wrap gap-3">
                   {anime.genres.map((genre, index) => (
                     <Badge
                       key={genre}
@@ -130,10 +131,10 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
               </p>
 
               <div className="flex flex-col gap-2 lg:max-h-[400px]">
-                <h2 className="font-bold text-lg text-rose-700">
+                <h2 className="text-lg font-bold text-rose-700">
                   Available Episodes
                 </h2>
-                <div className="flex flex-col gap-2 overflow-auto max-h-max pr-2">
+                <div className="flex max-h-max flex-col gap-2 overflow-auto pr-2">
                   {episodesList.map((episode) => (
                     <EpisodeCard
                       className="w-full"

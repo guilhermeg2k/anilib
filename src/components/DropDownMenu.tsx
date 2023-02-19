@@ -13,8 +13,8 @@ const DropDownMenu = ({
   children,
 }: DropDownMenuProps) => {
   return (
-    <Menu as="div" className={`${className} relative inline-block text-left`}>
-      <Menu.Button>{children}</Menu.Button>
+    <Menu as="div" className="relative inline-block text-left">
+      <Menu.Button className={className}>{children}</Menu.Button>
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"
@@ -24,7 +24,7 @@ const DropDownMenu = ({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-50 flex w-[250px] origin-top-left flex-col  bg-neutral-800 text-sm uppercase shadow-md text-white rounded-sm p-1">
+        <Menu.Items className="absolute right-0 z-50 flex w-[250px] origin-top-left flex-col  rounded-sm bg-neutral-800 p-1 text-sm uppercase text-white shadow-md">
           {items}
         </Menu.Items>
       </Transition>
