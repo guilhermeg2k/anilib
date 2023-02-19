@@ -10,7 +10,7 @@ class EpisodePreviewController {
       const { episodeId } = req.query;
       if (episodeId && typeof episodeId === 'string') {
         const previewsInBase64 =
-          await EpisodePreviewService.listByEpisodeIdInBase64(episodeId);
+          await EpisodePreviewService.listInBase64ByEpisodeId(episodeId);
         res.json(previewsInBase64);
         return;
       }

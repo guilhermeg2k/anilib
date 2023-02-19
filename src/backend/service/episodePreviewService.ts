@@ -30,7 +30,7 @@ class EpisodePreviewService {
     return previewFiles;
   }
 
-  static async listByEpisodeIdInBase64(episodeId: string) {
+  static async listInBase64ByEpisodeId(episodeId: string) {
     const previews = await this.listByEpisodeId(episodeId);
     const previewsInBase64Promises = previews
       .sort(sortByStringNumbersSum)
@@ -98,8 +98,7 @@ class EpisodePreviewService {
   }
 
   private static async createFromFrame(episode: Episode, frame: number) {
-    const episodeFileName = path.parse(episode.filePath).name;
-    const jpgFileName = `${episodeFileName}-${frame}.jpg`;
+    const jpgFileName = `${frame}.jpg`;
 
     const jpgOutputDir = path.join(
       path.dirname(episode.coverImagePath),
