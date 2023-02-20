@@ -37,6 +37,8 @@ class LibraryService {
 
         const episodes = EpisodeService.list();
         await SubtitleService.createFromEpisodes(episodes);
+        await SubtitleService.removeCommentsFromEpisodes(episodes);
+
         console.log('Subtitles updated!');
 
         await EpisodePreviewService.createFromEpisodes(episodes);
