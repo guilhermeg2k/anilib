@@ -7,7 +7,7 @@ import pLimit from 'p-limit';
 import path from 'path';
 
 class SubtitleService {
-  private static createFromEpisodePromiseLimiter = pLimit(5);
+  private static createFromEpisodePromiseLimiter = pLimit(6);
 
   static list() {
     const subtitles = SubtitleRepository.list();

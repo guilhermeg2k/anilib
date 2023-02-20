@@ -95,7 +95,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
                 name="search_field"
                 id="search_field"
                 onChange={onSearchHandler}
-                placeholder="Jujutsu Kaisen"
+                placeholder="Search an anime"
                 className="w-full rounded-sm border-2 border-neutral-800 bg-neutral-800 p-2  outline-none focus:border-rose-700  focus:ring-0"
                 autoComplete="off"
               />

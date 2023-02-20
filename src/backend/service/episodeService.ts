@@ -27,7 +27,7 @@ const fsPromises = fs.promises;
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 
 class EpisodeService {
-  private static createFromAnimeAndFilePathPromiseLimiter = pLimit(5);
+  private static createFromAnimeAndFilePathPromiseLimiter = pLimit(6);
 
   static list() {
     const episodes = EpisodeRepository.list();
