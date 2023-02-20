@@ -9,10 +9,7 @@ export default async function handler(
 
   switch (method) {
     case 'GET':
-      await SettingsController.getIsToDeleteInvalidData(req, res);
-      break;
-    case 'PATCH':
-      await SettingsController.setIsToDeleteInvalidData(req, res);
+      await SettingsController.get(req, res);
       break;
     default:
       res.status(405).end();

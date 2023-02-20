@@ -40,3 +40,9 @@ export interface DatabaseData {
   subtitles: Map<string, Subtitle>;
   settings: Map<string, Boolean>;
 }
+
+export type Setting =
+  | 'isToDeleteConvertedData'
+  | 'isToDeleteInvalidData'
+  | 'IsToRemoveSubtitlesComments'
+  | 'shouldUseNVENC';

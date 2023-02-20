@@ -8,11 +8,8 @@ export default async function handler(
   const { method } = req;
 
   switch (method) {
-    case 'GET':
-      await SettingsController.getShouldUseNVENC(req, res);
-      break;
     case 'PATCH':
-      await SettingsController.setShouldUseNVENC(req, res);
+      await SettingsController.set(req, res);
       break;
     default:
       res.status(405).end();

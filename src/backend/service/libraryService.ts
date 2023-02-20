@@ -20,7 +20,7 @@ class LibraryService {
 
       if (libraryIsNotUpdating) {
         this.updateStatus(LibraryStatus.Updating);
-        if (SettingsService.getIsToDeleteInvalidData()) {
+        if (SettingsService.get('isToDeleteInvalidData')) {
           await DirectoryService.deleteInvalids();
           await AnimeService.deleteInvalids();
           await EpisodeService.deleteInvalids();
@@ -37,14 +37,17 @@ class LibraryService {
 
         const episodes = EpisodeService.list();
         await SubtitleService.createFromEpisodes(episodes);
-        await SubtitleService.removeCommentsFromEpisodes(episodes);
-
         console.log('Subtitles updated!');
+
+        if (SettingsService.get('IsToRemoveSubtitlesComments')) {
+          await SubtitleService.removeCommentsFromEpisodes(episodes);
+          console.log('Subtitles comments removed!');
+        }
 
         await EpisodePreviewService.createFromEpisodes(episodes);
         console.log('Episode previews updated!');
 
-        if (SettingsService.getIsToDeleteConvertedData()) {
+        if (SettingsService.get('isToDeleteConvertedData')) {
           await EpisodeService.deleteConverted();
           console.log('Converted episodes deleted!');
         }

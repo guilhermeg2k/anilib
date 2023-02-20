@@ -31,6 +31,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
+  const [IsToRemoveSubtitlesComments, setIsToRemoveSubtitlesComments] =
+    useState(false);
   const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
   const [directories, setDirectoriesList] = useState(Array<string>());
   const { status } = useLibraryStatusStore();
@@ -55,13 +57,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const loadSettings = async () => {
     try {
       setIsLoadingSettings(true);
-      const isToDeleteConvertedData =
-        await SettingsService.getIsToDeleteConvertedData();
-      const isToDeleteInvalidData =
-        await SettingsService.getIsToDeleteInvalidData();
-      const shouldUseNVENC = await SettingsService.getShouldUseNVENC();
+      const [
+        isToDeleteConvertedData,
+        isToDeleteInvalidData,
+        IsToRemoveSubtitlesComments,
+        shouldUseNVENC,
+      ] = await Promise.all([
+        SettingsService.get('isToDeleteConvertedData'),
+        SettingsService.get('isToDeleteInvalidData'),
+        SettingsService.get('IsToRemoveSubtitlesComments'),
+        SettingsService.get('shouldUseNVENC'),
+      ]);
       setIsToDeleteConvertedData(isToDeleteConvertedData);
       setIsToDeleteInvalidData(isToDeleteInvalidData);
+      setIsToRemoveSubtitlesComments(IsToRemoveSubtitlesComments);
       setShouldUseNVENC(shouldUseNVENC);
     } catch (error) {
       toastError('Failed to load settings');
@@ -106,7 +115,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const onIsToDeleteConvertedDataChangeHandler = async (value: boolean) => {
     try {
       setIsToDeleteConvertedData(value);
-      await SettingsService.setIsToDeleteConvertedData(value);
+      await SettingsService.update('isToDeleteConvertedData', value);
     } catch (error) {
       toastError('Failed to update is to delete converted data setting');
     }
@@ -115,7 +124,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const onIsToDeleteInvalidDataChangeHandler = async (value: boolean) => {
     try {
       setIsToDeleteInvalidData(value);
-      await SettingsService.setIsToDeleteInvalidData(value);
+      await SettingsService.update('isToDeleteInvalidData', value);
     } catch (error) {
       toastError('Failed to update is to delete invalid data setting');
     }
@@ -124,9 +133,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const onShouldUseNVENCChangeHandler = async (value: boolean) => {
     try {
       setShouldUseNVENC(value);
-      await SettingsService.setShouldUseNVENC(value);
+      await SettingsService.update('shouldUseNVENC', value);
     } catch (error) {
       toastError('Failed to update should use nvenc setting');
+    }
+  };
+
+  const onIsToRemoveSubtitlesCommentsChangeHandler = async (value: boolean) => {
+    try {
+      setIsToRemoveSubtitlesComments(value);
+      await SettingsService.update('IsToRemoveSubtitlesComments', value);
+    } catch (error) {
+      toastError('Failed to update is to remove subtitles comments setting');
     }
   };
 
@@ -207,6 +225,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
           </CheckBox>
           <CheckBox
             className="text-sm"
+            value={IsToRemoveSubtitlesComments}
+            onChange={onIsToRemoveSubtitlesCommentsChangeHandler}
+          >
+            Remove subtitles comments
+          </CheckBox>
+          <CheckBox
+            className="text-sm"
             value={shouldUseNVENC}
             onChange={onShouldUseNVENCChangeHandler}
           >
@@ -222,7 +247,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
       >
         Update Library
       </Button>
-      <div className="text-xs text-right">{VERSION}</div>
+      <div className="text-right text-xs">{VERSION}</div>
     </Modal>
   );
 };
