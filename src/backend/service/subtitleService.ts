@@ -125,6 +125,7 @@ class SubtitleService {
           label: subtitle.title,
           language: subtitle.language,
           filePath: subtitle.filePath,
+          wasCommentsRemoved: false,
           episodeId,
         };
         const createdEpisode = await this.create(newSubtitle);
@@ -151,13 +152,20 @@ class SubtitleService {
   }
 
   private static removeComments = (subtitle: Subtitle) => {
-    const fileContent = fs.readFileSync(subtitle.filePath, 'utf8');
-    const fileContentWithoutComments = fileContent.replaceAll(
-      BRACES_CONTENT_REGEX,
-      ''
-    );
-    fs.writeFileSync(subtitle.filePath, fileContentWithoutComments);
+    if (!subtitle.wasCommentsRemoved) {
+      const fileContent = fs.readFileSync(subtitle.filePath, 'utf8');
+      const fileContentWithoutComments = fileContent.replaceAll(
+        BRACES_CONTENT_REGEX,
+        ''
+      );
+      fs.writeFileSync(subtitle.filePath, fileContentWithoutComments);
+      SubtitleService.update({ ...subtitle, wasCommentsRemoved: true });
+    }
   };
+
+  static update(subtitle: Subtitle) {
+    SubtitleRepository.update(subtitle);
+  }
 }
 
 export default SubtitleService;

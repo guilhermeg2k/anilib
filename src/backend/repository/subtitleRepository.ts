@@ -33,6 +33,10 @@ class SubtitleRepository {
     return <Subtitle>createdSubtitle;
   }
 
+  static update(subtitle: Subtitle) {
+    database.insertOrUpdate('subtitles', subtitle.id!, subtitle);
+  }
+
   static deleteById(id: string) {
     database.delete('subtitles', id);
   }

@@ -147,7 +147,7 @@ class EpisodeService {
       isVideoCodecNotSupported || isVideoContainerNotSupported;
 
     if (needsToConvertEpisodeVideo) {
-      const shouldUseNVENC = SettingsService.getShouldUseNVENC();
+      const shouldUseNVENC = SettingsService.get('shouldUseNVENC');
       const episodeFileMp4 = await convertVideoToMp4(
         episodeFilePath,
         shouldUseNVENC

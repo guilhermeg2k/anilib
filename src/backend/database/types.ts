@@ -32,6 +32,7 @@ export interface Subtitle {
   language: string;
   label: string;
   episodeId?: string;
+  wasCommentsRemoved: boolean;
 }
 export interface DatabaseData {
   directories: Map<string, string>;
