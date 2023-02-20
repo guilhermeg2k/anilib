@@ -2,7 +2,10 @@ import AnimeCard from '@components/AnimeCard';
 import AutoAnimate from '@components/AutoAnimate';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
-import { getAnimesWithTitleSimilarityToTextAppended } from '@utils/animeUtils';
+import {
+  getAnimesWithTitleSimilarityToTextAppended,
+  getAnimeTitle,
+} from '@utils/animeUtils';
 import { Anime } from 'backend/database/types';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -79,7 +82,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
       <Page className="lg:py-6">
         <header className="pb-3 lg:pb-6">
           {isLibraryEmpty ? (
-            <div className="flex flex-col justify-center w-full items-center mt-1 lg:mt-5">
+            <div className="mt-1 flex w-full flex-col items-center justify-center lg:mt-5">
               <span>Your library its empty</span>
               <span className="text-xs">
                 Try to add directories and update your library on settings
@@ -93,7 +96,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
                 id="search_field"
                 onChange={onSearchHandler}
                 placeholder="Jujutsu Kaisen"
-                className="w-full p-2 outline-none focus:ring-0 bg-neutral-800 rounded-sm  border-2 border-neutral-800  focus:border-rose-700"
+                className="w-full rounded-sm border-2 border-neutral-800 bg-neutral-800 p-2  outline-none focus:border-rose-700  focus:ring-0"
                 autoComplete="off"
               />
             </div>
@@ -102,14 +105,14 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
         <main>
           <AutoAnimate
             as="ul"
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-10 gap-y-5 gap-r w-full"
+            className="gap-r grid w-full grid-cols-2 gap-10 gap-y-5 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5"
           >
             {filteredAndSortedAnimes.map((anime) => (
               <AnimeCard
                 key={anime.id}
                 id={anime.id!}
                 coverUrl={anime.coverUrl}
-                name={anime.title.romaji}
+                name={getAnimeTitle(anime)}
               />
             ))}
           </AutoAnimate>
@@ -122,7 +125,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
 export const getServerSideProps: GetServerSideProps = async () => {
   const animes = await AnimeService.list();
   const animesSortedAlphabeticallyByTitle = animes.sort((animeA, animeB) =>
-    animeA.title.romaji < animeB.title.romaji ? -1 : 1
+    getAnimeTitle(animeA) < getAnimeTitle(animeB) ? -1 : 1
   );
 
   return { props: { animes: animesSortedAlphabeticallyByTitle } };

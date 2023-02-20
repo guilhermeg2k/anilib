@@ -5,6 +5,7 @@ import MaterialIcon from '@components/MaterialIcon';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import { Menu } from '@headlessui/react';
+import { getAnimeTitle } from '@utils/animeUtils';
 import { removeHTMLTags } from '@utils/stringUtils';
 import { Anime, Episode } from 'backend/database/types';
 import { toastPromise } from 'library/toastify';
@@ -71,7 +72,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
   return (
     <>
       <Head>
-        <title>{anime.title.romaji}</title>
+        <title>{getAnimeTitle(anime)}</title>
       </Head>
       <Navbar />
       <Page>
@@ -85,8 +86,8 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
             <div className="flex flex-col gap-4 lg:w-full">
               <header className="flex flex-col items-center gap-2  lg:items-start lg:gap-0">
                 <div className="flex items-center justify-between gap-2 md:w-full ">
-                  <h1 className="text-white-700 text-2xl font-bold lg:text-4xl">
-                    {anime.title.romaji}
+                  <h1 className="text-2xl font-bold text-rose-700 lg:text-4xl">
+                    {getAnimeTitle(anime)}
                   </h1>
                   <DropDownMenu
                     items={[
