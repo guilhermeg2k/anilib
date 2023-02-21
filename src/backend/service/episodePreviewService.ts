@@ -17,10 +17,8 @@ const PREVIEW_EXTENSIONS = ['.jpg'];
 class EpisodePreviewService {
   static async listByEpisodeId(episodeId: string) {
     const episode = await EpisodeService.getById(episodeId);
-    const episodeFileExt = path.extname(episode.filePath);
-    const episodePath = episode.filePath.replace(episodeFileExt, '');
-
-    const previewFolder = path.join(episodePath, 'preview');
+    const episodeImageCoverDir = path.dirname(episode.coverImagePath);
+    const previewFolder = path.join(episodeImageCoverDir, 'preview');
 
     const previewFiles = await getFilesInDirectoryByExtensions(
       previewFolder,
