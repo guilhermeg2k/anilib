@@ -1,42 +1,16 @@
+import { Setting } from '@backend/database/types';
 import axiosClient from 'library/axios';
 
 class SettingsService {
-  static async getIsToDeleteConvertedData() {
-    const settings = await axiosClient.get<boolean>(
-      '/settings/is-to-delete-converted-data'
-    );
+  static async get(setting: Setting) {
+    const settings = await axiosClient.get<boolean>(`/settings/${setting}`);
     return settings.data;
   }
 
-  static async getIsToDeleteInvalidData() {
-    const settings = await axiosClient.get<boolean>(
-      '/settings/is-to-delete-invalid-data'
-    );
-    return settings.data;
-  }
-
-  static async getShouldUseNVENC() {
-    const settings = await axiosClient.get<boolean>(
-      '/settings/should-use-nvenc'
-    );
-    return settings.data;
-  }
-
-  static async setIsToDeleteConvertedData(isToDeleteConvertedData: boolean) {
-    await axiosClient.patch('/settings/is-to-delete-converted-data', {
-      isToDeleteConvertedData,
-    });
-  }
-
-  static async setIsToDeleteInvalidData(isToDeleteInvalidData: boolean) {
-    await axiosClient.patch('/settings/is-to-delete-invalid-data', {
-      isToDeleteInvalidData,
-    });
-  }
-
-  static async setShouldUseNVENC(shouldUseNVENC: boolean) {
-    await axiosClient.patch('/settings/should-use-nvenc', {
-      shouldUseNVENC,
+  static async update(setting: Setting, value: boolean) {
+    await axiosClient.patch(`/settings/`, {
+      setting,
+      value,
     });
   }
 }

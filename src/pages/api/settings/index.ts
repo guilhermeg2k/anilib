@@ -8,11 +8,8 @@ export default async function handler(
   const { method } = req;
 
   switch (method) {
-    case 'GET':
-      await SettingsController.getIsToDeleteConvertedData(req, res);
-      break;
     case 'PATCH':
-      await SettingsController.setIsToDeleteConvertedData(req, res);
+      await SettingsController.set(req, res);
       break;
     default:
       res.status(405).end();

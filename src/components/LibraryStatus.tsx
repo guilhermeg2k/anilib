@@ -29,7 +29,7 @@ const ToastContent = ({
 const LibraryStatus = () => {
   const toastId = useRef<Id | null>();
   const router = useRouter();
-  const { status, setStatus } = useLibraryStatusStore((state) => state);
+  const { status, setStatus } = useLibraryStatusStore();
 
   const onCloseHandler = () => {
     toastId.current = null;

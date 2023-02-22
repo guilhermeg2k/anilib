@@ -11,7 +11,7 @@ import { AnilistAnime } from './types';
 
 const fsPromises = fs.promises;
 class AnimeService {
-  private static createFromDirectoryPromiseLimiter = pLimit(5);
+  private static createFromDirectoryPromiseLimiter = pLimit(6);
 
   static list() {
     const animes = AnimeRepository.list();

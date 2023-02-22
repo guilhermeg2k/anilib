@@ -32,8 +32,8 @@ export interface Subtitle {
   language: string;
   label: string;
   episodeId?: string;
+  wasCommentsRemoved: boolean;
 }
-
 export interface DatabaseData {
   directories: Map<string, string>;
   animes: Map<string, Anime>;
@@ -41,3 +41,9 @@ export interface DatabaseData {
   subtitles: Map<string, Subtitle>;
   settings: Map<string, Boolean>;
 }
+
+export type Setting =
+  | 'isToDeleteConvertedData'
+  | 'isToDeleteInvalidData'
+  | 'IsToRemoveSubtitlesComments'
+  | 'shouldUseNVENC';

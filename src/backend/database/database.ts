@@ -18,6 +18,7 @@ class Database {
     settings: new Map<string, Boolean>([
       ['isToDeleteConvertedData', false],
       ['isToDeleteInvalidData', true],
+      ['IsToRemoveSubtitlesComments', true],
       ['shouldUseNVENC', false],
     ]),
   };
@@ -28,11 +29,11 @@ class Database {
       const fileData = fs.readFileSync(filePath);
       const databaseObject = <DatabaseData>JSON.parse(fileData.toString());
       const database = <DatabaseData>{
-        animes: new Map(Object.entries(databaseObject.animes)),
-        episodes: new Map(Object.entries(databaseObject.episodes)),
-        subtitles: new Map(Object.entries(databaseObject.subtitles)),
-        directories: new Map(Object.entries(databaseObject.directories)),
-        settings: new Map(Object.entries(databaseObject.settings)),
+        animes: new Map(Object.entries(databaseObject.animes || {})),
+        episodes: new Map(Object.entries(databaseObject.episodes || {})),
+        subtitles: new Map(Object.entries(databaseObject.subtitles || {})),
+        directories: new Map(Object.entries(databaseObject.directories || {})),
+        settings: new Map(Object.entries(databaseObject.settings || {})),
       };
       this.database = database;
     } else {

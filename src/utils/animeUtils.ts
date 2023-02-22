@@ -2,7 +2,7 @@ import { Anime } from 'backend/database/types';
 import { AnilistAnime } from 'backend/service/types';
 import { stringSimilarity } from 'string-similarity-js';
 
-const calculateSimilarity = (
+const calculateTitleSimilarity = (
   anime: AnilistAnime | Anime,
   similarTitle: string
 ) => {
@@ -38,7 +38,7 @@ export const getAnimesWithTitleSimilarityToTextAppended = (
   const animesWithSimilarity = animes.map((anime) => {
     return {
       ...anime,
-      titleSimilarity: calculateSimilarity(anime, text),
+      titleSimilarity: calculateTitleSimilarity(anime, text),
     };
   });
 
@@ -60,3 +60,13 @@ export const getAnimeWithMostSimilarTitleToText = (
   }
   return null;
 };
+
+export const getAnimeTitle = ({
+  title,
+}: {
+  title: {
+    english?: string;
+    romaji?: string;
+    native?: string;
+  };
+}) => title.romaji ?? title.english ?? title.native ?? 'Unknown Title';
