@@ -100,19 +100,17 @@ class EpisodePreviewService {
   }
 
   private static async createFromFrame(episode: Episode, frame: number) {
-    const jpgFileName = `${frame}.jpg`;
-
-    const jpgOutputDir = path.join(
+    const previewOutputDir = path.join(
       path.dirname(episode.coverImagePath),
       'preview'
     );
 
-    const previewFilePath = await extractJpgImageFromVideo(
-      episode.filePath,
-      frame,
-      jpgFileName,
-      jpgOutputDir
-    );
+    const previewFilePath = await extractJpgImageFromVideo({
+      videoFilePath: episode.filePath,
+      outputDir: previewOutputDir,
+      outputFileName: String(frame),
+      secondToExtract: frame,
+    });
 
     return previewFilePath;
   }

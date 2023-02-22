@@ -13,7 +13,7 @@ import {
 } from 'backend/utils/fileUtils';
 import {
   convertVideoToMp4,
-  extractImageCoverFromVideo,
+  extractJpgImageFromVideo,
   isVideoCodecSupported,
   isVideoContainerSupported,
 } from 'backend/utils/videoUtils';
@@ -25,6 +25,7 @@ import SettingsService from './settingsService';
 const fsPromises = fs.promises;
 
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
+const EPISODE_IMAGE_COVER_SECOND = 5;
 
 class EpisodeService {
   private static createFromAnimeAndFilePathPromiseLimiter = pLimit(3);
@@ -123,9 +124,13 @@ class EpisodeService {
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
     const episodeTitle = this.buildEpisodeTitle(episodeFileName);
-    const episodeCoverImagePath = await extractImageCoverFromVideo(
-      episodeFilePath
-    );
+
+    const episodeCoverImagePath = await extractJpgImageFromVideo({
+      videoFilePath: episodeFilePath,
+      secondToExtract: EPISODE_IMAGE_COVER_SECOND,
+      outputFileName: episodeFileName,
+      scaleWidth: 1920,
+    });
 
     const newEpisode = {
       title: episodeTitle,

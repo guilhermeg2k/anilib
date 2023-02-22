@@ -115,40 +115,21 @@ const convertToMp4ReencodingWithH264NVENC = async (
   }
 };
 
-export const extractImageCoverFromVideo = async (
-  videoFilePath: string,
-  outputDir = getDefaultOutputDir(videoFilePath)
-) => {
+export const extractJpgImageFromVideo = async ({
+  videoFilePath,
+  outputDir = getDefaultOutputDir(videoFilePath),
+  outputFileName,
+  scaleWidth = 500,
+  secondToExtract,
+}: {
+  videoFilePath: string;
+  outputDir?: string;
+  outputFileName: string;
+  secondToExtract: number;
+  scaleWidth?: number;
+}) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
-  if (outputDirDoesNotExists) {
-    await fsPromises.mkdir(outputDir);
-  }
 
-  const fileExt = path.extname(videoFilePath);
-  const jpgFileName = path.basename(videoFilePath).replace(fileExt, '.jpg');
-  const jpgFilePath = path.join(outputDir, jpgFileName);
-
-  const imageDoesNotExists = !fs.existsSync(jpgFilePath);
-
-  if (imageDoesNotExists) {
-    const ffmpegExecCommand = `ffmpeg -y -ss 00:00:05 -i "${videoFilePath}" -frames:v 1 -q:v 2 "${jpgFilePath}"`;
-    const { error } = await exec(ffmpegExecCommand);
-    if (error) {
-      throw new Error(`Failed to extract image cover from ${videoFilePath}`);
-    }
-  }
-
-  return jpgFilePath;
-};
-
-export const extractJpgImageFromVideo = async (
-  videoFilePath: string,
-  timeInSeconds: number,
-  jpgFileName: string,
-  outputDir: string,
-  scaleWidth = '500'
-) => {
-  const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
     try {
       await fsPromises.mkdir(outputDir);
@@ -160,14 +141,16 @@ export const extractJpgImageFromVideo = async (
     }
   }
 
-  const jpgFilePath = path.join(outputDir, jpgFileName);
+  const jpgFilePath = path.join(outputDir, `${outputFileName}.jpg`);
   const imageDoesNotExists = !fs.existsSync(jpgFilePath);
 
   if (imageDoesNotExists) {
-    const ffmpegExecCommand = `ffmpeg -y -ss ${timeInSeconds} -i "${videoFilePath}" -vf scale=${scaleWidth}:-1 -frames:v 1 -q:v 2 "${jpgFilePath}"`;
+    const ffmpegExecCommand = `ffmpeg -y -ss ${secondToExtract} -i "${videoFilePath}" -vf scale='${scaleWidth}':-1 -frames:v 1 -q:v 2 "${jpgFilePath}"`;
     const { error } = await exec(ffmpegExecCommand);
     if (error) {
-      throw new Error(`Failed to extract image cover from ${videoFilePath}`);
+      throw new Error(`Failed to extract jpg from ${videoFilePath}`, {
+        cause: error,
+      });
     }
   }
 
