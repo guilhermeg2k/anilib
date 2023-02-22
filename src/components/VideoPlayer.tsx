@@ -185,27 +185,36 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const onKeyUpHandler = useCallback(
     (event: KeyboardEvent) => {
-      switch (event.code) {
-        case 'Space':
-          onPlayToggleHandler();
-          break;
-        case 'ArrowLeft':
-          rewind(10);
-          break;
-        case 'ArrowRight':
-          forward(10);
-          break;
-        case 'ArrowUp':
-          increaseVolume(10);
-          break;
-        case 'ArrowDown':
-          decreaseVolume(10);
-          break;
-        default:
-          break;
+      if (isFullscreen) {
+        switch (event.code) {
+          case 'Space':
+            onPlayToggleHandler();
+            break;
+          case 'ArrowLeft':
+            rewind(10);
+            break;
+          case 'ArrowRight':
+            forward(10);
+            break;
+          case 'ArrowUp':
+            increaseVolume(10);
+            break;
+          case 'ArrowDown':
+            decreaseVolume(10);
+            break;
+          default:
+            break;
+        }
       }
     },
-    [onPlayToggleHandler, increaseVolume, decreaseVolume, rewind, forward]
+    [
+      onPlayToggleHandler,
+      increaseVolume,
+      decreaseVolume,
+      rewind,
+      forward,
+      isFullscreen,
+    ]
   );
 
   const buildSubtitlesOptions = () => {
