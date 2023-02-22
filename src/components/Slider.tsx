@@ -28,26 +28,24 @@ const Slider = ({
   const thumb = useRef<HTMLDivElement>(null);
   const activePercentage = (100 * value) / maxValue;
 
+  const isValidEvent = (e: MouseEvent) =>
+    Boolean(timeline.current && e.target !== thumb.current);
+
   const onClickHandler = (e: MouseEvent<HTMLDivElement>) => {
-    const isValidEvent = timeline.current && e.target !== thumb.current;
-    if (isValidEvent) {
+    if (isValidEvent(e)) {
       const clickedPercentage =
-        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
+        (e.nativeEvent.offsetX / timeline.current!.offsetWidth) * 100;
       const value = (maxValue * clickedPercentage) / 100;
       onChange(value);
     }
   };
 
   const onMouseMoveHandler = (e: MouseEvent<HTMLDivElement>) => {
-    const isValidEvent = timeline.current && e.target !== thumb.current;
-    if (isValidEvent) {
+    if (isValidEvent(e)) {
       const hoverPercentage =
-        (e.nativeEvent.offsetX / timeline.current.offsetWidth) * 100;
-
+        (e.nativeEvent.offsetX / timeline.current!.offsetWidth) * 100;
       const hoverValue = (maxValue * hoverPercentage) / 100;
-
       onHover(hoverValue);
-
       setHoverPercentage(hoverPercentage);
     }
   };
