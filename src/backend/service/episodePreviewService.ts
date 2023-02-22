@@ -31,7 +31,11 @@ class EpisodePreviewService {
   static async listInBase64ByEpisodeId(episodeId: string) {
     const previews = await this.listByEpisodeId(episodeId);
     const previewsInBase64Promises = previews
-      .sort(sortByStringNumbersSum)
+      .sort((previewFilePathA: string, previewFilePathB: string) => {
+        const previewFileNameA = path.basename(previewFilePathA);
+        const previewFileNameB = path.basename(previewFilePathB);
+        return sortByStringNumbersSum(previewFileNameA, previewFileNameB);
+      })
       .map(async (preview) => await getFileInBase64(preview));
 
     const previewsInBase64 = await Promise.all(previewsInBase64Promises);
