@@ -5,7 +5,7 @@
 /* ===== Subtitles CSS ===== */
 video::cue {
   color: white;
-  font-size: 1.35em;
+  font-size: 1em;
   font-family: 'Helvetica', sans-serif;
   background-color: transparent;
   text-shadow: #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px,

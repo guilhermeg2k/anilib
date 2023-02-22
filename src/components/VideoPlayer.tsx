@@ -30,7 +30,7 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
   children,
 }) => {
   return (
-    <button onClick={onClick}>
+    <button onClick={onClick} className="flex items-center justify-center">
       <MaterialIcon
         className={`${className} flex items-center text-white opacity-90 duration-200  ease-in-out hover:opacity-100`}
       >
@@ -455,6 +455,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 maxValue={video.current?.duration}
                 onChange={(time) => seekToTime(time)}
                 onHover={(time) => setHoverTimeInSeconds(time)}
+                thumbClassName="bg-neutral-50"
               />
             </div>
             <span className="text-sm font-semibold">{duration}</span>
