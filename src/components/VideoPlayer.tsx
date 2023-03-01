@@ -1,10 +1,14 @@
+import { Popover, Transition } from '@headlessui/react';
 import { formatSecondsInTime } from '@utils/timeUtils';
-import { Subtitle } from 'backend/database/types';
+import { Subtitle as Subtitles } from 'backend/database/types';
+import { useCueChange } from 'hooks/useCueChange';
 import Image from 'next/image';
 import React, {
+  Fragment,
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -13,7 +17,7 @@ import MaterialIcon from './MaterialIcon';
 import MenuDropdown from './MenuDropDown';
 import Slider from './Slider';
 
-const getDefaultSubtitle = (subtitles: Array<Subtitle>) =>
+const getDefaultSubtitle = (subtitles: Array<Subtitles>) =>
   subtitles.length === 1
     ? subtitles[0].id
     : subtitles.find((subtitle) => subtitle.language === 'por')?.id;
@@ -40,11 +44,223 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
   );
 };
 
+interface SubtitleProps {
+  color: 'white' | 'yellow';
+  background: 'black' | 'transparent';
+  size: 'small' | 'medium' | 'large';
+  video: React.RefObject<HTMLVideoElement>;
+  activeCueId: string | undefined;
+  isShowingControls: boolean;
+}
+
+type SubtitleColor = 'white' | 'yellow';
+
+type SubtitleBackground = 'black' | 'transparent';
+
+type SubtitleSize = 'small' | 'medium' | 'large';
+
+const buildSubtitleColor = (color: SubtitleColor) => {
+  switch (color) {
+    case 'white':
+      return 'text-white-300';
+    case 'yellow':
+      return 'text-amber-300';
+  }
+};
+
+const buildBackgroundColor = (background: SubtitleBackground) => {
+  switch (background) {
+    case 'black':
+      return 'bg-[rgba(1,1,1,0.6)] ';
+    case 'transparent':
+      return 'bg-transparent';
+  }
+};
+
+const buildSize = (size: SubtitleSize) => {
+  switch (size) {
+    case 'small':
+      return 'text-2xl';
+    case 'medium':
+      return 'text-4xl';
+    case 'large':
+      return 'text-8xl';
+  }
+};
+
+const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
+  const colorClass = buildSubtitleColor(color);
+  const sizeClass = buildSize(size);
+
+  return `${colorClass} ${sizeClass}`;
+};
+
+const Subtitles = ({
+  color,
+  background,
+  size,
+  video,
+  activeCueId,
+  isShowingControls,
+}: SubtitleProps) => {
+  const [activeCues, setActiveCues] = useState<TextTrackCue[] | never[]>([]);
+
+  const currentTextTrack = useMemo(() => {
+    if (video.current && activeCueId) {
+      return Array.from(video.current.textTracks).find(
+        (textTrack) => textTrack.id === activeCueId
+      );
+    }
+  }, [video, activeCueId]);
+
+  const onCueChangeHandler = useCallback(() => {
+    const cues = currentTextTrack?.activeCues || [];
+    setActiveCues(Array.from(cues));
+  }, [currentTextTrack?.activeCues]);
+
+  const textClassName = buildSubtitleTextClass(color, size);
+  const backgroundClassName = buildBackgroundColor(background);
+
+  useCueChange(currentTextTrack, onCueChangeHandler);
+
+  return (
+    <div
+      className={`absolute ${
+        isShowingControls ? 'bottom-16' : 'bottom-5'
+      } flex w-full select-none flex-col items-center gap-2   px-4 py-2`}
+    >
+      <div className={`px-4 py-1 ${backgroundClassName}`}>
+        {activeCues.map((cue) => {
+          return (
+            <div
+              key={`${cue.startTime}-${cue.endTime}-${cue.text}`}
+              style={{
+                textShadow:
+                  '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px',
+                fontFamily: 'Arial, Helvetica, sans-serif',
+              }}
+              className={`${textClassName} text-center font-bold antialiased`}
+            >
+              {cue.text}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+interface SubtitleButtonProps {
+  video: React.RefObject<HTMLVideoElement>;
+  currentSubtitleId: string | undefined;
+}
+
+const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
+  console.log(
+    '🚀 ~ file: VideoPlayer.tsx:159 ~ SubtitleButton ~ currentSubtitleId:',
+    currentSubtitleId
+  );
+  const buildSubtitlesOptions = () => {
+    const subtitles = Array<ReactNode>();
+
+    const disableSubtitlesOption = (
+      <button
+        key="disable-option"
+        className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase hover:text-rose-700"
+        // onClick={onDisableSubtitlesHandler}
+      >
+        Disabled
+      </button>
+    );
+
+    subtitles.push(disableSubtitlesOption);
+
+    if (video.current) {
+      const items = Array.from(video.current!.textTracks).map((trackText) => {
+        const isCurrentSubtitle = trackText.id === currentSubtitleId;
+        const optionTextColor = isCurrentSubtitle
+          ? 'text-white'
+          : 'text-neutral-400';
+
+        return (
+          <button
+            key={trackText.id}
+            // onClick={() => onSelectSubtitleHandler(trackText.id)}
+            className={`${optionTextColor} mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`}
+          >
+            {trackText.label}
+          </button>
+        );
+      });
+      subtitles.push(...items);
+      return subtitles;
+    }
+    return subtitles;
+  };
+
+  return (
+    <Popover className="relative">
+      <Popover.Button>
+        <PlayerButton>
+          <i className="material-icons">subtitles</i>
+        </PlayerButton>
+      </Popover.Button>
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Popover.Panel className="absolute bottom-8 z-50 w-[400px] origin-top-left flex-col rounded-sm bg-neutral-900 p-2 text-sm opacity-90 shadow-md">
+          <div className="grid grid-cols-2">
+            <div className="flex flex-col gap-1 font-bold uppercase">
+              <span>Language</span>
+              <div className="flex flex-col pr-2">
+                {buildSubtitlesOptions()}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="font-bold uppercase">Settings</span>
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-bold">Text Color</span>
+                <div className="flex gap-5">
+                  <button>White</button>
+                  <button className="text-amber-300">Yellow</button>
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-bold">Text Size</span>
+                <div className="flex gap-5">
+                  <button className="text">Aa</button>
+                  <button className="text-2xl">Aa</button>
+                  <button className="text-4xl">Aa</button>
+                </div>
+              </div>
+              <div className="text-xs">
+                <span className="font-bold">Background Color</span>
+                <div className="flex gap-5">
+                  <button>Transparent</button>
+                  <button className="bg-[rgba(1,1,1,1)] px-2 py-1">
+                    Black
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Popover.Panel>
+      </Transition>
+    </Popover>
+  );
+};
+
 interface VideoPlayerProps {
   videoUrl: string;
   coverImageBase64: string;
   episodeTitle: string;
-  subtitles: Array<Subtitle>;
+  subtitles: Array<Subtitles>;
   previews: Array<string>;
   onNextEpisode: () => void;
 }
@@ -60,7 +276,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [currentSubtitleId, setCurrentSubtitleId] = useState(
     getDefaultSubtitle(subtitles)
   );
-  const [volume, setVolume] = useState(100);
+  const [volume, setVolume] = useState(50);
   const [currentTime, setCurrentTime] = useState(0);
   const [hoverTimeInSeconds, setHoverTimeInSeconds] = useState(0);
   const [duration, setDuration] = useState('0:00:00');
@@ -68,6 +284,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hasMouseMoved, setHasMouseMoved] = useState(true);
+  const [subtitleConfig, setSubtitleConfig] = useState({
+    color: 'white' as SubtitleColor,
+    background: 'black' as SubtitleBackground,
+    size: 'small' as SubtitleSize,
+  });
+
   const video = useRef<HTMLVideoElement>(null);
   const videoPlayer = useRef<HTMLDivElement>(null);
   const onKeyUpHandlerRef = useRef<((event: KeyboardEvent) => void) | null>(
@@ -332,6 +554,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           );
         })}
       </video>
+      <Subtitles
+        video={video}
+        background={subtitleConfig.background}
+        color={subtitleConfig.color}
+        size={subtitleConfig.size}
+        activeCueId={currentSubtitleId}
+        isShowingControls={shouldShowControls}
+      />
       <FadeTransition key="video-controls" show={shouldShowControls}>
         <div
           id="video-top-controls"
@@ -408,7 +638,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   />
                 </div>
               </div>
-              {shouldShowSubtitleButton && (
+              {/* {shouldShowSubtitleButton && (
                 <MenuDropdown
                   buttonClassName="flex items-center"
                   menuClassName="bottom-8 bg-neutral-900 opacity-90 w-[170px]"
@@ -418,6 +648,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                     <i className="material-icons">subtitles</i>
                   </PlayerButton>
                 </MenuDropdown>
+              )} */}
+              {shouldShowSubtitleButton && (
+                <SubtitleButton
+                  video={video}
+                  currentSubtitleId={currentSubtitleId}
+                />
               )}
             </div>
             <PlayerButton onClick={onFullscreenToggleHandler}>
