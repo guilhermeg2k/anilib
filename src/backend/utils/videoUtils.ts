@@ -105,7 +105,7 @@ const convertToMp4ReencodingWithH264NVENC = async (
   input: string,
   output: string
 ) => {
-  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -c:v h264_nvenc -pix_fmt yuv420p "${output}"`;
+  const ffmpegExecCommand = `ffmpeg -i "${input}" -c:v h264_nvenc -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -c:a copy "${output}"`;
   const { error } = await exec(ffmpegExecCommand);
 
   if (error) {
