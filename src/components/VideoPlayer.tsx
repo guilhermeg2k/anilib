@@ -14,8 +14,9 @@ import React, {
 } from 'react';
 import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
-import MenuDropdown from './MenuDropDown';
 import Slider from './Slider';
+import { Tab } from '@headlessui/react';
+import { clsx } from 'clsx';
 
 const getDefaultSubtitle = (subtitles: Array<Subtitles>) =>
   subtitles.length === 1
@@ -156,10 +157,8 @@ interface SubtitleButtonProps {
 }
 
 const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
-  console.log(
-    '🚀 ~ file: VideoPlayer.tsx:159 ~ SubtitleButton ~ currentSubtitleId:',
-    currentSubtitleId
-  );
+  const [selectedTab, setSelectedTab] = useState(0);
+
   const buildSubtitlesOptions = () => {
     const subtitles = Array<ReactNode>();
 
@@ -199,7 +198,7 @@ const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
   };
 
   return (
-    <Popover className="relative">
+    <Popover className="relative flex ">
       <Popover.Button>
         <PlayerButton>
           <i className="material-icons">subtitles</i>
@@ -214,42 +213,69 @@ const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Popover.Panel className="absolute bottom-8 z-50 w-[400px] origin-top-left flex-col rounded-sm bg-neutral-900 p-2 text-sm opacity-90 shadow-md">
-          <div className="grid grid-cols-2">
-            <div className="flex flex-col gap-1 font-bold uppercase">
-              <span>Language</span>
-              <div className="flex flex-col pr-2">
-                {buildSubtitlesOptions()}
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="font-bold uppercase">Settings</span>
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold">Text Color</span>
-                <div className="flex gap-5">
-                  <button>White</button>
-                  <button className="text-amber-300">Yellow</button>
+        <Popover.Panel
+          className="absolute bottom-8 z-50 w-[250px] origin-top-left flex-col rounded-sm bg-neutral-900 p-2 text-sm opacity-90 shadow-md"
+          unmount
+        >
+          <Tab.Group
+            onChange={(index) => setSelectedTab(index)}
+            selectedIndex={selectedTab}
+          >
+            <Tab.List className="grid grid-cols-2 gap-2">
+              <Tab
+                className={clsx(
+                  'rounded-sm p-1 px-4 font-semibold uppercase',
+                  selectedTab === 0 && 'bg-neutral-700'
+                )}
+              >
+                Language
+              </Tab>
+              <Tab
+                className={clsx(
+                  'rounded-sm p-1 px-4 font-semibold uppercase',
+                  selectedTab === 1 && 'bg-neutral-700'
+                )}
+              >
+                Settings
+              </Tab>
+            </Tab.List>
+            <Tab.Panels>
+              <Tab.Panel>
+                <div className="flex flex-col py-2">
+                  {buildSubtitlesOptions()}
                 </div>
-              </div>
-              <div>
-                <span className="text-xs font-bold">Text Size</span>
-                <div className="flex gap-5">
-                  <button className="text">Aa</button>
-                  <button className="text-2xl">Aa</button>
-                  <button className="text-4xl">Aa</button>
+              </Tab.Panel>
+
+              <Tab.Panel>
+                <div className="flex flex-col gap-2 py-2">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-bold">Text Color</span>
+                    <div className="flex gap-5">
+                      <button>White</button>
+                      <button className="text-amber-300">Yellow</button>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold">Text Size</span>
+                    <div className="flex gap-5">
+                      <button className="text">Aa</button>
+                      <button className="text-2xl">Aa</button>
+                      <button className="text-4xl">Aa</button>
+                    </div>
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-bold">Background Color</span>
+                    <div className="flex gap-5">
+                      <button>Transparent</button>
+                      <button className="bg-[rgba(1,1,1,1)] px-2 py-1">
+                        Black
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="text-xs">
-                <span className="font-bold">Background Color</span>
-                <div className="flex gap-5">
-                  <button>Transparent</button>
-                  <button className="bg-[rgba(1,1,1,1)] px-2 py-1">
-                    Black
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+              </Tab.Panel>
+            </Tab.Panels>
+          </Tab.Group>
         </Popover.Panel>
       </Transition>
     </Popover>
