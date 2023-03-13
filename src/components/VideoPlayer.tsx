@@ -1,6 +1,7 @@
-import { Popover, Transition } from '@headlessui/react';
+import { Popover, Tab, Transition } from '@headlessui/react';
 import { formatSecondsInTime } from '@utils/timeUtils';
 import { Subtitle as Subtitles } from 'backend/database/types';
+import { clsx } from 'clsx';
 import { useCueChange } from 'hooks/useCueChange';
 import Image from 'next/image';
 import React, {
@@ -15,13 +16,23 @@ import React, {
 import FadeTransition from './FadeTransition';
 import MaterialIcon from './MaterialIcon';
 import Slider from './Slider';
-import { Tab } from '@headlessui/react';
-import { clsx } from 'clsx';
 
 const getDefaultSubtitle = (subtitles: Array<Subtitles>) =>
   subtitles.length === 1
     ? subtitles[0].id
     : subtitles.find((subtitle) => subtitle.language === 'por')?.id;
+
+type SubtitleColor = 'white' | 'yellow';
+
+type SubtitleBackground = 'black' | 'transparent';
+
+type SubtitleSize = 'small' | 'medium' | 'large';
+
+type SubtitleConfig = {
+  color: SubtitleColor;
+  background: SubtitleBackground;
+  size: SubtitleSize;
+};
 
 interface PlayerButtonProps {
   className?: string;
@@ -44,21 +55,6 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
     </button>
   );
 };
-
-interface SubtitleProps {
-  color: 'white' | 'yellow';
-  background: 'black' | 'transparent';
-  size: 'small' | 'medium' | 'large';
-  video: React.RefObject<HTMLVideoElement>;
-  activeCueId: string | undefined;
-  isShowingControls: boolean;
-}
-
-type SubtitleColor = 'white' | 'yellow';
-
-type SubtitleBackground = 'black' | 'transparent';
-
-type SubtitleSize = 'small' | 'medium' | 'large';
 
 const buildSubtitleColor = (color: SubtitleColor) => {
   switch (color) {
@@ -85,7 +81,7 @@ const buildSize = (size: SubtitleSize) => {
     case 'medium':
       return 'text-4xl';
     case 'large':
-      return 'text-8xl';
+      return 'text-6xl';
   }
 };
 
@@ -95,6 +91,15 @@ const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
 
   return `${colorClass} ${sizeClass}`;
 };
+
+interface SubtitleProps {
+  color: SubtitleColor;
+  background: SubtitleBackground;
+  size: SubtitleSize;
+  video: React.RefObject<HTMLVideoElement>;
+  activeCueId: string | undefined;
+  isShowingControls: boolean;
+}
 
 const Subtitles = ({
   color,
@@ -154,10 +159,34 @@ const Subtitles = ({
 interface SubtitleButtonProps {
   video: React.RefObject<HTMLVideoElement>;
   currentSubtitleId: string | undefined;
+  config: SubtitleConfig;
+  onChangeSubtitle: (subtitleId: string) => void;
+  onDisableSubtitles: () => void;
+  onConfigChange: (config: SubtitleConfig) => void;
 }
 
-const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
+const SubtitleButton = ({
+  video,
+  currentSubtitleId,
+  onChangeSubtitle,
+  onDisableSubtitles,
+  config,
+  onConfigChange,
+}: SubtitleButtonProps) => {
   const [selectedTab, setSelectedTab] = useState(0);
+  const { color, background, size } = config;
+
+  const changeTextColor = (color: SubtitleColor) => {
+    onConfigChange({ ...config, color });
+  };
+
+  const changeBackgroundColor = (background: SubtitleBackground) => {
+    onConfigChange({ ...config, background });
+  };
+
+  const changeSize = (size: SubtitleSize) => {
+    onConfigChange({ ...config, size });
+  };
 
   const buildSubtitlesOptions = () => {
     const subtitles = Array<ReactNode>();
@@ -166,7 +195,7 @@ const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
       <button
         key="disable-option"
         className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase hover:text-rose-700"
-        // onClick={onDisableSubtitlesHandler}
+        onClick={onDisableSubtitles}
       >
         Disabled
       </button>
@@ -184,7 +213,7 @@ const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
         return (
           <button
             key={trackText.id}
-            // onClick={() => onSelectSubtitleHandler(trackText.id)}
+            onClick={() => onChangeSubtitle(trackText.id)}
             className={`${optionTextColor} mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`}
           >
             {trackText.label}
@@ -213,10 +242,7 @@ const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Popover.Panel
-          className="absolute bottom-8 z-50 w-[250px] origin-top-left flex-col rounded-sm bg-neutral-900 p-2 text-sm opacity-90 shadow-md"
-          unmount
-        >
+        <Popover.Panel className="absolute bottom-8 z-50 w-[250px] origin-top-left flex-col rounded-sm bg-neutral-900 p-2 text-sm opacity-90 shadow-md">
           <Tab.Group
             onChange={(index) => setSelectedTab(index)}
             selectedIndex={selectedTab}
@@ -251,23 +277,79 @@ const SubtitleButton = ({ video, currentSubtitleId }: SubtitleButtonProps) => {
                   <div className="flex flex-col gap-1">
                     <span className="text-xs font-bold">Text Color</span>
                     <div className="flex gap-5">
-                      <button>White</button>
-                      <button className="text-amber-300">Yellow</button>
+                      <button
+                        className={clsx(
+                          'rounded-sm p-1',
+                          color === 'white' && 'bg-neutral-700'
+                        )}
+                        onClick={() => changeTextColor('white')}
+                      >
+                        White
+                      </button>
+                      <button
+                        className={clsx(
+                          'rounded-sm p-1 text-amber-300',
+                          color === 'yellow' && 'bg-neutral-700'
+                        )}
+                        onClick={() => changeTextColor('yellow')}
+                      >
+                        Yellow
+                      </button>
                     </div>
                   </div>
                   <div>
                     <span className="text-xs font-bold">Text Size</span>
                     <div className="flex gap-5">
-                      <button className="text">Aa</button>
-                      <button className="text-2xl">Aa</button>
-                      <button className="text-4xl">Aa</button>
+                      <button
+                        className={clsx(
+                          'text rounded-sm p-1 px-4',
+                          size === 'small' && 'bg-neutral-700'
+                        )}
+                        onClick={() => changeSize('small')}
+                      >
+                        Aa
+                      </button>
+                      <button
+                        className={clsx(
+                          'rounded-sm p-1 px-4 text-2xl',
+                          size === 'medium' && 'bg-neutral-700'
+                        )}
+                        onClick={() => changeSize('medium')}
+                      >
+                        Aa
+                      </button>
+                      <button
+                        className={clsx(
+                          'rounded-sm p-1 px-4 text-4xl',
+                          size === 'large' && 'bg-neutral-700'
+                        )}
+                        onClick={() => changeSize('large')}
+                      >
+                        Aa
+                      </button>
                     </div>
                   </div>
                   <div className="text-xs">
                     <span className="font-bold">Background Color</span>
                     <div className="flex gap-5">
-                      <button>Transparent</button>
-                      <button className="bg-[rgba(1,1,1,1)] px-2 py-1">
+                      <button
+                        className={clsx(
+                          'rounded-sm px-2 py-1',
+                          background === 'transparent' && 'bg-neutral-700'
+                        )}
+                        onClick={() => changeBackgroundColor('transparent')}
+                      >
+                        Transparent
+                      </button>
+                      <button
+                        className={clsx(
+                          'rounded-sm px-2 py-1',
+                          background === 'black'
+                            ? 'bg-neutral-700'
+                            : 'bg-[rgba(1,1,1,1)]'
+                        )}
+                        onClick={() => changeBackgroundColor('black')}
+                      >
                         Black
                       </button>
                     </div>
@@ -311,10 +393,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hasMouseMoved, setHasMouseMoved] = useState(true);
   const [subtitleConfig, setSubtitleConfig] = useState({
-    color: 'white' as SubtitleColor,
-    background: 'black' as SubtitleBackground,
-    size: 'small' as SubtitleSize,
-  });
+    color: 'white',
+    background: 'black',
+    size: 'small',
+  } as SubtitleConfig);
 
   const video = useRef<HTMLVideoElement>(null);
   const videoPlayer = useRef<HTMLDivElement>(null);
@@ -376,7 +458,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setCurrentSubtitleId('');
   };
 
-  const onSelectSubtitleHandler = (textTrackId: string) => {
+  const onChangeSubtitleHandler = (textTrackId: string) => {
     Array.from(video.current!.textTracks).forEach((textTrack) => {
       if (textTrack.id !== textTrackId) {
         textTrack.mode = 'hidden';
@@ -464,41 +546,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
       isFullscreen,
     ]
   );
-
-  const buildSubtitlesOptions = () => {
-    const subtitles = Array<ReactNode>();
-
-    const disableSubtitlesOption = (
-      <button
-        key="disable-option"
-        className="overflow-hidden text-ellipsis whitespace-nowrap p-2 text-left font-semibold uppercase hover:bg-rose-700"
-        onClick={onDisableSubtitlesHandler}
-      >
-        Disable
-      </button>
-    );
-
-    subtitles.push(disableSubtitlesOption);
-
-    if (video.current) {
-      const items = Array.from(video.current!.textTracks).map((trackText) => {
-        const isCurrentSubtitle = trackText.id === currentSubtitleId;
-        const selectedClass = isCurrentSubtitle && 'bg-rose-700';
-        return (
-          <button
-            key={trackText.id}
-            onClick={() => onSelectSubtitleHandler(trackText.id)}
-            className={`${selectedClass} overflow-hidden text-ellipsis whitespace-nowrap p-2 text-left font-semibold uppercase hover:bg-rose-600`}
-          >
-            {trackText.label}
-          </button>
-        );
-      });
-      subtitles.push(...items);
-      return subtitles;
-    }
-    return subtitles;
-  };
 
   const setDefaultSubtitle = () => {
     setCurrentSubtitleId(getDefaultSubtitle(subtitles));
@@ -664,21 +711,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   />
                 </div>
               </div>
-              {/* {shouldShowSubtitleButton && (
-                <MenuDropdown
-                  buttonClassName="flex items-center"
-                  menuClassName="bottom-8 bg-neutral-900 opacity-90 w-[170px]"
-                  items={buildSubtitlesOptions()}
-                >
-                  <PlayerButton>
-                    <i className="material-icons">subtitles</i>
-                  </PlayerButton>
-                </MenuDropdown>
-              )} */}
               {shouldShowSubtitleButton && (
                 <SubtitleButton
                   video={video}
                   currentSubtitleId={currentSubtitleId}
+                  config={subtitleConfig}
+                  onChangeSubtitle={onChangeSubtitleHandler}
+                  onDisableSubtitles={onDisableSubtitlesHandler}
+                  onConfigChange={(config: SubtitleConfig) =>
+                    setSubtitleConfig(config)
+                  }
                 />
               )}
             </div>
