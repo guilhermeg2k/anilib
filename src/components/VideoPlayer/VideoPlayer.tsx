@@ -3,6 +3,8 @@ import { formatSecondsInTime } from '@utils/timeUtils';
 import { Subtitle as Subtitles } from 'backend/database/types';
 import { clsx } from 'clsx';
 import { useCueChange } from 'hooks/useCueChange';
+import { useEventListener } from 'hooks/useEventListener';
+import { useAtom } from 'jotai';
 import Image from 'next/image';
 import React, {
   Fragment,
@@ -13,9 +15,28 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import FadeTransition from './FadeTransition';
-import MaterialIcon from './MaterialIcon';
-import Slider from './Slider';
+import FadeTransition from '../FadeTransition';
+import MaterialIcon from '../MaterialIcon';
+import Slider from '../Slider';
+import {
+  SubtitleBackground,
+  SubtitleColor,
+  SubtitleConfig,
+  SubtitleSize,
+} from './types';
+import {
+  currentSubtitleIdAtom,
+  currentTimeAtom,
+  durationAtom,
+  hasMouseMovedAtom,
+  hoverTimeInSecondsAtom,
+  isFullscreenAtom,
+  isPlayingAtom,
+  isShowingVolumeSliderAtom,
+  subtitleConfigAtom,
+  videoAtom,
+  volumeAtom,
+} from './VideoPlayerStore';
 
 type VideoPlayerProps = {
   videoUrl: string;
@@ -34,27 +55,25 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   previews,
   onNextEpisode,
 }) => {
-  const [currentSubtitleId, setCurrentSubtitleId] = useState(
-    getDefaultSubtitle(subtitles)
+  const [video, setVideo] = useAtom(videoAtom);
+  const [duration, setDuration] = useAtom(durationAtom);
+  const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
+  const [volume, setVolume] = useAtom(volumeAtom);
+  const [hoverTimeInSeconds, setHoverTimeInSeconds] = useAtom(
+    hoverTimeInSecondsAtom
   );
-  const [volume, setVolume] = useState(50);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [hoverTimeInSeconds, setHoverTimeInSeconds] = useState(0);
-  const [duration, setDuration] = useState('0:00:00');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [hasMouseMoved, setHasMouseMoved] = useState(true);
-  const [subtitleConfig, setSubtitleConfig] = useState({
-    color: 'white',
-    background: 'black',
-    size: 'small',
-  } as SubtitleConfig);
-  const [video, setVideo] = useState<HTMLVideoElement | null>(null);
+  const [currentSubtitleId, setCurrentSubtitleId] = useAtom(
+    currentSubtitleIdAtom
+  );
+  const [subtitleConfig, setSubtitleConfig] = useAtom(subtitleConfigAtom);
+  const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
+  const [isFullscreen, setIsFullscreen] = useAtom(isFullscreenAtom);
+  const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useAtom(
+    isShowingVolumeSliderAtom
+  );
+  const [hasMouseMoved, setHasMouseMoved] = useAtom(hasMouseMovedAtom);
+
   const videoPlayerDiv = useRef<HTMLDivElement>(null);
-  const onKeyUpHandlerRef = useRef<((event: KeyboardEvent) => void) | null>(
-    null
-  );
   const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
 
   const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
@@ -68,43 +87,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
   const currentHoverPreviewSrc =
     currentHoverPreview && `data:image/jpg;base64,${currentHoverPreview}`;
-
-  const seekToTime = (timeInSeconds: number) => {
-    video!.currentTime = timeInSeconds;
-  };
-
-  const forward = useCallback((seconds: number) => {
-    seekToTime(video!.currentTime + seconds);
-  }, []);
-
-  const rewind = useCallback(
-    (seconds: number) => {
-      seekToTime(video!.currentTime - seconds);
-    },
-    [video]
-  );
-
-  const increaseVolume = useCallback(
-    (amount: number) => {
-      video!.volume = Math.min((volume + amount) / 100, 1);
-    },
-    [volume, video]
-  );
-
-  const decreaseVolume = useCallback(
-    (amount: number) => {
-      video!.volume = Math.max((volume - amount) / 100, 0);
-    },
-    [volume, video]
-  );
-
-  const onPlayToggleHandler = useCallback(() => {
-    if (!video!.paused) {
-      video!.pause();
-    } else {
-      video!.play();
-    }
-  }, [video]);
 
   const onDisableSubtitlesHandler = () => {
     Array.from(video!.textTracks).forEach(
@@ -126,9 +108,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const onMouseMoveHandler = () => {
     clearInterval(currentCursorTimeoutRef.current);
-    if (!hasMouseMoved) {
-      setHasMouseMoved(true);
-    }
+    setHasMouseMoved(true);
+
     currentCursorTimeoutRef.current = setTimeout(function () {
       setHasMouseMoved(false);
     }, 3500);
@@ -139,33 +120,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setHasMouseMoved(false);
   };
 
-  const onMuteToggleHandler = () => {
-    if (video!.volume) {
-      video!.volume = 0;
-    } else {
-      video!.volume = 1;
-    }
-  };
-
-  const onFullscreenToggleHandler = () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      videoPlayerDiv.current!.requestFullscreen();
-    }
-  };
-
-  const onFullscreenChangeHandler = () => {
-    setIsFullscreen(Boolean(document.fullscreenElement));
-  };
-
   const onLoadMetadataHandler = () => {
     const duration = formatSecondsInTime(video?.duration);
     setDuration(duration);
-  };
-
-  const toggleIsShowingVolumeSlider = () => {
-    setIsShowingVolumeSlider(!isShowingVolumeSlider);
   };
 
   const onKeyUpHandler = useCallback(
@@ -173,79 +130,47 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       if (isFullscreen) {
         switch (event.code) {
           case 'Space':
-            onPlayToggleHandler();
+            togglePlay(video);
             break;
           case 'ArrowLeft':
-            rewind(10);
+            rewind(video, 10);
             break;
           case 'ArrowRight':
-            forward(10);
+            forward(video, 10);
             break;
           case 'ArrowUp':
-            increaseVolume(10);
+            increaseVolume(video, 10);
             break;
           case 'ArrowDown':
-            decreaseVolume(10);
+            decreaseVolume(video, 10);
             break;
           default:
             break;
         }
       }
     },
-    [
-      onPlayToggleHandler,
-      increaseVolume,
-      decreaseVolume,
-      rewind,
-      forward,
-      isFullscreen,
-    ]
+    [video, isFullscreen]
   );
 
-  const setDefaultSubtitle = () => {
-    setCurrentSubtitleId(getDefaultSubtitle(subtitles));
-  };
+  const onFullScreenChange = useCallback(() => {
+    setIsFullscreen(Boolean(document.fullscreenElement));
+  }, [setIsFullscreen]);
 
-  const addFullscreenChangeListener = () => {
-    document!.addEventListener('fullscreenchange', onFullscreenChangeHandler);
-    return () => {
-      document!.removeEventListener(
-        'fullscreenchange',
-        onFullscreenChangeHandler
-      );
-    };
-  };
+  useEventListener(onFullScreenChange, 'fullscreenchange');
 
-  const pauseAndLoadCurrentVideo = () => {
+  useEventListener(onKeyUpHandler, 'keyup');
+
+  useEffect(() => {
+    setCurrentSubtitleId(getDefaultSubtitle(subtitles) ?? '');
+  }, [subtitles]);
+
+  useEffect(() => {
     if (video) {
       setIsPlaying(false);
       video.load();
       video.volume = volume / 100;
     }
-  };
-
-  const updateKeyUpHandler = () => {
-    if (onKeyUpHandlerRef.current) {
-      document!.removeEventListener('keyup', onKeyUpHandlerRef.current);
-    }
-
-    onKeyUpHandlerRef.current = onKeyUpHandler;
-    document!.addEventListener('keyup', onKeyUpHandler);
-
-    return () => {
-      if (onKeyUpHandlerRef.current) {
-        document!.removeEventListener('keyup', onKeyUpHandlerRef.current);
-      }
-    };
-  };
-
-  useEffect(addFullscreenChangeListener, []);
-
-  useEffect(updateKeyUpHandler, [onKeyUpHandler]);
-
-  useEffect(setDefaultSubtitle, [subtitles]);
-
-  useEffect(pauseAndLoadCurrentVideo, [videoUrl]);
+  }, [video]);
 
   return (
     <div
@@ -263,7 +188,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }}
         poster={`data:image/png;base64,${coverImage}`}
         preload="auto"
-        onClick={onPlayToggleHandler}
+        onClick={() => togglePlay(video)}
         onLoadedMetadata={onLoadMetadataHandler}
         onPause={() => setIsPlaying(false)}
         onPlay={() => setIsPlaying(true)}
@@ -314,19 +239,19 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         >
           <PlayerButton
             className="md-56 scale-75 rounded-full bg-neutral-900/25 p-2 md:scale-100"
-            onClick={() => rewind(10)}
+            onClick={() => rewind(video, 10)}
           >
             replay_10
           </PlayerButton>
           <PlayerButton
             className="md-72 scale-75 rounded-full bg-neutral-900/25 p-2 md:scale-100"
-            onClick={onPlayToggleHandler}
+            onClick={() => togglePlay(video)}
           >
             {isPlaying ? 'pause' : 'play_arrow'}
           </PlayerButton>
           <PlayerButton
             className="md-56 scale-75 rounded-full bg-neutral-900/25 p-2 md:scale-100"
-            onClick={() => forward(10)}
+            onClick={() => forward(video, 10)}
           >
             forward_10
           </PlayerButton>
@@ -338,16 +263,20 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         >
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-3">
-              <PlayerButton onClick={onPlayToggleHandler}>
+              <PlayerButton onClick={() => togglePlay(video)}>
                 {isPlaying ? 'pause' : 'play_circle'}
               </PlayerButton>
 
               <div
                 className="flex items-center gap-2"
-                onMouseEnter={() => toggleIsShowingVolumeSlider()}
-                onMouseLeave={() => toggleIsShowingVolumeSlider()}
+                onMouseEnter={() =>
+                  setIsShowingVolumeSlider(!isShowingVolumeSlider)
+                }
+                onMouseLeave={() =>
+                  setIsShowingVolumeSlider(!isShowingVolumeSlider)
+                }
               >
-                <PlayerButton onClick={onMuteToggleHandler}>
+                <PlayerButton onClick={() => toggleMute(video)}>
                   {isMuted ? (
                     <i className="material-icons">volume_off</i>
                   ) : (
@@ -383,7 +312,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 />
               )}
             </div>
-            <PlayerButton onClick={onFullscreenToggleHandler}>
+            <PlayerButton
+              onClick={() => toggleFullscreen(videoPlayerDiv.current)}
+            >
               <MaterialIcon>
                 {isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
               </MaterialIcon>
@@ -416,7 +347,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <Slider
                 value={video?.currentTime}
                 maxValue={video?.duration}
-                onChange={(time) => seekToTime(time)}
+                onChange={(time) => seekToTime(video, time)}
                 onHover={(time) => setHoverTimeInSeconds(time)}
                 thumbClassName="bg-neutral-50"
               />
@@ -443,23 +374,6 @@ const PlayerButton: React.FC<PlayerButtonProps> = ({
       </MaterialIcon>
     </button>
   );
-};
-
-const getDefaultSubtitle = (subtitles: Array<Subtitles>) =>
-  subtitles.length === 1
-    ? subtitles[0].id
-    : subtitles.find((subtitle) => subtitle.language === 'por')?.id;
-
-type SubtitleColor = 'white' | 'yellow';
-
-type SubtitleBackground = 'black' | 'transparent';
-
-type SubtitleSize = 'small' | 'medium' | 'large';
-
-type SubtitleConfig = {
-  color: SubtitleColor;
-  background: SubtitleBackground;
-  size: SubtitleSize;
 };
 
 type PlayerButtonProps = {
@@ -775,3 +689,65 @@ const SubtitleButton = ({
     </Popover>
   );
 };
+
+const seekToTime = (video: HTMLVideoElement | null, timeInSeconds: number) => {
+  if (video) {
+    video.currentTime = timeInSeconds;
+  }
+};
+
+const forward = (video: HTMLVideoElement | null, seconds: number) => {
+  if (video) {
+    seekToTime(video, video.currentTime + seconds);
+  }
+};
+
+const rewind = (video: HTMLVideoElement | null, seconds: number) => {
+  if (video) {
+    seekToTime(video, video.currentTime - seconds);
+  }
+};
+
+const increaseVolume = (video: HTMLVideoElement | null, amount: number) => {
+  if (video) {
+    video.volume = Math.min((video.volume + amount) / 100, 1);
+  }
+};
+
+const decreaseVolume = (video: HTMLVideoElement | null, amount: number) => {
+  if (video) {
+    video.volume = Math.max((video.volume - amount) / 100, 0);
+  }
+};
+
+const togglePlay = (video: HTMLVideoElement | null) => {
+  if (!video) return;
+  if (video.paused) {
+    video.play();
+  } else {
+    video.pause();
+  }
+};
+
+const toggleMute = (video: HTMLVideoElement | null) => {
+  if (!video) return;
+  if (video.volume === 0) {
+    video.volume = 1;
+  } else {
+    video.volume = 0;
+  }
+};
+
+const toggleFullscreen = (videoPlayerDiv: HTMLDivElement | null) => {
+  if (!videoPlayerDiv) return;
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    videoPlayerDiv.requestFullscreen();
+  }
+};
+
+const getDefaultSubtitle = (subtitles: Array<Subtitles>) =>
+  subtitles.length === 1
+    ? subtitles[0].id
+    : subtitles.find((subtitle) => subtitle.language === 'por')?.id;

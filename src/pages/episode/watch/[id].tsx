@@ -8,7 +8,7 @@ import EpisodePreviewService from '@services/episodePreviewService';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { VideoPlayer } from '@components/VideoPlayer';
+import { VideoPlayer } from '@components/VideoPlayer/VideoPlayer';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
