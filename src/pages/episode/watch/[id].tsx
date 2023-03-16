@@ -1,15 +1,14 @@
 import EpisodeCard from '@components/EpisodeCard';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
-import VideoPlayer from '@components/VideoPlayer';
 import { Episode, Subtitle } from 'backend/database/types';
 import EpisodeService from 'services/episodeService';
 import SubtitleService from 'services/subtitleService';
-
 import EpisodePreviewService from '@services/episodePreviewService';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { VideoPlayer } from '@components/VideoPlayer';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
