@@ -1,4 +1,5 @@
-import { Popover, Tab, Transition } from '@headlessui/react';
+import { Popover } from '@components/Popover';
+import { Tab } from '@headlessui/react';
 import { formatSecondsInTime } from '@utils/timeUtils';
 import { Subtitle as Subtitles } from 'backend/database/types';
 import { clsx } from 'clsx';
@@ -6,7 +7,6 @@ import { useCueChange } from 'hooks/useCueChange';
 import { useEventListener } from 'hooks/useEventListener';
 import Image from 'next/image';
 import React, {
-  Fragment,
   ReactNode,
   useCallback,
   useEffect,
@@ -17,31 +17,29 @@ import React, {
 import FadeTransition from '../FadeTransition';
 import MaterialIcon from '../MaterialIcon';
 import Slider from '../Slider';
-import {
-  SubtitleBackground,
-  SubtitleColor,
-  SubtitleConfig,
-  SubtitleSize,
-} from './types';
+import { SubtitleBackground, SubtitleColor, SubtitleSize } from './types';
 import { useVideoPlayerStore } from './VideoPlayerStore';
 
-type VideoPlayerProps = {
-  videoUrl: string;
-  coverImageBase64: string;
-  episodeTitle: string;
-  subtitles: Array<Subtitles>;
-  previews: Array<string>;
-  onNextEpisode: () => void;
-};
-
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({
+export const VideoPlayer = ({
   videoUrl,
   episodeTitle,
   coverImageBase64: coverImage,
   subtitles,
   previews,
   onNextEpisode,
+}: {
+  videoUrl: string;
+  coverImageBase64: string;
+  episodeTitle: string;
+  subtitles: Array<Subtitles>;
+  previews: Array<string>;
+  onNextEpisode: () => void;
 }) => {
+  const [hasMouseMoved, setHasMouseMoved] = useState(false);
+  const videoPlayerDiv = useRef<HTMLDivElement>(null);
+  const hideCursorTimeout = useRef<NodeJS.Timeout | null>(
+    setTimeout(() => {}, 0)
+  );
   const {
     video,
     setVideo,
@@ -51,56 +49,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setIsFullscreen,
     volume,
     setVolume,
-    currentTime,
     setCurrentTime,
-    duration,
     setDuration,
-    hoverTimeInSeconds,
-    setHoverTimeInSeconds,
     currentSubtitleId,
     setCurrentSubtitleId,
-    subtitleConfig,
-    setSubtitleConfig,
-    isShowingVolumeSlider,
-    setIsShowingVolumeSlider,
     isShowingControls,
     setIsShowingControls,
   } = useVideoPlayerStore();
-  const [hasMouseMoved, setHasMouseMoved] = useState(false);
 
-  const videoPlayerDiv = useRef<HTMLDivElement>(null);
-  const hideCursorTimeout = useRef<NodeJS.Timeout | null>(
-    setTimeout(() => {}, 0)
-  );
-
-  const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
-  const formattedCurrentTime = formatSecondsInTime(currentTime);
-  const hoverTimePercentage =
-    (hoverTimeInSeconds * 100) / (video?.duration || 1);
-  const currentHoverPreview =
-    hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
-  const currentHoverPreviewSrc =
-    currentHoverPreview && `data:image/jpg;base64,${currentHoverPreview}`;
-  const isMuted = volume === 0;
   const shouldShowSubtitleButton = subtitles.length > 0;
-
-  const onDisableSubtitlesHandler = () => {
-    Array.from(video!.textTracks).forEach(
-      (textTrack) => (textTrack.mode = 'hidden')
-    );
-    setCurrentSubtitleId('');
-  };
-
-  const onChangeSubtitleHandler = (textTrackId: string) => {
-    Array.from(video!.textTracks).forEach((textTrack) => {
-      if (textTrack.id !== textTrackId) {
-        textTrack.mode = 'hidden';
-      } else {
-        textTrack.mode = 'showing';
-        setCurrentSubtitleId(textTrack.id);
-      }
-    });
-  };
 
   const onMouseMoveHandler = () => {
     if (hideCursorTimeout.current) {
@@ -121,7 +78,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   const onLoadMetadataHandler = () => {
-    const duration = formatSecondsInTime(video?.duration);
+    const duration = video?.duration ?? 0;
     setDuration(duration);
   };
 
@@ -264,51 +221,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <PlayerButton onClick={() => togglePlay(video)}>
                 {isPlaying ? 'pause' : 'play_circle'}
               </PlayerButton>
-
-              <div
-                className="flex items-center gap-2"
-                onMouseEnter={() =>
-                  setIsShowingVolumeSlider(!isShowingVolumeSlider)
-                }
-                onMouseLeave={() =>
-                  setIsShowingVolumeSlider(!isShowingVolumeSlider)
-                }
-              >
-                <PlayerButton onClick={() => toggleMute(video)}>
-                  {isMuted ? (
-                    <i className="material-icons">volume_off</i>
-                  ) : (
-                    <i className="material-icons">volume_up</i>
-                  )}
-                </PlayerButton>
-                <div
-                  className={`flex w-[110px] items-center justify-center ${
-                    !isShowingVolumeSlider && 'hidden'
-                  }`}
-                >
-                  <Slider
-                    value={volume}
-                    onChange={(newVolume) => {
-                      video!.volume = newVolume / 100;
-                    }}
-                    activeClassName="bg-neutral-50"
-                    thumbClassName="bg-neutral-50"
-                    alwaysShowThumb
-                  />
-                </div>
-              </div>
-              {shouldShowSubtitleButton && (
-                <SubtitleButton
-                  video={video}
-                  currentSubtitleId={currentSubtitleId}
-                  config={subtitleConfig}
-                  onChangeSubtitle={onChangeSubtitleHandler}
-                  onDisableSubtitles={onDisableSubtitlesHandler}
-                  onConfigChange={(config: SubtitleConfig) =>
-                    setSubtitleConfig(config)
-                  }
-                />
-              )}
+              <VolumeButton />
+              {shouldShowSubtitleButton && <SubtitleButton />}
             </div>
             <PlayerButton
               onClick={() => toggleFullscreen(videoPlayerDiv.current)}
@@ -318,74 +232,15 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               </MaterialIcon>
             </PlayerButton>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold">
-              {formattedCurrentTime}
-            </span>
-            <div className="group relative w-full">
-              {currentHoverPreviewSrc && (
-                <div
-                  style={{
-                    left: `calc(${hoverTimePercentage}% - 5.5rem)`,
-                  }}
-                  className="absolute -top-[8rem] hidden flex-col items-center gap-1 group-hover:flex"
-                >
-                  <figure className="w-44">
-                    <Image
-                      src={currentHoverPreviewSrc}
-                      alt="Episode preview"
-                      layout="responsive"
-                      width={500}
-                      height={281}
-                    />
-                  </figure>
-                  <span className="text-sm">{formattedHoverTime}</span>
-                </div>
-              )}
-              <Slider
-                value={video?.currentTime}
-                maxValue={video?.duration}
-                onChange={(time) => seekToTime(video, time)}
-                onHover={(time) => setHoverTimeInSeconds(time)}
-                thumbClassName="bg-neutral-50"
-              />
-            </div>
-            <span className="text-sm font-semibold">{duration}</span>
-          </div>
+          <TimeLine previews={previews} />
         </div>
       </FadeTransition>
     </div>
   );
 };
 
-const PlayerButton: React.FC<PlayerButtonProps> = ({
-  className = '',
-  onClick = () => {},
-  children,
-}) => {
-  return (
-    <button onClick={onClick} className="flex items-center justify-center">
-      <MaterialIcon
-        className={`${className} flex items-center text-white opacity-90 duration-200  ease-in-out hover:opacity-100`}
-      >
-        {children}
-      </MaterialIcon>
-    </button>
-  );
-};
-
-type PlayerButtonProps = {
-  className?: string;
-  children: ReactNode;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-};
-
 const Subtitles = () => {
   const [activeCues, setActiveCues] = useState<VTTCue[] | never[]>([]);
-  console.log(
-    '🚀 ~ file: VideoPlayer.tsx:385 ~ Subtitles ~ activeCues:',
-    activeCues
-  );
   const { video, currentSubtitleId, subtitleConfig, isShowingControls } =
     useVideoPlayerStore();
   const { color, background, size } = subtitleConfig;
@@ -438,211 +293,304 @@ const Subtitles = () => {
   );
 };
 
-type SubtitleButtonProps = {
-  video: HTMLVideoElement | null;
-  currentSubtitleId: string | undefined;
-  config: SubtitleConfig;
-  onChangeSubtitle: (subtitleId: string) => void;
-  onDisableSubtitles: () => void;
-  onConfigChange: (config: SubtitleConfig) => void;
-};
-
-const SubtitleButton = ({
-  video,
-  currentSubtitleId,
-  onChangeSubtitle,
-  onDisableSubtitles,
-  config,
-  onConfigChange,
-}: SubtitleButtonProps) => {
+const SubtitleButton = () => {
   const [selectedTab, setSelectedTab] = useState(0);
-  const { color, background, size } = config;
+  const {
+    video,
+    currentSubtitleId,
+    subtitleConfig,
+    setCurrentSubtitleId,
+    setSubtitleConfig,
+  } = useVideoPlayerStore();
+  const { color, background, size } = subtitleConfig;
 
   const changeTextColor = (color: SubtitleColor) => {
-    onConfigChange({ ...config, color });
+    setSubtitleConfig({ ...subtitleConfig, color });
   };
 
   const changeBackgroundColor = (background: SubtitleBackground) => {
-    onConfigChange({ ...config, background });
+    setSubtitleConfig({ ...subtitleConfig, background });
   };
 
   const changeSize = (size: SubtitleSize) => {
-    onConfigChange({ ...config, size });
+    setSubtitleConfig({ ...subtitleConfig, size });
   };
 
-  const buildSubtitlesOptions = () => {
-    const subtitles = Array<ReactNode>();
-
-    const disableSubtitlesOption = (
-      <button
-        key="disable-option"
-        className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase hover:text-rose-700"
-        onClick={onDisableSubtitles}
-      >
-        Disabled
-      </button>
+  const disableSubtitles = () => {
+    Array.from(video!.textTracks).forEach(
+      (textTrack) => (textTrack.mode = 'hidden')
     );
+    setCurrentSubtitleId('');
+  };
 
-    subtitles.push(disableSubtitlesOption);
-
-    if (video) {
-      const items = Array.from(video.textTracks).map((trackText) => {
-        const isCurrentSubtitle = trackText.id === currentSubtitleId;
-        const optionTextColor = isCurrentSubtitle
-          ? 'text-white'
-          : 'text-neutral-400';
-
-        return (
-          <button
-            key={trackText.id}
-            onClick={() => onChangeSubtitle(trackText.id)}
-            className={`${optionTextColor} mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`}
-          >
-            {trackText.label}
-          </button>
-        );
-      });
-      subtitles.push(...items);
-      return subtitles;
-    }
-    return subtitles;
+  const changeSubtitle = (textTrackId: string) => {
+    Array.from(video!.textTracks).forEach((textTrack) => {
+      if (textTrack.id !== textTrackId) {
+        textTrack.mode = 'hidden';
+      } else {
+        textTrack.mode = 'showing';
+        setCurrentSubtitleId(textTrack.id);
+      }
+    });
   };
 
   return (
-    <Popover className="relative flex ">
-      <Popover.Button>
+    <Popover
+      className="relative flex"
+      button={
         <PlayerButton>
           <i className="material-icons">subtitles</i>
         </PlayerButton>
-      </Popover.Button>
-      <Transition
-        as={Fragment}
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
+      }
+    >
+      <Tab.Group
+        onChange={(index) => setSelectedTab(index)}
+        selectedIndex={selectedTab}
       >
-        <Popover.Panel className="absolute bottom-8 z-50 w-[250px] origin-top-left flex-col rounded-sm bg-neutral-900 p-2 text-sm opacity-90 shadow-md">
-          <Tab.Group
-            onChange={(index) => setSelectedTab(index)}
-            selectedIndex={selectedTab}
+        <Tab.List className="grid grid-cols-2 gap-2">
+          <Tab
+            className={clsx(
+              'rounded-sm p-1 px-4 font-semibold uppercase',
+              selectedTab === 0 && 'bg-neutral-700'
+            )}
           >
-            <Tab.List className="grid grid-cols-2 gap-2">
-              <Tab
-                className={clsx(
-                  'rounded-sm p-1 px-4 font-semibold uppercase',
-                  selectedTab === 0 && 'bg-neutral-700'
-                )}
-              >
-                Language
-              </Tab>
-              <Tab
-                className={clsx(
-                  'rounded-sm p-1 px-4 font-semibold uppercase',
-                  selectedTab === 1 && 'bg-neutral-700'
-                )}
-              >
-                Settings
-              </Tab>
-            </Tab.List>
-            <Tab.Panels>
-              <Tab.Panel>
-                <div className="flex flex-col py-2">
-                  {buildSubtitlesOptions()}
-                </div>
-              </Tab.Panel>
+            Language
+          </Tab>
+          <Tab
+            className={clsx(
+              'rounded-sm p-1 px-4 font-semibold uppercase',
+              selectedTab === 1 && 'bg-neutral-700'
+            )}
+          >
+            Settings
+          </Tab>
+        </Tab.List>
+        <Tab.Panels>
+          <Tab.Panel>
+            <div className="flex flex-col py-2">
+              <>
+                <button
+                  key="disable-option"
+                  className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase hover:text-rose-700"
+                  onClick={disableSubtitles}
+                >
+                  Disabled
+                </button>
+                {video &&
+                  Array.from(video.textTracks).map((trackText) => {
+                    const isCurrentSubtitle =
+                      trackText.id === currentSubtitleId;
+                    const optionTextColor = isCurrentSubtitle
+                      ? 'text-white'
+                      : 'text-neutral-400';
 
-              <Tab.Panel>
-                <div className="flex flex-col gap-2 py-2">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-bold">Text Color</span>
-                    <div className="flex gap-5">
+                    return (
                       <button
-                        className={clsx(
-                          'rounded-sm p-1',
-                          color === 'white' && 'bg-neutral-700'
-                        )}
-                        onClick={() => changeTextColor('white')}
+                        key={trackText.id}
+                        onClick={() => changeSubtitle(trackText.id)}
+                        className={`${optionTextColor} mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`}
                       >
-                        White
+                        {trackText.label}
                       </button>
-                      <button
-                        className={clsx(
-                          'rounded-sm p-1 text-amber-300',
-                          color === 'yellow' && 'bg-neutral-700'
-                        )}
-                        onClick={() => changeTextColor('yellow')}
-                      >
-                        Yellow
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold">Text Size</span>
-                    <div className="flex gap-5">
-                      <button
-                        className={clsx(
-                          'text rounded-sm p-1 px-4',
-                          size === 'small' && 'bg-neutral-700'
-                        )}
-                        onClick={() => changeSize('small')}
-                      >
-                        Aa
-                      </button>
-                      <button
-                        className={clsx(
-                          'rounded-sm p-1 px-4 text-2xl',
-                          size === 'medium' && 'bg-neutral-700'
-                        )}
-                        onClick={() => changeSize('medium')}
-                      >
-                        Aa
-                      </button>
-                      <button
-                        className={clsx(
-                          'rounded-sm p-1 px-4 text-4xl',
-                          size === 'large' && 'bg-neutral-700'
-                        )}
-                        onClick={() => changeSize('large')}
-                      >
-                        Aa
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-xs">
-                    <span className="font-bold">Background Color</span>
-                    <div className="flex gap-5">
-                      <button
-                        className={clsx(
-                          'rounded-sm px-2 py-1',
-                          background === 'transparent' && 'bg-neutral-700'
-                        )}
-                        onClick={() => changeBackgroundColor('transparent')}
-                      >
-                        Transparent
-                      </button>
-                      <button
-                        className={clsx(
-                          'rounded-sm px-2 py-1',
-                          background === 'black'
-                            ? 'bg-neutral-700'
-                            : 'bg-[rgba(1,1,1,1)]'
-                        )}
-                        onClick={() => changeBackgroundColor('black')}
-                      >
-                        Black
-                      </button>
-                    </div>
-                  </div>
+                    );
+                  })}
+              </>
+            </div>
+          </Tab.Panel>
+          <Tab.Panel>
+            <div className="flex flex-col gap-2 py-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-bold">Text Color</span>
+                <div className="flex gap-5">
+                  <button
+                    className={clsx(
+                      'rounded-sm p-1',
+                      color === 'white' && 'bg-neutral-700'
+                    )}
+                    onClick={() => changeTextColor('white')}
+                  >
+                    White
+                  </button>
+                  <button
+                    className={clsx(
+                      'rounded-sm p-1 text-amber-300',
+                      color === 'yellow' && 'bg-neutral-700'
+                    )}
+                    onClick={() => changeTextColor('yellow')}
+                  >
+                    Yellow
+                  </button>
                 </div>
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
-        </Popover.Panel>
-      </Transition>
+              </div>
+              <div>
+                <span className="text-xs font-bold">Text Size</span>
+                <div className="flex gap-5">
+                  <button
+                    className={clsx(
+                      'text rounded-sm p-1 px-4',
+                      size === 'small' && 'bg-neutral-700'
+                    )}
+                    onClick={() => changeSize('small')}
+                  >
+                    Aa
+                  </button>
+                  <button
+                    className={clsx(
+                      'rounded-sm p-1 px-4 text-2xl',
+                      size === 'medium' && 'bg-neutral-700'
+                    )}
+                    onClick={() => changeSize('medium')}
+                  >
+                    Aa
+                  </button>
+                  <button
+                    className={clsx(
+                      'rounded-sm p-1 px-4 text-4xl',
+                      size === 'large' && 'bg-neutral-700'
+                    )}
+                    onClick={() => changeSize('large')}
+                  >
+                    Aa
+                  </button>
+                </div>
+              </div>
+              <div className="text-xs">
+                <span className="font-bold">Background Color</span>
+                <div className="flex gap-5">
+                  <button
+                    className={clsx(
+                      'rounded-sm px-2 py-1',
+                      background === 'transparent' && 'bg-neutral-700'
+                    )}
+                    onClick={() => changeBackgroundColor('transparent')}
+                  >
+                    Transparent
+                  </button>
+                  <button
+                    className={clsx(
+                      'rounded-sm px-2 py-1',
+                      background === 'black'
+                        ? 'bg-neutral-700'
+                        : 'bg-[rgba(1,1,1,1)]'
+                    )}
+                    onClick={() => changeBackgroundColor('black')}
+                  >
+                    Black
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Tab.Panel>
+        </Tab.Panels>
+      </Tab.Group>
     </Popover>
+  );
+};
+
+const VolumeButton = () => {
+  const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useState(false);
+  const { video, volume } = useVideoPlayerStore();
+  const isMuted = volume === 0;
+
+  return (
+    <div
+      className="flex items-center gap-2"
+      onMouseEnter={() => setIsShowingVolumeSlider(!isShowingVolumeSlider)}
+      onMouseLeave={() => setIsShowingVolumeSlider(!isShowingVolumeSlider)}
+    >
+      <PlayerButton onClick={() => toggleMute(video)}>
+        {isMuted ? (
+          <i className="material-icons">volume_off</i>
+        ) : (
+          <i className="material-icons">volume_up</i>
+        )}
+      </PlayerButton>
+      <div
+        className={`flex w-[110px] items-center justify-center ${
+          !isShowingVolumeSlider && 'hidden'
+        }`}
+      >
+        <Slider
+          value={volume}
+          onChange={(newVolume) => {
+            video!.volume = newVolume / 100;
+          }}
+          activeClassName="bg-neutral-50"
+          thumbClassName="bg-neutral-50"
+          alwaysShowThumb
+        />
+      </div>
+    </div>
+  );
+};
+
+const TimeLine = ({ previews }: { previews: string[] }) => {
+  const [hoverTimeInSeconds, setHoverTimeInSeconds] = useState<number>(0);
+  const { video, currentTime, duration } = useVideoPlayerStore();
+
+  const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
+  const formattedDuration = formatSecondsInTime(duration);
+  const formattedCurrentTime = formatSecondsInTime(currentTime);
+  const hoverTimePercentage =
+    (hoverTimeInSeconds * 100) / (video?.duration || 1);
+  const currentHoverPreview =
+    hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
+  const currentHoverPreviewSrc =
+    currentHoverPreview && `data:image/jpg;base64,${currentHoverPreview}`;
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm font-semibold">{formattedCurrentTime}</span>
+      <div className="group relative w-full">
+        {currentHoverPreviewSrc && (
+          <div
+            style={{
+              left: `calc(${hoverTimePercentage}% - 5.5rem)`,
+            }}
+            className="absolute -top-[8rem] hidden flex-col items-center gap-1 group-hover:flex"
+          >
+            <figure className="w-44">
+              <Image
+                src={currentHoverPreviewSrc}
+                alt="Episode preview"
+                layout="responsive"
+                width={500}
+                height={281}
+              />
+            </figure>
+            <span className="text-sm">{formattedHoverTime}</span>
+          </div>
+        )}
+        <Slider
+          value={video?.currentTime}
+          maxValue={video?.duration}
+          onChange={(time) => seekToTime(video, time)}
+          onHover={(time) => setHoverTimeInSeconds(time)}
+          thumbClassName="bg-neutral-50"
+        />
+      </div>
+      <span className="text-sm font-semibold">{formattedDuration}</span>
+    </div>
+  );
+};
+
+const PlayerButton = ({
+  className = '',
+  onClick = () => {},
+  children,
+}: {
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  children: ReactNode;
+}) => {
+  return (
+    <button onClick={onClick} className="flex items-center justify-center">
+      <MaterialIcon
+        className={`${className} flex items-center text-white opacity-90 duration-200  ease-in-out hover:opacity-100`}
+      >
+        {children}
+      </MaterialIcon>
+    </button>
   );
 };
 
