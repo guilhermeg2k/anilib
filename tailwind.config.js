@@ -58,6 +58,7 @@ module.exports = {
       cursive: ['Finger Paint', 'cursive'],
       atkinson: ['Atkinson Hyperlegible', 'sans-serif'],
       roboto: ['Roboto', 'sans-serif'],
+      subtitle: 'Helvetica, Arial, sans-serif',
     },
   },
   plugins: [require('@tailwindcss/forms')],

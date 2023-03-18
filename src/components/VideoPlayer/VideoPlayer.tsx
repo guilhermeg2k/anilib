@@ -4,7 +4,6 @@ import { Subtitle as Subtitles } from 'backend/database/types';
 import { clsx } from 'clsx';
 import { useCueChange } from 'hooks/useCueChange';
 import { useEventListener } from 'hooks/useEventListener';
-import { useAtom } from 'jotai';
 import Image from 'next/image';
 import React, {
   Fragment,
@@ -24,19 +23,7 @@ import {
   SubtitleConfig,
   SubtitleSize,
 } from './types';
-import {
-  currentSubtitleIdAtom,
-  currentTimeAtom,
-  durationAtom,
-  hasMouseMovedAtom,
-  hoverTimeInSecondsAtom,
-  isFullscreenAtom,
-  isPlayingAtom,
-  isShowingVolumeSliderAtom,
-  subtitleConfigAtom,
-  videoAtom,
-  volumeAtom,
-} from './VideoPlayerStore';
+import { useVideoPlayerStore } from './VideoPlayerStore';
 
 type VideoPlayerProps = {
   videoUrl: string;
@@ -55,38 +42,47 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   previews,
   onNextEpisode,
 }) => {
-  const [video, setVideo] = useAtom(videoAtom);
-  const [duration, setDuration] = useAtom(durationAtom);
-  const [currentTime, setCurrentTime] = useAtom(currentTimeAtom);
-  const [volume, setVolume] = useAtom(volumeAtom);
-  const [hoverTimeInSeconds, setHoverTimeInSeconds] = useAtom(
-    hoverTimeInSecondsAtom
-  );
-  const [currentSubtitleId, setCurrentSubtitleId] = useAtom(
-    currentSubtitleIdAtom
-  );
-  const [subtitleConfig, setSubtitleConfig] = useAtom(subtitleConfigAtom);
-  const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
-  const [isFullscreen, setIsFullscreen] = useAtom(isFullscreenAtom);
-  const [isShowingVolumeSlider, setIsShowingVolumeSlider] = useAtom(
-    isShowingVolumeSliderAtom
-  );
-  const [hasMouseMoved, setHasMouseMoved] = useAtom(hasMouseMovedAtom);
+  const {
+    video,
+    setVideo,
+    isPlaying,
+    setIsPlaying,
+    isFullscreen,
+    setIsFullscreen,
+    volume,
+    setVolume,
+    currentTime,
+    setCurrentTime,
+    duration,
+    setDuration,
+    hoverTimeInSeconds,
+    setHoverTimeInSeconds,
+    currentSubtitleId,
+    setCurrentSubtitleId,
+    subtitleConfig,
+    setSubtitleConfig,
+    isShowingVolumeSlider,
+    setIsShowingVolumeSlider,
+    isShowingControls,
+    setIsShowingControls,
+  } = useVideoPlayerStore();
+  const [hasMouseMoved, setHasMouseMoved] = useState(false);
 
   const videoPlayerDiv = useRef<HTMLDivElement>(null);
-  const currentCursorTimeoutRef = useRef({} as NodeJS.Timeout);
+  const hideCursorTimeout = useRef<NodeJS.Timeout | null>(
+    setTimeout(() => {}, 0)
+  );
 
   const formattedHoverTime = formatSecondsInTime(hoverTimeInSeconds);
   const formattedCurrentTime = formatSecondsInTime(currentTime);
   const hoverTimePercentage =
     (hoverTimeInSeconds * 100) / (video?.duration || 1);
-  const shouldShowControls = hasMouseMoved || !isPlaying;
-  const shouldShowSubtitleButton = subtitles.length > 0;
-  const isMuted = volume === 0;
   const currentHoverPreview =
     hoverTimeInSeconds != null && previews[Math.floor(hoverTimeInSeconds / 10)];
   const currentHoverPreviewSrc =
     currentHoverPreview && `data:image/jpg;base64,${currentHoverPreview}`;
+  const isMuted = volume === 0;
+  const shouldShowSubtitleButton = subtitles.length > 0;
 
   const onDisableSubtitlesHandler = () => {
     Array.from(video!.textTracks).forEach(
@@ -107,17 +103,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   const onMouseMoveHandler = () => {
-    clearInterval(currentCursorTimeoutRef.current);
-    setHasMouseMoved(true);
+    if (hideCursorTimeout.current) {
+      clearInterval(hideCursorTimeout.current);
+      setHasMouseMoved(true);
 
-    currentCursorTimeoutRef.current = setTimeout(function () {
-      setHasMouseMoved(false);
-    }, 3500);
+      hideCursorTimeout.current = setTimeout(function () {
+        setHasMouseMoved(false);
+      }, 2500);
+    }
   };
 
   const onMouseLeaveHandler = () => {
-    clearInterval(currentCursorTimeoutRef.current);
-    setHasMouseMoved(false);
+    if (hideCursorTimeout.current) {
+      clearInterval(hideCursorTimeout.current);
+      setHasMouseMoved(false);
+    }
   };
 
   const onLoadMetadataHandler = () => {
@@ -156,13 +156,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setIsFullscreen(Boolean(document.fullscreenElement));
   }, [setIsFullscreen]);
 
-  useEventListener(onFullScreenChange, 'fullscreenchange');
+  useEventListener('fullscreenchange', onFullScreenChange);
 
-  useEventListener(onKeyUpHandler, 'keyup');
+  useEventListener('keyup', onKeyUpHandler);
 
   useEffect(() => {
-    setCurrentSubtitleId(getDefaultSubtitle(subtitles) ?? '');
-  }, [subtitles]);
+    setIsShowingControls(hasMouseMoved || !isPlaying);
+  }, [hasMouseMoved, isPlaying, setIsShowingControls]);
+
+  useEffect(() => {
+    const defaultSubtitle = getDefaultSubtitle(subtitles) ?? '';
+    setCurrentSubtitleId(defaultSubtitle);
+  }, [subtitles, setCurrentSubtitleId]);
 
   useEffect(() => {
     if (video) {
@@ -170,11 +175,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       video.load();
       video.volume = volume / 100;
     }
-  }, [video]);
+  }, [video, setIsPlaying]);
 
   return (
     <div
-      className={`${!shouldShowControls && 'cursor-none'} relative`}
+      className={clsx('relative', !isShowingControls && 'cursor-none')}
       ref={videoPlayerDiv}
       onMouseMove={onMouseMoveHandler}
       onMouseLeave={onMouseLeaveHandler}
@@ -211,15 +216,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           );
         })}
       </video>
-      <Subtitles
-        video={video}
-        background={subtitleConfig.background}
-        color={subtitleConfig.color}
-        size={subtitleConfig.size}
-        activeCueId={currentSubtitleId}
-        isShowingControls={shouldShowControls}
-      />
-      <FadeTransition key="video-controls" show={shouldShowControls}>
+      <Subtitles />
+      <FadeTransition key="video-controls" show={isShowingControls}>
         <div
           id="video-top-controls"
           className="absolute top-0  z-10 flex w-full flex-col bg-gradient-to-b from-neutral-800 to-transparent px-4 py-2"
@@ -382,76 +380,31 @@ type PlayerButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
 
-const buildSubtitleColor = (color: SubtitleColor) => {
-  switch (color) {
-    case 'white':
-      return 'text-white-300';
-    case 'yellow':
-      return 'text-amber-300';
-  }
-};
-
-const buildBackgroundColor = (background: SubtitleBackground) => {
-  switch (background) {
-    case 'black':
-      return 'bg-[rgba(1,1,1,0.6)] ';
-    case 'transparent':
-      return 'bg-transparent';
-  }
-};
-
-const buildSize = (size: SubtitleSize) => {
-  switch (size) {
-    case 'small':
-      return 'text-2xl';
-    case 'medium':
-      return 'text-4xl';
-    case 'large':
-      return 'text-6xl';
-  }
-};
-
-const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
-  const colorClass = buildSubtitleColor(color);
-  const sizeClass = buildSize(size);
-
-  return `${colorClass} ${sizeClass}`;
-};
-
-type SubtitleProps = {
-  color: SubtitleColor;
-  background: SubtitleBackground;
-  size: SubtitleSize;
-  video: HTMLVideoElement | null;
-  activeCueId: string | undefined;
-  isShowingControls: boolean;
-};
-
-const Subtitles = ({
-  color,
-  background,
-  size,
-  video,
-  activeCueId,
-  isShowingControls,
-}: SubtitleProps) => {
-  const [activeCues, setActiveCues] = useState<TextTrackCue[] | never[]>([]);
+const Subtitles = () => {
+  const [activeCues, setActiveCues] = useState<VTTCue[] | never[]>([]);
+  console.log(
+    '🚀 ~ file: VideoPlayer.tsx:385 ~ Subtitles ~ activeCues:',
+    activeCues
+  );
+  const { video, currentSubtitleId, subtitleConfig, isShowingControls } =
+    useVideoPlayerStore();
+  const { color, background, size } = subtitleConfig;
 
   const currentTextTrack = useMemo(() => {
-    if (video && activeCueId) {
+    if (video && currentSubtitleId) {
       return Array.from(video.textTracks).find(
-        (textTrack) => textTrack.id === activeCueId
+        (textTrack) => textTrack.id === currentSubtitleId
       );
     }
-  }, [video, activeCueId]);
+  }, [video, currentSubtitleId]);
 
   const onCueChangeHandler = useCallback(() => {
     const cues = currentTextTrack?.activeCues || [];
-    setActiveCues(Array.from(cues));
+    setActiveCues(Array.from(cues) as VTTCue[]);
   }, [currentTextTrack?.activeCues]);
 
   const textClassName = buildSubtitleTextClass(color, size);
-  const backgroundClassName = buildBackgroundColor(background);
+  const backgroundClassName = buildSubtitlesBackgroundColor(background);
 
   useCueChange(currentTextTrack, onCueChangeHandler);
 
@@ -461,23 +414,26 @@ const Subtitles = ({
         isShowingControls ? 'bottom-16' : 'bottom-5'
       } flex w-full select-none flex-col items-center gap-2   px-4 py-2`}
     >
-      <div className={`px-4 py-1 ${backgroundClassName}`}>
-        {activeCues.map((cue) => {
-          return (
-            <div
-              key={`${cue.startTime}-${cue.endTime}-${cue.text}`}
-              style={{
-                textShadow:
-                  '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px',
-                fontFamily: 'Arial, Helvetica, sans-serif',
-              }}
-              className={`${textClassName} text-center font-bold antialiased`}
-            >
-              {cue.text}
-            </div>
-          );
-        })}
-      </div>
+      {activeCues.length > 0 && (
+        <div className={`px-4 py-1 ${backgroundClassName}`}>
+          {activeCues.map((cue) => {
+            return (
+              <div
+                key={`${cue.startTime}-${cue.endTime}-${cue.text}`}
+                style={{
+                  textShadow:
+                    background === 'transparent'
+                      ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
+                      : '',
+                }}
+                className={`${textClassName} text-center font-subtitle font-bold antialiased`}
+              >
+                {cue.text}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -688,6 +644,42 @@ const SubtitleButton = ({
       </Transition>
     </Popover>
   );
+};
+
+const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
+  const colorClass = buildSubtitlesColor(color);
+  const sizeClass = buildSubtitlesSize(size);
+
+  return `${colorClass} ${sizeClass}`;
+};
+
+const buildSubtitlesColor = (color: SubtitleColor) => {
+  switch (color) {
+    case 'white':
+      return 'text-white-300';
+    case 'yellow':
+      return 'text-amber-300';
+  }
+};
+
+const buildSubtitlesBackgroundColor = (background: SubtitleBackground) => {
+  switch (background) {
+    case 'black':
+      return 'bg-[rgba(1,1,1,0.6)] ';
+    case 'transparent':
+      return 'bg-transparent';
+  }
+};
+
+const buildSubtitlesSize = (size: SubtitleSize) => {
+  switch (size) {
+    case 'small':
+      return 'text-2xl';
+    case 'medium':
+      return 'text-4xl';
+    case 'large':
+      return 'text-6xl';
+  }
 };
 
 const seekToTime = (video: HTMLVideoElement | null, timeInSeconds: number) => {
