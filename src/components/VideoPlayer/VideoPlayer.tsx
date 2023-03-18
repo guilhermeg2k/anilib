@@ -53,11 +53,9 @@ export const VideoPlayer = ({
     setDuration,
     currentSubtitleId,
     setCurrentSubtitleId,
-    isShowingControls,
-    setIsShowingControls,
+    shouldShowControls,
+    setShouldShowControls,
   } = useVideoPlayerStore();
-
-  const shouldShowSubtitleButton = subtitles.length > 0;
 
   const onMouseMoveHandler = () => {
     if (hideCursorTimeout.current) {
@@ -118,8 +116,8 @@ export const VideoPlayer = ({
   useEventListener('keyup', onKeyUpHandler);
 
   useEffect(() => {
-    setIsShowingControls(hasMouseMoved || !isPlaying);
-  }, [hasMouseMoved, isPlaying, setIsShowingControls]);
+    setShouldShowControls(hasMouseMoved || !isPlaying);
+  }, [hasMouseMoved, isPlaying, setShouldShowControls]);
 
   useEffect(() => {
     const defaultSubtitle = getDefaultSubtitle(subtitles) ?? '';
@@ -136,7 +134,7 @@ export const VideoPlayer = ({
 
   return (
     <div
-      className={clsx('relative', !isShowingControls && 'cursor-none')}
+      className={clsx('relative', !shouldShowControls && 'cursor-none')}
       ref={videoPlayerDiv}
       onMouseMove={onMouseMoveHandler}
       onMouseLeave={onMouseLeaveHandler}
@@ -174,7 +172,7 @@ export const VideoPlayer = ({
         })}
       </video>
       <Subtitles />
-      <FadeTransition key="video-controls" show={isShowingControls}>
+      <FadeTransition key="video-controls" show={shouldShowControls}>
         <div
           id="video-top-controls"
           className="absolute top-0  z-10 flex w-full flex-col bg-gradient-to-b from-neutral-800 to-transparent px-4 py-2"
@@ -222,7 +220,7 @@ export const VideoPlayer = ({
                 {isPlaying ? 'pause' : 'play_circle'}
               </PlayerButton>
               <VolumeButton />
-              {shouldShowSubtitleButton && <SubtitleButton />}
+              {subtitles.length > 0 && <SubtitleButton />}
             </div>
             <PlayerButton
               onClick={() => toggleFullscreen(videoPlayerDiv.current)}
@@ -241,8 +239,12 @@ export const VideoPlayer = ({
 
 const Subtitles = () => {
   const [activeCues, setActiveCues] = useState<VTTCue[] | never[]>([]);
-  const { video, currentSubtitleId, subtitleConfig, isShowingControls } =
-    useVideoPlayerStore();
+  const {
+    video,
+    currentSubtitleId,
+    subtitleConfig,
+    shouldShowControls: isShowingControls,
+  } = useVideoPlayerStore();
   const { color, background, size } = subtitleConfig;
 
   const currentTextTrack = useMemo(() => {
@@ -302,6 +304,7 @@ const SubtitleButton = () => {
     setCurrentSubtitleId,
     setSubtitleConfig,
   } = useVideoPlayerStore();
+
   const { color, background, size } = subtitleConfig;
 
   const changeTextColor = (color: SubtitleColor) => {
@@ -348,50 +351,30 @@ const SubtitleButton = () => {
         selectedIndex={selectedTab}
       >
         <Tab.List className="grid grid-cols-2 gap-2">
-          <Tab
-            className={clsx(
-              'rounded-sm p-1 px-4 font-semibold uppercase',
-              selectedTab === 0 && 'bg-neutral-700'
-            )}
-          >
-            Language
-          </Tab>
-          <Tab
-            className={clsx(
-              'rounded-sm p-1 px-4 font-semibold uppercase',
-              selectedTab === 1 && 'bg-neutral-700'
-            )}
-          >
-            Settings
-          </Tab>
+          <SubtitleTab active={selectedTab === 0}>Language</SubtitleTab>
+          <SubtitleTab active={selectedTab === 1}>Settings</SubtitleTab>
         </Tab.List>
         <Tab.Panels>
           <Tab.Panel>
             <div className="flex flex-col py-2">
               <>
-                <button
+                <SubtitleOptionButton
                   key="disable-option"
-                  className="overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase hover:text-rose-700"
                   onClick={disableSubtitles}
+                  active={currentSubtitleId === ''}
                 >
                   Disabled
-                </button>
+                </SubtitleOptionButton>
                 {video &&
                   Array.from(video.textTracks).map((trackText) => {
-                    const isCurrentSubtitle =
-                      trackText.id === currentSubtitleId;
-                    const optionTextColor = isCurrentSubtitle
-                      ? 'text-white'
-                      : 'text-neutral-400';
-
                     return (
-                      <button
+                      <SubtitleOptionButton
                         key={trackText.id}
                         onClick={() => changeSubtitle(trackText.id)}
-                        className={`${optionTextColor} mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`}
+                        active={currentSubtitleId === trackText.id}
                       >
                         {trackText.label}
-                      </button>
+                      </SubtitleOptionButton>
                     );
                   })}
               </>
@@ -400,83 +383,62 @@ const SubtitleButton = () => {
           <Tab.Panel>
             <div className="flex flex-col gap-2 py-2">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold">Text Color</span>
+                <SubtitleSettingTitle>Text Color</SubtitleSettingTitle>
                 <div className="flex gap-5">
-                  <button
-                    className={clsx(
-                      'rounded-sm p-1',
-                      color === 'white' && 'bg-neutral-700'
-                    )}
+                  <SubtitleColorButton
                     onClick={() => changeTextColor('white')}
+                    active={color === 'white'}
                   >
                     White
-                  </button>
-                  <button
-                    className={clsx(
-                      'rounded-sm p-1 text-amber-300',
-                      color === 'yellow' && 'bg-neutral-700'
-                    )}
+                  </SubtitleColorButton>
+                  <SubtitleColorButton
+                    className="text-amber-300"
+                    active={color === 'yellow'}
                     onClick={() => changeTextColor('yellow')}
                   >
                     Yellow
-                  </button>
+                  </SubtitleColorButton>
                 </div>
               </div>
               <div>
-                <span className="text-xs font-bold">Text Size</span>
+                <SubtitleSettingTitle>Text Size</SubtitleSettingTitle>
                 <div className="flex gap-5">
-                  <button
-                    className={clsx(
-                      'text rounded-sm p-1 px-4',
-                      size === 'small' && 'bg-neutral-700'
-                    )}
+                  <SubtitleSizeButton
+                    className="text"
+                    active={size === 'small'}
                     onClick={() => changeSize('small')}
-                  >
-                    Aa
-                  </button>
-                  <button
-                    className={clsx(
-                      'rounded-sm p-1 px-4 text-2xl',
-                      size === 'medium' && 'bg-neutral-700'
-                    )}
+                  />
+                  <SubtitleSizeButton
+                    className="text-2xl"
+                    active={size === 'medium'}
                     onClick={() => changeSize('medium')}
-                  >
-                    Aa
-                  </button>
-                  <button
-                    className={clsx(
-                      'rounded-sm p-1 px-4 text-4xl',
-                      size === 'large' && 'bg-neutral-700'
-                    )}
+                  />
+                  <SubtitleSizeButton
+                    className="text-4xl"
+                    active={size === 'large'}
                     onClick={() => changeSize('large')}
-                  >
-                    Aa
-                  </button>
+                  />
                 </div>
               </div>
               <div className="text-xs">
-                <span className="font-bold">Background Color</span>
+                <SubtitleSettingTitle>Background Color</SubtitleSettingTitle>
                 <div className="flex gap-5">
-                  <button
+                  <SubtitleBackgroundButton
                     className={clsx(
-                      'rounded-sm px-2 py-1',
                       background === 'transparent' && 'bg-neutral-700'
                     )}
                     onClick={() => changeBackgroundColor('transparent')}
                   >
                     Transparent
-                  </button>
-                  <button
+                  </SubtitleBackgroundButton>
+                  <SubtitleBackgroundButton
                     className={clsx(
-                      'rounded-sm px-2 py-1',
-                      background === 'black'
-                        ? 'bg-neutral-700'
-                        : 'bg-[rgba(1,1,1,1)]'
+                      background === 'black' ? 'bg-neutral-700' : 'bg-[black]'
                     )}
                     onClick={() => changeBackgroundColor('black')}
                   >
                     Black
-                  </button>
+                  </SubtitleBackgroundButton>
                 </div>
               </div>
             </div>
@@ -484,6 +446,114 @@ const SubtitleButton = () => {
         </Tab.Panels>
       </Tab.Group>
     </Popover>
+  );
+};
+
+const SubtitleSettingTitle = ({ children }: { children: React.ReactNode }) => {
+  return <span className="text-xs font-bold">{children}</span>;
+};
+
+const SubtitleTab = ({
+  active,
+  children,
+}: {
+  active: boolean;
+  children: React.ReactNode;
+}) => {
+  return (
+    <Tab
+      className={clsx(
+        'rounded-sm p-1 px-4 font-semibold uppercase',
+        active && 'bg-neutral-700'
+      )}
+    >
+      {children}
+    </Tab>
+  );
+};
+
+const SubtitleOptionButton = ({
+  onClick,
+  active,
+  children,
+}: {
+  onClick: () => void;
+  active: boolean;
+  children: React.ReactNode;
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      className={clsx(
+        `mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`,
+        active ? 'text-white' : 'text-neutral-300'
+      )}
+    >
+      {children}
+    </button>
+  );
+};
+
+const SubtitleColorButton = ({
+  className = '',
+  active,
+  onClick,
+  children,
+}: {
+  className?: string;
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => {
+  return (
+    <button
+      className={clsx(className, 'rounded-sm p-1', active && 'bg-neutral-700')}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
+
+const SubtitleSizeButton = ({
+  className,
+  active,
+  onClick,
+}: {
+  className?: string;
+  active: boolean;
+  onClick: () => void;
+}) => {
+  return (
+    <button
+      className={clsx(
+        className,
+        'text rounded-sm p-1 px-4',
+        active && 'bg-neutral-700'
+      )}
+      onClick={onClick}
+    >
+      Aa
+    </button>
+  );
+};
+
+const SubtitleBackgroundButton = ({
+  className,
+  onClick,
+  children,
+}: {
+  className?: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) => {
+  return (
+    <button
+      className={clsx(className, 'rounded-sm px-2 py-1')}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   );
 };
 
@@ -610,15 +680,6 @@ const buildSubtitlesColor = (color: SubtitleColor) => {
   }
 };
 
-const buildSubtitlesBackgroundColor = (background: SubtitleBackground) => {
-  switch (background) {
-    case 'black':
-      return 'bg-[rgba(1,1,1,0.6)] ';
-    case 'transparent':
-      return 'bg-transparent';
-  }
-};
-
 const buildSubtitlesSize = (size: SubtitleSize) => {
   switch (size) {
     case 'small':
@@ -627,6 +688,15 @@ const buildSubtitlesSize = (size: SubtitleSize) => {
       return 'text-4xl';
     case 'large':
       return 'text-6xl';
+  }
+};
+
+const buildSubtitlesBackgroundColor = (background: SubtitleBackground) => {
+  switch (background) {
+    case 'black':
+      return 'bg-[rgba(1,1,1,0.6)] ';
+    case 'transparent':
+      return 'bg-transparent';
   }
 };
 

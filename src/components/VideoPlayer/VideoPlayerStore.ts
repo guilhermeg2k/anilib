@@ -8,7 +8,7 @@ const durationAtom = atom(0);
 const currentSubtitleIdAtom = atom<string>('');
 const isPlayingAtom = atom(false);
 const isFullscreenAtom = atom(false);
-const isShowingControlsAtom = atom(false);
+const shouldShowControlsAtom = atom(false);
 const subtitleConfigAtom = atom<SubtitleConfig>({
   color: 'white',
   background: 'black',
@@ -26,8 +26,8 @@ export const useVideoPlayerStore = () => {
   const [subtitleConfig, setSubtitleConfig] = useAtom(subtitleConfigAtom);
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
   const [isFullscreen, setIsFullscreen] = useAtom(isFullscreenAtom);
-  const [isShowingControls, setIsShowingControls] = useAtom(
-    isShowingControlsAtom
+  const [shouldShowControls, setShouldShowControls] = useAtom(
+    shouldShowControlsAtom
   );
 
   return {
@@ -47,7 +47,7 @@ export const useVideoPlayerStore = () => {
     setIsPlaying,
     isFullscreen,
     setIsFullscreen,
-    isShowingControls,
-    setIsShowingControls,
+    shouldShowControls,
+    setShouldShowControls,
   };
 };
