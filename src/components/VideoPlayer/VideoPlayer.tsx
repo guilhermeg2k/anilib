@@ -17,8 +17,12 @@ import React, {
 import FadeTransition from '../FadeTransition';
 import MaterialIcon from '../MaterialIcon';
 import Slider from '../Slider';
-import { SubtitleBackground, SubtitleColor, SubtitleSize } from './types';
-import { useVideoPlayerStore } from './VideoPlayerStore';
+import {
+  useVideoPlayerStore,
+  SubtitleBackground,
+  SubtitleColor,
+  SubtitleSize,
+} from './VideoPlayerStore';
 
 export const VideoPlayer = ({
   videoUrl,

@@ -1,5 +1,17 @@
 import { atom, useAtom } from 'jotai';
-import { SubtitleConfig } from './types';
+import { atomWithStorage } from 'jotai/utils';
+
+export type SubtitleColor = 'white' | 'yellow';
+
+export type SubtitleBackground = 'black' | 'transparent';
+
+export type SubtitleSize = 'small' | 'medium' | 'large';
+
+export type SubtitleConfig = {
+  color: SubtitleColor;
+  background: SubtitleBackground;
+  size: SubtitleSize;
+};
 
 const videoAtom = atom<HTMLVideoElement | null>(null);
 const volumeAtom = atom(50);
@@ -9,7 +21,7 @@ const currentSubtitleIdAtom = atom<string>('');
 const isPlayingAtom = atom(false);
 const isFullscreenAtom = atom(false);
 const shouldShowControlsAtom = atom(false);
-const subtitleConfigAtom = atom<SubtitleConfig>({
+const subtitleConfigAtom = atomWithStorage<SubtitleConfig>('subtitleConfig', {
   color: 'white',
   background: 'black',
   size: 'small',
