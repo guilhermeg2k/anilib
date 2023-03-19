@@ -9,14 +9,15 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { VideoPlayer } from '@components/VideoPlayer/VideoPlayer';
+import { useEffect, useState } from 'react';
+import { toastError } from 'library/toastify';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id as string;
-  const [episode, subtitles, coverImageBase64, previews] = await Promise.all([
+  const [episode, subtitles, coverImageBase64] = await Promise.all([
     EpisodeService.getById(id),
     SubtitleService.listByEpisodeId(id),
     EpisodeService.getCoverImageBase64ById(id),
-    EpisodePreviewService.listByEpisodeId(id),
   ]);
 
   const episodes = await EpisodeService.listByAnimeId(episode.animeId);
@@ -26,7 +27,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     episodes,
     subtitles,
     coverImageBase64,
-    previews,
   };
 
   return { props: watchProps };
@@ -37,7 +37,6 @@ interface WatchProps {
   episode: Episode;
   episodes: Array<Episode>;
   subtitles: Array<Subtitle>;
-  previews: Array<string>;
 }
 
 const Watch: NextPage<WatchProps> = ({
@@ -45,8 +44,8 @@ const Watch: NextPage<WatchProps> = ({
   episode,
   episodes,
   subtitles,
-  previews,
 }) => {
+  const [previews, setPreviews] = useState<string[]>([]);
   const router = useRouter();
 
   const onNextEpisodeHandler = () => {
@@ -58,6 +57,20 @@ const Watch: NextPage<WatchProps> = ({
       router.push(`/episode/watch/${nextEpisode.id}`);
     }
   };
+
+  useEffect(() => {
+    const loadPreviews = async () => {
+      try {
+        const previews = await EpisodePreviewService.listByEpisodeId(
+          episode.id!
+        );
+        setPreviews(previews);
+      } catch (error) {
+        toastError('Failed to load episode previews');
+      }
+    };
+    loadPreviews();
+  }, [episode.id]);
 
   return (
     <>
