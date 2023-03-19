@@ -8,6 +8,7 @@ const exec = util.promisify(require('child_process').exec);
 const fsPromises = fs.promises;
 const VIDEO_SUPPORTED_EXTENSIONS = ['.mp4', '.webm'];
 const VIDEO_SUPPORTED_CODECS = ['h264', 'vp8', 'vp9', 'av1'];
+const AUDIO_SUPPORTED_CODECS = ['aac'];
 const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
 
 interface Subtitle {
@@ -15,27 +16,6 @@ interface Subtitle {
   language: string;
   filePath: string;
 }
-
-export const isVideoCodecSupported = async (videoFilePath: string) => {
-  const mkvFileProb = await ffprobe(videoFilePath, {
-    path: ffprobeStatic.path,
-  });
-
-  const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
-    mkvFileProb.streams[0].codec_name!
-  );
-
-  return isVideoCodecSupported;
-};
-
-export const isVideoContainerSupported = (videoFilePath: string) => {
-  const videoExt = path.extname(videoFilePath);
-
-  const isVideoContainerSupported =
-    VIDEO_SUPPORTED_EXTENSIONS.includes(videoExt);
-
-  return isVideoContainerSupported;
-};
 
 const getDefaultOutputDir = (filePath: string) => {
   const fileExt = path.extname(filePath);
@@ -64,55 +44,88 @@ export const convertVideoToMp4 = async (
   const videoDoesNotExists = !fs.existsSync(mp4FilePath);
 
   if (videoDoesNotExists) {
-    if (await isVideoCodecSupported(videoFilePath)) {
-      await convertToMp4CopyingEncoder(videoFilePath, mp4FilePath);
-    } else {
-      if (shouldUseNVENC) {
-        await convertToMp4ReencodingWithH264NVENC(videoFilePath, mp4FilePath);
-      } else {
-        await convertToMp4ReencodingWithH264(videoFilePath, mp4FilePath);
-      }
+    const ffmpegCommand = await buildMP4ConvertCommand(
+      videoFilePath,
+      mp4FilePath,
+      shouldUseNVENC
+    );
+
+    const { error } = await exec(ffmpegCommand);
+    if (error) {
+      throw new Error(`Failed to convert ${videoFilePath} to mp4`, {
+        cause: error,
+      });
     }
   }
 
   return mp4FilePath;
 };
 
-const convertToMp4CopyingEncoder = async (input: string, output: string) => {
-  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -codec copy "${output}"`;
-  const { error } = await exec(ffmpegExecCommand);
+const buildMP4ConvertCommand = async (
+  videoFilePath: string,
+  mp4FilePath: string,
+  shouldUseNVENC: boolean
+) => {
+  let command = `ffmpeg -y -i "${videoFilePath}" -strict experimental`;
+  command = await appendVideoEncoder(command, videoFilePath, shouldUseNVENC);
+  command = await appendAudioEncoder(command, videoFilePath);
+  command = `${command} "${mp4FilePath}"`;
+  return command;
+};
 
-  if (error) {
-    throw new Error(`Failed to convert ${input} to mp4`, { cause: error });
+const appendVideoEncoder = async (
+  command: string,
+  videoFilePath: string,
+  shouldUseNVENC: boolean
+) => {
+  if (await isVideoCodecSupported(videoFilePath)) {
+    return `${command} -c:v copy`;
+  } else {
+    if (shouldUseNVENC) {
+      return `${command} -c:v h264_nvenc -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
+    } else {
+      return `${command} -c:v h264 -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
+    }
   }
 };
 
-const convertToMp4ReencodingWithH264 = async (
-  input: string,
-  output: string
-) => {
-  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -vcodec h264 "${output}"`;
-  const { error } = await exec(ffmpegExecCommand);
-
-  if (error) {
-    throw new Error(`Failed to convert ${input} to mp4 using h264`, {
-      cause: error,
-    });
+const appendAudioEncoder = async (command: string, videoFilePath: string) => {
+  if (await isAudioCodecSupported(videoFilePath)) {
+    return `${command} -c:a copy`;
+  } else {
+    return `${command} -c:a aac`;
   }
 };
 
-const convertToMp4ReencodingWithH264NVENC = async (
-  input: string,
-  output: string
-) => {
-  const ffmpegExecCommand = `ffmpeg -y -i "${input}" -strict experimental -c:v h264_nvenc -pix_fmt yuv420p "${output}"`;
-  const { error } = await exec(ffmpegExecCommand);
+export const isAudioCodecSupported = async (videoFilePath: string) => {
+  const fileProb = await ffprobe(videoFilePath, {
+    path: ffprobeStatic.path,
+  });
+  const isAudioCodecSupported = AUDIO_SUPPORTED_CODECS.includes(
+    fileProb.streams[1].codec_name!
+  );
+  return isAudioCodecSupported;
+};
 
-  if (error) {
-    throw new Error(`Failed to convert ${input} to mp4 using h264_nvenc`, {
-      cause: error,
-    });
-  }
+export const isVideoCodecSupported = async (videoFilePath: string) => {
+  const mkvFileProb = await ffprobe(videoFilePath, {
+    path: ffprobeStatic.path,
+  });
+
+  const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
+    mkvFileProb.streams[0].codec_name!
+  );
+
+  return isVideoCodecSupported;
+};
+
+export const isVideoContainerSupported = (videoFilePath: string) => {
+  const videoExt = path.extname(videoFilePath);
+
+  const isVideoContainerSupported =
+    VIDEO_SUPPORTED_EXTENSIONS.includes(videoExt);
+
+  return isVideoContainerSupported;
 };
 
 export const extractJpgImageFromVideo = async ({
@@ -182,7 +195,7 @@ export const extractSubtitlesFromVideo = async (
   if (subtitleStreams.length > 0) {
     let subtitlesCount = 1;
     const fileExt = path.extname(videoFilePath);
-    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath} -f webvtt"`;
+    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath}" -f webvtt`;
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
       const language =
