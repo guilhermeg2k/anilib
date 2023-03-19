@@ -23,6 +23,7 @@ import {
   SubtitleColor,
   SubtitleSize,
 } from './VideoPlayerStore';
+import HTMLParser from 'html-react-parser';
 
 export const VideoPlayer = ({
   videoUrl,
@@ -290,7 +291,7 @@ const Subtitles = () => {
                 }}
                 className={`${textClassName} text-center font-subtitle font-bold antialiased`}
               >
-                {cue.text}
+                {HTMLParser(cue.text)}
               </div>
             );
           })}
