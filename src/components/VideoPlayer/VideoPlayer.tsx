@@ -248,6 +248,7 @@ const Subtitles = () => {
   const { color, background, size } = subtitleConfig;
 
   const currentTextTrack = useMemo(() => {
+    setActiveCues([]);
     if (video && currentSubtitleId) {
       return Array.from(video.textTracks).find(
         (textTrack) => textTrack.id === currentSubtitleId
