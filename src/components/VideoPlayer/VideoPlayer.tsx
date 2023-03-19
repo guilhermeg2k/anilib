@@ -24,6 +24,7 @@ import {
   SubtitleSize,
 } from './VideoPlayerStore';
 import HTMLParser from 'html-react-parser';
+import { BRACES_CONTENT_REGEX } from '@constants/regexConstants';
 
 export const VideoPlayer = ({
   videoUrl,
@@ -291,7 +292,7 @@ const Subtitles = () => {
                 }}
                 className={`${textClassName} text-center font-subtitle font-bold antialiased`}
               >
-                {HTMLParser(cue.text)}
+                {parserSubtitleText(cue.text)}
               </div>
             );
           })}
@@ -668,6 +669,12 @@ const PlayerButton = ({
       </MaterialIcon>
     </button>
   );
+};
+
+const parserSubtitleText = (subtitle: string) => {
+  const subtitleWithoutComments = subtitle.replaceAll(BRACES_CONTENT_REGEX, '');
+  const parsedText = HTMLParser(subtitleWithoutComments);
+  return parsedText;
 };
 
 const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {

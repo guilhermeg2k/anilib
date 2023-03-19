@@ -39,11 +39,6 @@ class LibraryService {
         await SubtitleService.createFromEpisodes(episodes);
         console.log('Subtitles updated!');
 
-        if (SettingsService.get('IsToRemoveSubtitlesComments')) {
-          await SubtitleService.removeCommentsFromEpisodes(episodes);
-          console.log('Subtitles comments removed!');
-        }
-
         await EpisodePreviewService.createFromEpisodes(episodes);
         console.log('Episode previews updated!');
 

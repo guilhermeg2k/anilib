@@ -1,4 +1,3 @@
-import { BRACES_CONTENT_REGEX } from '@backend/constants/regexConstants';
 import { Episode, Subtitle } from 'backend/database/types';
 import SubtitleRepository from 'backend/repository/subtitleRepository';
 import { getFolderVttFilesByFileNamePrefix } from 'backend/utils/fileUtils';
@@ -134,34 +133,6 @@ class SubtitleService {
     }
     return createdSubtitles;
   }
-
-  static removeCommentsFromEpisodes(episodes: Array<Episode>) {
-    const removeCommentsPromises = episodes.map((episode) =>
-      this.removeCommentsFromEpisodePromiseLimiter(() =>
-        SubtitleService.removeCommentsFromEpisode(episode)
-      )
-    );
-    return Promise.all(removeCommentsPromises);
-  }
-
-  private static removeCommentsFromEpisode(episode: Episode) {
-    const episodeSubtitles = SubtitleService.listByEpisodeId(episode.id!);
-    for (const subtitle of episodeSubtitles) {
-      this.removeComments(subtitle);
-    }
-  }
-
-  private static removeComments = (subtitle: Subtitle) => {
-    if (!subtitle.wasCommentsRemoved) {
-      const fileContent = fs.readFileSync(subtitle.filePath, 'utf8');
-      const fileContentWithoutComments = fileContent.replaceAll(
-        BRACES_CONTENT_REGEX,
-        ''
-      );
-      fs.writeFileSync(subtitle.filePath, fileContentWithoutComments);
-      SubtitleService.update({ ...subtitle, wasCommentsRemoved: true });
-    }
-  };
 
   static update(subtitle: Subtitle) {
     SubtitleRepository.update(subtitle);

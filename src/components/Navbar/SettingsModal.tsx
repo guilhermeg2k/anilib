@@ -31,8 +31,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
-  const [IsToRemoveSubtitlesComments, setIsToRemoveSubtitlesComments] =
-    useState(false);
   const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
   const [directories, setDirectoriesList] = useState(Array<string>());
   const { status } = useLibraryStatusStore();
@@ -57,20 +55,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const loadSettings = async () => {
     try {
       setIsLoadingSettings(true);
-      const [
-        isToDeleteConvertedData,
-        isToDeleteInvalidData,
-        IsToRemoveSubtitlesComments,
-        shouldUseNVENC,
-      ] = await Promise.all([
-        SettingsService.get('isToDeleteConvertedData'),
-        SettingsService.get('isToDeleteInvalidData'),
-        SettingsService.get('IsToRemoveSubtitlesComments'),
-        SettingsService.get('shouldUseNVENC'),
-      ]);
+      const [isToDeleteConvertedData, isToDeleteInvalidData, shouldUseNVENC] =
+        await Promise.all([
+          SettingsService.get('isToDeleteConvertedData'),
+          SettingsService.get('isToDeleteInvalidData'),
+          SettingsService.get('shouldUseNVENC'),
+        ]);
       setIsToDeleteConvertedData(isToDeleteConvertedData);
       setIsToDeleteInvalidData(isToDeleteInvalidData);
-      setIsToRemoveSubtitlesComments(IsToRemoveSubtitlesComments);
       setShouldUseNVENC(shouldUseNVENC);
     } catch (error) {
       toastError('Failed to load settings');
@@ -136,15 +128,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
       await SettingsService.update('shouldUseNVENC', value);
     } catch (error) {
       toastError('Failed to update should use nvenc setting');
-    }
-  };
-
-  const onIsToRemoveSubtitlesCommentsChangeHandler = async (value: boolean) => {
-    try {
-      setIsToRemoveSubtitlesComments(value);
-      await SettingsService.update('IsToRemoveSubtitlesComments', value);
-    } catch (error) {
-      toastError('Failed to update is to remove subtitles comments setting');
     }
   };
 
@@ -222,13 +205,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
             onChange={onIsToDeleteConvertedDataChangeHandler}
           >
             Delete original converted files
-          </CheckBox>
-          <CheckBox
-            className="text-sm"
-            value={IsToRemoveSubtitlesComments}
-            onChange={onIsToRemoveSubtitlesCommentsChangeHandler}
-          >
-            Remove subtitles comments
           </CheckBox>
           <CheckBox
             className="text-sm"

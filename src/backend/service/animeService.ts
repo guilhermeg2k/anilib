@@ -1,5 +1,5 @@
 import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
-import { SQUARE_BRACKET_CONTENT_REGEX } from 'backend/constants/regexConstants';
+import { SQUARE_BRACKET_CONTENT_REGEX } from '@constants/regexConstants';
 import { Anime } from 'backend/database/types';
 import AnimeRepository from 'backend/repository/animeRepository';
 import { createDateByDayMonthAndYear } from 'backend/utils/dateUtils';

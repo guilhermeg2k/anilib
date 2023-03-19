@@ -182,7 +182,7 @@ export const extractSubtitlesFromVideo = async (
   if (subtitleStreams.length > 0) {
     let subtitlesCount = 1;
     const fileExt = path.extname(videoFilePath);
-    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath}"`;
+    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath} -f webvtt"`;
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
       const language =
