@@ -43,9 +43,7 @@ export const VideoPlayer = ({
 }) => {
   const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const videoPlayerDiv = useRef<HTMLDivElement>(null);
-  const hideCursorTimeout = useRef<NodeJS.Timeout | null>(
-    setTimeout(() => {}, 0)
-  );
+  const hideCursorTimeout = useRef<NodeJS.Timeout>(setTimeout(() => {}, 0));
   const {
     video,
     setVideo,
@@ -64,21 +62,16 @@ export const VideoPlayer = ({
   } = useVideoPlayerStore();
 
   const onMouseMoveHandler = () => {
-    if (hideCursorTimeout.current) {
-      clearInterval(hideCursorTimeout.current);
-      setHasMouseMoved(true);
-
-      hideCursorTimeout.current = setTimeout(function () {
-        setHasMouseMoved(false);
-      }, 2500);
-    }
+    clearInterval(hideCursorTimeout.current);
+    setHasMouseMoved(true);
+    hideCursorTimeout.current = setTimeout(function () {
+      setHasMouseMoved(false);
+    }, 2500);
   };
 
   const onMouseLeaveHandler = () => {
-    if (hideCursorTimeout.current) {
-      clearInterval(hideCursorTimeout.current);
-      setHasMouseMoved(false);
-    }
+    clearInterval(hideCursorTimeout.current);
+    setHasMouseMoved(false);
   };
 
   const onLoadMetadataHandler = () => {
@@ -456,7 +449,7 @@ const SubtitleButton = () => {
   );
 };
 
-const SubtitleSettingTitle = ({ children }: { children: React.ReactNode }) => {
+const SubtitleSettingTitle = ({ children }: { children: ReactNode }) => {
   return <span className="text-xs font-bold">{children}</span>;
 };
 
@@ -465,7 +458,7 @@ const SubtitleTab = ({
   children,
 }: {
   active: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   return (
     <Tab
@@ -486,7 +479,7 @@ const SubtitleOptionButton = ({
 }: {
   onClick: () => void;
   active: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   return (
     <button
@@ -510,7 +503,7 @@ const SubtitleColorButton = ({
   className?: string;
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   return (
     <button
@@ -552,7 +545,7 @@ const SubtitleBackgroundButton = ({
 }: {
   className?: string;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   return (
     <button

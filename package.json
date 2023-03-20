@@ -1,7 +1,7 @@
 {
   "name": "anilib",
-  "version": "0.6.0",
-  "versionName": "genryuusai",
+  "version": "0.7.0",
+  "versionName": "Shouei Barou",
   "private": true,
   "scripts": {
     "dev": "next dev",

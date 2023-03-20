@@ -80,12 +80,10 @@ const appendVideoEncoder = async (
 ) => {
   if (await isVideoCodecSupported(videoFilePath)) {
     return `${command} -c:v copy`;
+  } else if (shouldUseNVENC) {
+    return `${command} -c:v h264_nvenc -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
   } else {
-    if (shouldUseNVENC) {
-      return `${command} -c:v h264_nvenc -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
-    } else {
-      return `${command} -c:v h264 -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
-    }
+    return `${command} -c:v h264 -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
   }
 };
 
@@ -108,12 +106,12 @@ export const isAudioCodecSupported = async (videoFilePath: string) => {
 };
 
 export const isVideoCodecSupported = async (videoFilePath: string) => {
-  const mkvFileProb = await ffprobe(videoFilePath, {
+  const fileProb = await ffprobe(videoFilePath, {
     path: ffprobeStatic.path,
   });
 
   const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
-    mkvFileProb.streams[0].codec_name!
+    fileProb.streams[0].codec_name!
   );
 
   return isVideoCodecSupported;
