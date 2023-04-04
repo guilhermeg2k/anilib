@@ -268,7 +268,7 @@ const Subtitles = () => {
   return (
     <div
       className={`absolute ${
-        isShowingControls ? 'bottom-16' : 'bottom-5'
+        isShowingControls ? 'bottom-16' : 'bottom-0'
       } flex w-full select-none flex-col items-center gap-2   px-4 py-2`}
     >
       {activeCues.length > 0 && (
