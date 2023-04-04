@@ -8,7 +8,8 @@ const exec = util.promisify(require('child_process').exec);
 const fsPromises = fs.promises;
 const VIDEO_SUPPORTED_EXTENSIONS = ['.mp4', '.webm'];
 const VIDEO_SUPPORTED_CODECS = ['h264', 'vp8', 'vp9', 'av1'];
-const AUDIO_SUPPORTED_CODECS = ['aac'];
+const H264_SUPPORTED_PROFILES = ['baseline', 'main', 'high'];
+const AUDIO_SUPPORTED_CODECS = ['aac', 'flac'];
 const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
 
 interface Subtitle {
@@ -81,9 +82,9 @@ const appendVideoEncoder = async (
   if (await isVideoCodecSupported(videoFilePath)) {
     return `${command} -c:v copy`;
   } else if (shouldUseNVENC) {
-    return `${command} -c:v h264_nvenc -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
+    return `${command} -cq 17 -c:v h264_nvenc -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
   } else {
-    return `${command} -c:v h264 -pix_fmt yuv420p -rc vbr -b:v 6M -maxrate:v 10M -bufsize:v 14M -profile:v high`;
+    return `${command} -crf 17 -c:v h264 -pix_fmt yuv420p -profile:v high`;
   }
 };
 
@@ -100,7 +101,7 @@ export const isAudioCodecSupported = async (videoFilePath: string) => {
     path: ffprobeStatic.path,
   });
   const isAudioCodecSupported = AUDIO_SUPPORTED_CODECS.includes(
-    fileProb.streams[1].codec_name!
+    fileProb.streams[1].codec_name?.toLowerCase() ?? ''
   );
   return isAudioCodecSupported;
 };
@@ -109,12 +110,21 @@ export const isVideoCodecSupported = async (videoFilePath: string) => {
   const fileProb = await ffprobe(videoFilePath, {
     path: ffprobeStatic.path,
   });
+  const codec = fileProb.streams[0].codec_name;
+  if (codec) {
+    const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
+      fileProb.streams[0].codec_name!
+    );
 
-  const isVideoCodecSupported = VIDEO_SUPPORTED_CODECS.includes(
-    fileProb.streams[0].codec_name!
-  );
-
-  return isVideoCodecSupported;
+    if (codec === 'h264') {
+      const isVideoProfileSupported = H264_SUPPORTED_PROFILES.includes(
+        fileProb.streams[0].profile?.toLocaleLowerCase() ?? ''
+      );
+      return isVideoProfileSupported;
+    }
+    return isVideoCodecSupported;
+  }
+  return false;
 };
 
 export const isVideoContainerSupported = (videoFilePath: string) => {
