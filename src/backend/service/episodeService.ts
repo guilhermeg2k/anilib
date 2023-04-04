@@ -4,7 +4,7 @@ import {
   NOT_ALPHANUMERIC_REGEX,
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
-} from 'backend/constants/regexConstants';
+} from '@constants/regexConstants';
 import { Anime, Episode } from 'backend/database/types';
 import EpisodeRepository from 'backend/repository/episodeRepository';
 import {
@@ -14,6 +14,7 @@ import {
 import {
   convertVideoToMp4,
   extractJpgImageFromVideo,
+  isAudioCodecSupported,
   isVideoCodecSupported,
   isVideoContainerSupported,
 } from 'backend/utils/videoUtils';
@@ -145,11 +146,17 @@ class EpisodeService {
       episodeFilePath
     ));
 
+    const isAudioCodecNotSupported = !(await isAudioCodecSupported(
+      episodeFilePath
+    ));
+
     const isVideoContainerNotSupported =
       !isVideoContainerSupported(episodeFilePath);
 
     const needsToConvertEpisodeVideo =
-      isVideoCodecNotSupported || isVideoContainerNotSupported;
+      isVideoCodecNotSupported ||
+      isVideoContainerNotSupported ||
+      isAudioCodecNotSupported;
 
     if (needsToConvertEpisodeVideo) {
       const shouldUseNVENC = SettingsService.get('shouldUseNVENC');

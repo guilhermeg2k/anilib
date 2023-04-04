@@ -18,7 +18,6 @@ class Database {
     settings: new Map<string, Boolean>([
       ['isToDeleteConvertedData', false],
       ['isToDeleteInvalidData', true],
-      ['IsToRemoveSubtitlesComments', true],
       ['shouldUseNVENC', false],
     ]),
   };

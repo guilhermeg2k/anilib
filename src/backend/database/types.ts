@@ -45,5 +45,4 @@ export interface DatabaseData {
 export type Setting =
   | 'isToDeleteConvertedData'
   | 'isToDeleteInvalidData'
-  | 'IsToRemoveSubtitlesComments'
   | 'shouldUseNVENC';
