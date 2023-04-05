@@ -7,14 +7,12 @@ import Page from '@components/Page';
 import { Menu } from '@headlessui/react';
 import { formatTitle } from '@utils/animeUtils';
 import { removeHTMLTags } from '@utils/stringUtils';
-import { Anime, Episode } from 'backend/database/types';
+import { trpc } from '@utils/trpc';
+import { format } from 'date-fns';
 import { toastPromise } from 'library/toastify';
-import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import AnimeService from 'services/animeService';
-import EpisodeService from 'services/episodeService';
 
 const getCategoryColorClass = (colorSeed: number) => {
   const colorIndex = (colorSeed + 1) % 4;
@@ -33,29 +31,55 @@ const getCategoryColorClass = (colorSeed: number) => {
   }
 };
 
-interface AnimeProps {
-  anime: Anime;
-  episodesList: Array<Episode>;
-}
-
-const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
+const Anime = () => {
   const router = useRouter();
+  const id = String(router.query.id);
+
+  const {
+    data: anime,
+    isLoading: isLoadingAnime,
+    error: animeLoadError,
+    refetch: refetchAnime,
+  } = trpc.anime.getById.useQuery({
+    id,
+  });
+
+  const {
+    data: episodes,
+    isLoading: isLoadingEpisodes,
+    error: episodesLoadError,
+  } = trpc.episode.listByAnimeId.useQuery({
+    animeId: id,
+  });
+
+  const syncDataWithAnilistMutation =
+    trpc.anime.syncDataWithAnilistById.useMutation();
+
+  if (isLoadingAnime || isLoadingEpisodes) {
+    return <Page>Loading</Page>;
+  }
+
+  if (animeLoadError || episodesLoadError) {
+    return <Page>Failed to load data</Page>;
+  }
 
   const syncDataWithAnilist = async () => {
-    const syncDataWithAnilistPromise = AnimeService.syncDataWithAnilistById(
-      anime.id!
-    );
+    const syncDataWithAnilistPromise = syncDataWithAnilistMutation.mutateAsync({
+      id,
+    });
+
     await toastPromise(syncDataWithAnilistPromise, {
       pending: 'Syncing data with anilist',
       success: 'Sync completed',
       error: 'Failed to sync data',
     });
-    router.replace(router.asPath);
+
+    refetchAnime();
   };
 
   const imageCover = (
     <Image
-      src={anime.coverUrl}
+      src={String(anime.coverUrl)}
       alt={`${anime.title.native} Cover Image`}
       layout="intrinsic"
       width={415}
@@ -63,11 +87,10 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
     />
   );
 
-  const releaseYear = new Date(anime.releaseDate).getFullYear();
-
-  const releaseMonth = new Date(anime.releaseDate).toLocaleString('default', {
-    month: 'long',
-  });
+  const releaseDate = {
+    year: format(new Date(anime.releaseDate), 'yyyy'),
+    month: format(new Date(anime.releaseDate), 'MMMM'),
+  };
 
   return (
     <>
@@ -125,7 +148,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                   {`${anime.format}`}
                   {anime.episodes && ` - ${anime.episodes} Episodes`}
                 </span>
-                <span className="text-sm font-semibold capitalize">{`${releaseMonth} ${releaseYear} - ${anime.status} `}</span>
+                <span className="text-sm font-semibold capitalize">{`${releaseDate.month} ${releaseDate.year} - ${anime.status} `}</span>
               </div>
               <p className="text-sm lg:text-base">
                 {removeHTMLTags(anime.description)}
@@ -136,7 +159,7 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
                   Available Episodes
                 </h2>
                 <div className="flex max-h-max flex-col gap-2 overflow-auto pr-2">
-                  {episodesList.map((episode) => (
+                  {episodes.map((episode) => (
                     <EpisodeCard
                       className="w-full"
                       key={episode.id}
@@ -153,14 +176,6 @@ const Anime: NextPage<AnimeProps> = ({ anime, episodesList }) => {
       </Page>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const id = params?.id as string;
-  const anime = await AnimeService.getById(id);
-  const animeEpisodes = await EpisodeService.listByAnimeId(id);
-  const animeProps: AnimeProps = { anime, episodesList: animeEpisodes };
-  return { props: animeProps };
 };
 
 export default Anime;
