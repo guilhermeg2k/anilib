@@ -1,5 +1,5 @@
-import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
 import { SQUARE_BRACKET_CONTENT_REGEX } from '@constants/regexConstants';
+import { getAnimeWithMostSimilarTitleToText } from '@utils/animeUtils';
 import { Anime } from 'backend/database/types';
 import AnimeRepository from 'backend/repository/animeRepository';
 import { createDateByDayMonthAndYear } from 'backend/utils/dateUtils';
@@ -7,7 +7,6 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import AnilistService from './anilistService';
-import { AnilistAnime } from './types';
 
 const fsPromises = fs.promises;
 class AnimeService {
@@ -123,10 +122,7 @@ class AnimeService {
   ) {
     const searchResults = await AnilistService.getAnimesBySearch(searchText);
 
-    const anime = getAnimeWithMostSimilarTitleToText(
-      searchResults,
-      searchText
-    ) as AnilistAnime;
+    const anime = getAnimeWithMostSimilarTitleToText(searchResults, searchText);
 
     if (anime) {
       const releaseDate = createDateByDayMonthAndYear(

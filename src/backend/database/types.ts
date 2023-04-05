@@ -1,11 +1,12 @@
+export type Title = {
+  romaji: string;
+  english: string;
+  native: string;
+};
 export interface Anime {
   id?: string;
   anilistId: number;
-  title: {
-    romaji: string;
-    english: string;
-    native: string;
-  };
+  title: Title;
   coverUrl: string;
   description: string;
   episodes?: number;

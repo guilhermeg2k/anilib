@@ -1,25 +1,57 @@
-import { Anime } from 'backend/database/types';
-import { AnilistAnime } from 'backend/service/types';
+import { Title } from 'backend/database/types';
 import { stringSimilarity } from 'string-similarity-js';
 
-const calculateTitleSimilarity = (
-  anime: AnilistAnime | Anime,
-  similarTitle: string
+export const formatTitle = (title: Title) =>
+  title.romaji ?? title.english ?? title.native ?? 'Unknown Title';
+
+export const getAnimeWithMostSimilarTitleToText = <T extends { title: Title }>(
+  animes: Array<T>,
+  text: string
 ) => {
+  const animesSortedByTitleSimilarity = appendTitleSimilarityToTextToAnimes(
+    animes,
+    text
+  ).sort((animeA, animeB) =>
+    animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
+  );
+
+  if (animesSortedByTitleSimilarity.length > 0) {
+    return animesSortedByTitleSimilarity[0];
+  }
+
+  return null;
+};
+
+export const appendTitleSimilarityToTextToAnimes = <T extends { title: Title }>(
+  animes: Array<T>,
+  text: string
+) => {
+  const animesWithSimilarity: Array<T & { titleSimilarity: number }> =
+    animes.map((anime) => {
+      return {
+        ...anime,
+        titleSimilarity: calculateTitleSimilarity(anime.title, text),
+      };
+    });
+
+  return animesWithSimilarity;
+};
+
+const calculateTitleSimilarity = (title: Title, similarTitle: string) => {
   let romajiSimilarity = 0;
   let englishSimilarity = 0;
   let nativeSimilarity = 0;
 
-  if (anime.title.romaji) {
-    romajiSimilarity = stringSimilarity(similarTitle, anime.title.romaji);
+  if (title.romaji) {
+    romajiSimilarity = stringSimilarity(similarTitle, title.romaji);
   }
 
-  if (anime.title.english) {
-    englishSimilarity = stringSimilarity(similarTitle, anime.title.english);
+  if (title.english) {
+    englishSimilarity = stringSimilarity(similarTitle, title.english);
   }
 
-  if (anime.title.native) {
-    nativeSimilarity = stringSimilarity(similarTitle, anime.title.native);
+  if (title.native) {
+    nativeSimilarity = stringSimilarity(similarTitle, title.native);
   }
 
   const titleSimilarityRate = Math.max(
@@ -30,43 +62,3 @@ const calculateTitleSimilarity = (
 
   return titleSimilarityRate;
 };
-
-export const getAnimesWithTitleSimilarityToTextAppended = (
-  animes: Array<AnilistAnime | Anime>,
-  text: string
-) => {
-  const animesWithSimilarity = animes.map((anime) => {
-    return {
-      ...anime,
-      titleSimilarity: calculateTitleSimilarity(anime, text),
-    };
-  });
-
-  return animesWithSimilarity;
-};
-
-export const getAnimeWithMostSimilarTitleToText = (
-  animes: Array<AnilistAnime | Anime>,
-  text: string
-) => {
-  const animesSortedByTitleSimilarity =
-    getAnimesWithTitleSimilarityToTextAppended(animes, text).sort(
-      (animeA, animeB) =>
-        animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
-    );
-
-  if (animesSortedByTitleSimilarity.length > 0) {
-    return animesSortedByTitleSimilarity[0];
-  }
-  return null;
-};
-
-export const getAnimeTitle = ({
-  title,
-}: {
-  title: {
-    english?: string;
-    romaji?: string;
-    native?: string;
-  };
-}) => title.romaji ?? title.english ?? title.native ?? 'Unknown Title';

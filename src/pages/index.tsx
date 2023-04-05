@@ -3,79 +3,57 @@ import AutoAnimate from '@components/AutoAnimate';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
 import {
-  getAnimesWithTitleSimilarityToTextAppended,
-  getAnimeTitle,
+  appendTitleSimilarityToTextToAnimes,
+  formatTitle,
 } from '@utils/animeUtils';
 import { trpc } from '@utils/trpc';
 import { Anime } from 'backend/database/types';
-import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
-import AnimeService from 'services/animeService';
+import { useMemo, useState } from 'react';
 
-type AnimeWithSimilarity = Anime & { titleSimilarity: number };
+const filterAnimesByTextSimilarity = <T extends { titleSimilarity: number }>(
+  animes: T[]
+) => {
+  const titleSimilarityMinRate = 0.2;
+  const animesFilteredBySimilarity = animes.filter(
+    (anime) => anime.titleSimilarity >= titleSimilarityMinRate
+  );
+  return animesFilteredBySimilarity;
+};
 
-interface HomeProps {
-  animes: Array<Anime>;
-}
-
-const Home: NextPage<HomeProps> = ({ animes }) => {
-  const hello = trpc.hello.useQuery({ text: 'world' });
-  console.log('🚀 ~ file: index.tsx:24 ~ hello:', hello);
-
-  const [filteredAndSortedAnimes, setFilteredAndSortedAnimes] =
-    useState(animes);
-  const isLibraryEmpty = animes.length === 0;
-
-  const getAnimesFilteredByTitleSimilarity = (
-    animes: Array<AnimeWithSimilarity>
-  ) => {
-    const titleSimilarityMinRate = 0.2;
-    const animesFilteredBySimilarity = animes.filter(
-      (anime) => anime.titleSimilarity >= titleSimilarityMinRate
+const sortAndFilterAnimes = (animes: Anime[], searchText: string) => {
+  const shouldFilterBySearchText = searchText.length > 3;
+  if (shouldFilterBySearchText) {
+    const animesWithTitleSimilarityToText = appendTitleSimilarityToTextToAnimes(
+      animes,
+      searchText
     );
-
-    return animesFilteredBySimilarity;
-  };
-
-  const getAnimesSortedByByTitleSimilarity = (
-    animes: Array<AnimeWithSimilarity>
-  ) => {
-    const animesSortedBySimilarity = animes.sort((animeA, animeB) =>
-      animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
+    const animesFilteredBySimilarity = filterAnimesByTextSimilarity(
+      animesWithTitleSimilarityToText
+    );
+    const animesSortedBySimilarity = animesFilteredBySimilarity.sort(
+      (animeA, animeB) =>
+        animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
     );
     return animesSortedBySimilarity;
-  };
+  }
 
-  const onSearchHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const searchText = event.target.value;
+  const animesSortedAlphabeticallyByTitle = animes.sort((animeA, animeB) =>
+    formatTitle(animeA.title) < formatTitle(animeB.title) ? -1 : 1
+  );
 
-    if (searchText.length === 0) {
-      setFilteredAndSortedAnimes(animes);
-      return;
-    }
+  return animesSortedAlphabeticallyByTitle;
+};
 
-    if (searchText.length < 3) {
-      return;
-    }
+const Home = () => {
+  const { data: animes } = trpc.anime.list.useQuery();
+  const [searchText, setSearchText] = useState('');
+  const isLibraryEmpty = animes?.length === 0;
 
-    const animesWithTitleSimilarityToText =
-      getAnimesWithTitleSimilarityToTextAppended(animes, searchText);
-
-    const animesFilteredBySimilarity = getAnimesFilteredByTitleSimilarity(
-      animesWithTitleSimilarityToText as Array<AnimeWithSimilarity>
-    );
-
-    const animesSorted = getAnimesSortedByByTitleSimilarity(
-      animesFilteredBySimilarity
-    );
-
-    setFilteredAndSortedAnimes(animesSorted as Array<Anime>);
-  };
-
-  useEffect(() => {
-    setFilteredAndSortedAnimes(animes);
-  }, [animes]);
+  const animesSortedAndFiltered = useMemo(
+    () => (animes ? sortAndFilterAnimes(animes, searchText) : []),
+    [animes, searchText]
+  );
 
   return (
     <>
@@ -98,7 +76,7 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
                 type="text"
                 name="search_field"
                 id="search_field"
-                onChange={onSearchHandler}
+                onChange={(event) => setSearchText(event.target.value)}
                 placeholder="Search an anime"
                 className="w-full rounded-sm border-2 border-neutral-800 bg-neutral-800 p-2  outline-none focus:border-rose-700  focus:ring-0"
                 autoComplete="off"
@@ -111,12 +89,12 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
             as="ul"
             className="gap-r grid w-full grid-cols-2 gap-10 gap-y-5 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5"
           >
-            {filteredAndSortedAnimes.map((anime) => (
+            {animesSortedAndFiltered?.map((anime) => (
               <AnimeCard
                 key={anime.id}
                 id={anime.id!}
                 coverUrl={anime.coverUrl}
-                name={getAnimeTitle(anime)}
+                name={formatTitle(anime.title)}
               />
             ))}
           </AutoAnimate>
@@ -124,15 +102,6 @@ const Home: NextPage<HomeProps> = ({ animes }) => {
       </Page>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const animes = await AnimeService.list();
-  const animesSortedAlphabeticallyByTitle = animes.sort((animeA, animeB) =>
-    getAnimeTitle(animeA) < getAnimeTitle(animeB) ? -1 : 1
-  );
-
-  return { props: { animes: animesSortedAlphabeticallyByTitle } };
 };
 
 export default Home;
