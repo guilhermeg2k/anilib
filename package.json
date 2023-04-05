@@ -1,7 +1,7 @@
 {
   "name": "anilib",
-  "version": "0.7.0",
-  "versionName": "Shouei Barou",
+  "version": "0.8.0",
+  "versionName": "Tokoyami-dev",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,6 +12,11 @@
   "dependencies": {
     "@formkit/auto-animate": "^1.0.0-beta.1",
     "@headlessui/react": "^1.6.6",
+    "@tanstack/react-query": "^4.28.0",
+    "@trpc/client": "^10.18.0",
+    "@trpc/next": "^10.18.0",
+    "@trpc/react-query": "^10.18.0",
+    "@trpc/server": "^10.18.0",
     "axios": "^0.27.2",
     "clsx": "^1.2.1",
     "ffprobe": "^1.1.2",
@@ -29,7 +34,9 @@
     "socket.io": "^4.5.3",
     "socket.io-client": "^4.5.3",
     "string-similarity-js": "^2.1.4",
+    "superjson": "^1.12.2",
     "uuid": "^8.3.2",
+    "zod": "^3.21.4",
     "zustand": "^4.1.4"
   },
   "devDependencies": {

@@ -6,6 +6,7 @@ import {
   getAnimesWithTitleSimilarityToTextAppended,
   getAnimeTitle,
 } from '@utils/animeUtils';
+import { trpc } from '@utils/trpc';
 import { Anime } from 'backend/database/types';
 import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
@@ -19,6 +20,9 @@ interface HomeProps {
 }
 
 const Home: NextPage<HomeProps> = ({ animes }) => {
+  const hello = trpc.hello.useQuery({ text: 'world' });
+  console.log('🚀 ~ file: index.tsx:24 ~ hello:', hello);
+
   const [filteredAndSortedAnimes, setFilteredAndSortedAnimes] =
     useState(animes);
   const isLibraryEmpty = animes.length === 0;

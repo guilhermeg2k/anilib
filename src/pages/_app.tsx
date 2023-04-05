@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 import '../styles/globals.css';
+import { trpc } from '@utils/trpc';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const startWebSocketServer = async () => {
@@ -24,4 +25,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default MyApp;
+export default trpc.withTRPC(MyApp);
