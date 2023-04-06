@@ -9,4 +9,16 @@ export const episodeRouter = createRouter({
       const { animeId } = input;
       return EpisodeService.listByAnimeId(animeId);
     }),
+
+  getById: procedure.input(z.object({ id: z.string() })).query(({ input }) => {
+    const { id } = input;
+    return EpisodeService.getById(id);
+  }),
+
+  getCoverImageBase64ById: procedure
+    .input(z.object({ id: z.string() }))
+    .query(({ input }) => {
+      const { id } = input;
+      return EpisodeService.getCoverImageBase64ById(id);
+    }),
 });

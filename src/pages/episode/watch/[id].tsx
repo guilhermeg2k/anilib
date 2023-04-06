@@ -1,52 +1,72 @@
 import EpisodeCard from '@components/EpisodeCard';
 import Navbar from '@components/Navbar';
 import Page from '@components/Page';
-import { Episode, Subtitle } from 'backend/database/types';
-import EpisodeService from 'services/episodeService';
-import SubtitleService from 'services/subtitleService';
-import EpisodePreviewService from '@services/episodePreviewService';
-import { GetServerSideProps, NextPage } from 'next';
+import { VideoPlayer } from '@components/VideoPlayer/VideoPlayer';
+import { trpc } from '@utils/trpc';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { VideoPlayer } from '@components/VideoPlayer/VideoPlayer';
-import { useEffect, useState } from 'react';
-import { toastError } from 'library/toastify';
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const id = params?.id as string;
-  const [episode, subtitles, coverImageBase64] = await Promise.all([
-    EpisodeService.getById(id),
-    SubtitleService.listByEpisodeId(id),
-    EpisodeService.getCoverImageBase64ById(id),
-  ]);
-
-  const episodes = await EpisodeService.listByAnimeId(episode.animeId);
-
-  const watchProps: WatchProps = {
-    episode,
-    episodes,
-    subtitles,
-    coverImageBase64,
-  };
-
-  return { props: watchProps };
-};
-
-interface WatchProps {
-  coverImageBase64: string;
-  episode: Episode;
-  episodes: Array<Episode>;
-  subtitles: Array<Subtitle>;
-}
-
-const Watch: NextPage<WatchProps> = ({
-  coverImageBase64,
-  episode,
-  episodes,
-  subtitles,
-}) => {
-  const [previews, setPreviews] = useState<string[]>([]);
+const Watch = () => {
   const router = useRouter();
+  const id = String(router.query.id);
+  const {
+    data: episode,
+    isLoading: isLoadingEpisode,
+    isError: hasEpisodeLoadingFailed,
+  } = trpc.episode.getById.useQuery({ id });
+
+  const {
+    data: subtitles,
+    isLoading: isLoadingSubtitle,
+    isError: hasSubtitleLoadingFailed,
+  } = trpc.subtitle.listByEpisodeId.useQuery({
+    episodeId: id,
+  });
+
+  const {
+    data: previews,
+    isLoading: isLoadingPreviews,
+    isError: hasPreviewsLoadingFailed,
+  } = trpc.episodePreview.listByEpisodeId.useQuery({
+    episodeId: id,
+  });
+
+  const {
+    data: coverImageBase64,
+    isLoading: isLoadingCoverImage64,
+    isError: hasCoverImageLoadingFailed,
+  } = trpc.episode.getCoverImageBase64ById.useQuery({ id });
+
+  const {
+    data: episodes,
+    isLoading: isEpisodesLoading,
+    isError: hasEpisodesLoadingFailed,
+  } = trpc.episode.listByAnimeId.useQuery(
+    { animeId: String(episode?.animeId) },
+    {
+      enabled: Boolean(episode?.animeId),
+    }
+  );
+
+  if (
+    isLoadingEpisode ||
+    isLoadingSubtitle ||
+    isLoadingCoverImage64 ||
+    isLoadingPreviews ||
+    isEpisodesLoading
+  ) {
+    return <div>Loading...</div>;
+  }
+
+  if (
+    hasEpisodeLoadingFailed ||
+    hasSubtitleLoadingFailed ||
+    hasCoverImageLoadingFailed ||
+    hasEpisodesLoadingFailed ||
+    hasPreviewsLoadingFailed
+  ) {
+    return <div>Failed to load episode</div>;
+  }
 
   const onNextEpisodeHandler = () => {
     const currentEpisodeIndex = episodes.findIndex(
@@ -57,20 +77,6 @@ const Watch: NextPage<WatchProps> = ({
       router.push(`/episode/watch/${nextEpisode.id}`);
     }
   };
-
-  useEffect(() => {
-    const loadPreviews = async () => {
-      try {
-        const previews = await EpisodePreviewService.listByEpisodeId(
-          episode.id!
-        );
-        setPreviews(previews);
-      } catch (error) {
-        toastError('Failed to load episode previews');
-      }
-    };
-    loadPreviews();
-  }, [episode.id]);
 
   return (
     <>

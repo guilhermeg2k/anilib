@@ -38,7 +38,7 @@ export const VideoPlayer = ({
   coverImageBase64: string;
   episodeTitle: string;
   subtitles: Array<Subtitles>;
-  previews: Array<string>;
+  previews: Array<string | null>;
   onNextEpisode: () => void;
 }) => {
   const [hasMouseMoved, setHasMouseMoved] = useState(false);
@@ -594,7 +594,7 @@ const VolumeButton = () => {
   );
 };
 
-const TimeLine = ({ previews }: { previews: string[] }) => {
+const TimeLine = ({ previews }: { previews: (string | null)[] }) => {
   const [hoverTimeInSeconds, setHoverTimeInSeconds] = useState<number>(0);
   const { video, currentTime, duration } = useVideoPlayerStore();
 
