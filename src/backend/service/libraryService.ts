@@ -9,9 +9,9 @@ import EpisodePreviewService from './episodePreviewService';
 import SettingsService from './settingsService';
 
 class LibraryService {
-  static status = LibraryStatus.Updated;
+  private static status = LibraryStatus.Updated;
 
-  async update() {
+  static async update() {
     try {
       const startTime = Date.now();
 
@@ -19,7 +19,7 @@ class LibraryService {
         LibraryService.status !== LibraryStatus.Updating;
 
       if (libraryIsNotUpdating) {
-        this.updateStatus(LibraryStatus.Updating);
+        LibraryService.updateStatus(LibraryStatus.Updating);
         if (SettingsService.get('isToDeleteInvalidData')) {
           await DirectoryService.deleteInvalids();
           await AnimeService.deleteInvalids();
@@ -58,11 +58,11 @@ class LibraryService {
     }
   }
 
-  getStatus() {
+  static getStatus() {
     return LibraryService.status;
   }
 
-  updateStatus(status: LibraryStatus) {
+  static updateStatus(status: LibraryStatus) {
     LibraryService.status = status;
     SocketIO.send(WebsocketEvent.UpdateLibraryStatus, status);
   }

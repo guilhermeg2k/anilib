@@ -8,7 +8,6 @@ import MaterialIcon from '@components/MaterialIcon';
 import Modal from '@components/Modal';
 import TextField from '@components/TextField';
 import { toastError, toastSuccess } from 'library/toastify';
-import LibraryService from 'services/libraryService';
 import PackageJSON from '../../../package.json';
 
 import { LibraryStatus } from '@backend/constants/libraryStatus';
@@ -33,7 +32,6 @@ const SettingsModal = ({
 }) => {
   const [newDirectory, setNewDirectory] = useState('');
   const { status } = useLibraryStatusStore();
-  const isLibraryUpdating = status === LibraryStatus.Updating;
 
   const {
     data: directories,
@@ -50,17 +48,20 @@ const SettingsModal = ({
     )
   );
 
-  const isLoadingSettings = settingsQueries.some((query) => query.isLoading);
-  const hasFailedToLoadSettings = settingsQueries.some(
-    (query) => query.isError
-  );
-  const [isToDeleteConvertedData, isToDeleteInvalidData, shouldUseNVENC] =
-    settingsQueries.map((query) => query.data);
   const [
     refetchIsToDeleteConvertedData,
     refetchIsToDeleteInvalidData,
     refetchShouldUseNVENC,
   ] = settingsQueries.map((query) => query.refetch);
+
+  const isLoadingSettings = settingsQueries.some((query) => query.isLoading);
+
+  const hasFailedToLoadSettings = settingsQueries.some(
+    (query) => query.isError
+  );
+
+  const [isToDeleteConvertedData, isToDeleteInvalidData, shouldUseNVENC] =
+    settingsQueries.map((query) => query.data);
 
   const { mutate: createDirectory, isLoading: isCreatingDirectory } =
     trpc.directory.create.useMutation({
@@ -99,6 +100,10 @@ const SettingsModal = ({
       toastError(`Failed to update ${setting} setting`),
   });
 
+  const { mutate: updateLibrary } = trpc.library.update.useMutation();
+
+  const isLibraryUpdating = status === LibraryStatus.Updating;
+
   const isLoading =
     isLoadingSettings ||
     isCreatingDirectory ||
@@ -110,38 +115,22 @@ const SettingsModal = ({
   const isDirectoriesEmpty = directories?.length === 0;
 
   if (isLoading) {
-    return <Backdrop open={isLoadingDirectories} />;
+    return <Backdrop open={isLoading} />;
   }
 
   if (hasError) {
     return <div>Failed to load directories</div>;
   }
 
-  const onNewDirectorySubmitHandler = async (event: React.FormEvent) => {
+  const onCreateNewDirectory = async (event: React.FormEvent) => {
     event.preventDefault();
     await createDirectory({ directory: newDirectory });
     setNewDirectory('');
   };
 
-  const onDeleteDirectoryHandler = async (directory: string) => {
-    deleteDirectory({
-      directory,
-    });
-  };
-
-  const onLibraryUpdateHandler = async () => {
-    try {
-      // setIsLoadingDirectories(true);
-      await LibraryService.update();
-      // await loadDirectories();
-    } finally {
-      // setIsLoadingDirectories(false);
-    }
-  };
-
   return (
     <Modal title="Settings" open={open} onClose={onClose} disableBackdropClick>
-      <form onSubmit={onNewDirectorySubmitHandler}>
+      <form onSubmit={onCreateNewDirectory}>
         <Label>Add New Directory</Label>
         <div className="flex items-center justify-between gap-2">
           <TextField
@@ -151,7 +140,7 @@ const SettingsModal = ({
             className="w-full"
             onChange={(directory) => setNewDirectory(directory)}
           />
-          <Button color="green" onClick={onNewDirectorySubmitHandler}>
+          <Button color="green" onClick={onCreateNewDirectory}>
             add
           </Button>
         </div>
@@ -169,7 +158,11 @@ const SettingsModal = ({
                 <span>{directory}</span>
                 <button
                   className="h-[24px]"
-                  onClick={() => onDeleteDirectoryHandler(directory)}
+                  onClick={() =>
+                    deleteDirectory({
+                      directory,
+                    })
+                  }
                 >
                   <MaterialIcon className="text-rose-600 hover:text-rose-400">
                     delete
@@ -216,7 +209,7 @@ const SettingsModal = ({
       <Label>Update Library</Label>
       <Button
         color="green"
-        onClick={onLibraryUpdateHandler}
+        onClick={() => updateLibrary()}
         disabled={isLibraryUpdating}
       >
         Update Library

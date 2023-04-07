@@ -486,7 +486,7 @@ const SubtitleOptionButton = ({
       onClick={onClick}
       className={clsx(
         `mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`,
-        active ? 'text-white' : 'text-neutral-300'
+        active ? 'text-white' : 'text-neutral-400'
       )}
     >
       {children}
