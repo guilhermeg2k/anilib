@@ -17,6 +17,7 @@ import PackageJSON from '../../../package.json';
 import React, { useEffect, useState } from 'react';
 import useLibraryStatusStore from 'store/libraryStatusStore';
 import { LibraryStatus } from '@backend/constants/libraryStatus';
+import { trpc } from '@utils/trpc';
 
 const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;
 
@@ -27,30 +28,35 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   const [newDirectory, setNewDirectory] = useState('');
-  const [isLoadingDirectories, setIsLoadingDirectories] = useState(false);
   const [isLoadingSettings, setIsLoadingSettings] = useState(false);
   const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
   const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
   const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
-  const [directories, setDirectoriesList] = useState(Array<string>());
   const { status } = useLibraryStatusStore();
   const router = useRouter();
   const isLibraryUpdating = status === LibraryStatus.Updating;
+  const {
+    data: directories,
+    isLoading: isLoadingDirectories,
+    isError: hasLoadingDirectoriesFailed,
+    refetch: refreshDirectories,
+  } = trpc.directory.list.useQuery();
+
+  const { mutate: deleteDirectory } = trpc.directory.delete.useMutation();
+  const { mutate: createDirectory } = trpc.directory.create.useMutation({
+    onSuccess: () => toastSuccess('Directory added'),
+    onError: () => toastError('Failed to add directory'),
+  });
+
+  if (isLoadingDirectories) {
+    return <Backdrop open={isLoadingDirectories} />;
+  }
+
+  if (hasLoadingDirectoriesFailed) {
+    return <div>Failed to load directories</div>;
+  }
 
   const isDirectoriesEmpty = directories.length === 0;
-  const isLoading = isLoadingDirectories || isLoadingSettings;
-
-  const loadDirectories = async () => {
-    try {
-      setIsLoadingDirectories(true);
-      const directories = await DirectoryService.list();
-      setDirectoriesList(directories);
-    } catch (error) {
-      toastError('Failed to load directories');
-    } finally {
-      setIsLoadingDirectories(false);
-    }
-  };
 
   const loadSettings = async () => {
     try {
@@ -71,23 +77,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
     }
   };
 
-  const onNewDirectoryChangeHandler = (value: string) => {
-    setNewDirectory(value);
-  };
-
   const onNewDirectorySubmitHandler = async (event: React.FormEvent) => {
-    try {
-      setIsLoadingDirectories(true);
-      event.preventDefault();
-      await DirectoryService.create(newDirectory);
-      setNewDirectory('');
-      await loadDirectories();
-      toastSuccess('Directory added');
-    } catch (error) {
-      toastError('Failed to add directory');
-    } finally {
-      setIsLoadingDirectories(false);
-    }
+    event.preventDefault();
+    await createDirectory({ directory: newDirectory });
+    setNewDirectory('');
+    refreshDirectories();
   };
 
   const onDeleteDirectoryHandler = async (directory: string) => {
@@ -133,22 +127,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
 
   const onLibraryUpdateHandler = async () => {
     try {
-      setIsLoadingDirectories(true);
+      // setIsLoadingDirectories(true);
       await LibraryService.update();
-      await loadDirectories();
+      // await loadDirectories();
     } finally {
-      setIsLoadingDirectories(false);
+      // setIsLoadingDirectories(false);
     }
   };
 
-  useEffect(() => {
-    loadDirectories();
-    loadSettings();
-  }, []);
-
   return (
     <Modal title="Settings" open={open} onClose={onClose} disableBackdropClick>
-      <Backdrop open={isLoading} />
       <form onSubmit={onNewDirectorySubmitHandler}>
         <Label>Add New Directory</Label>
         <div className="flex items-center justify-between gap-2">
@@ -157,7 +145,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
             value={newDirectory}
             placeHolder="/home/Videos/Animes"
             className="w-full"
-            onChange={onNewDirectoryChangeHandler}
+            onChange={(directory) => setNewDirectory(directory)}
           />
           <Button color="green" onClick={onNewDirectorySubmitHandler}>
             add
