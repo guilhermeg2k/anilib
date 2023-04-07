@@ -7,34 +7,34 @@ import Label from '@components/Label';
 import MaterialIcon from '@components/MaterialIcon';
 import Modal from '@components/Modal';
 import TextField from '@components/TextField';
-import DirectoryService from 'services/directoryService';
-import LibraryService from 'services/libraryService';
-import SettingsService from 'services/settingsService';
 import { toastError, toastSuccess } from 'library/toastify';
-import { useRouter } from 'next/router';
+import LibraryService from 'services/libraryService';
 import PackageJSON from '../../../package.json';
 
-import React, { useEffect, useState } from 'react';
-import useLibraryStatusStore from 'store/libraryStatusStore';
 import { LibraryStatus } from '@backend/constants/libraryStatus';
+import { Setting } from '@backend/database/types';
 import { trpc } from '@utils/trpc';
+import React, { useState } from 'react';
+import useLibraryStatusStore from 'store/libraryStatusStore';
 
 const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;
+const SETTINGS_TO_LOAD: Readonly<Setting[]> = [
+  'isToDeleteConvertedData',
+  'isToDeleteInvalidData',
+  'shouldUseNVENC',
+] as const;
 
-interface SettingsModalProps {
+const SettingsModal = ({
+  open,
+  onClose,
+}: {
   open: boolean;
   onClose: () => void;
-}
-
-const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
+}) => {
   const [newDirectory, setNewDirectory] = useState('');
-  const [isLoadingSettings, setIsLoadingSettings] = useState(false);
-  const [isToDeleteConvertedData, setIsToDeleteConvertedData] = useState(false);
-  const [isToDeleteInvalidData, setIsToDeleteInvalidData] = useState(false);
-  const [shouldUseNVENC, setShouldUseNVENC] = useState(false);
   const { status } = useLibraryStatusStore();
-  const router = useRouter();
   const isLibraryUpdating = status === LibraryStatus.Updating;
+
   const {
     data: directories,
     isLoading: isLoadingDirectories,
@@ -42,87 +42,91 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
     refetch: refreshDirectories,
   } = trpc.directory.list.useQuery();
 
-  const { mutate: deleteDirectory } = trpc.directory.delete.useMutation();
-  const { mutate: createDirectory } = trpc.directory.create.useMutation({
-    onSuccess: () => toastSuccess('Directory added'),
-    onError: () => toastError('Failed to add directory'),
+  const settingsQueries = trpc.useQueries((t) =>
+    SETTINGS_TO_LOAD.map((setting) =>
+      t.settings.get({
+        setting,
+      })
+    )
+  );
+
+  const isLoadingSettings = settingsQueries.some((query) => query.isLoading);
+  const hasFailedToLoadSettings = settingsQueries.some(
+    (query) => query.isError
+  );
+  const [isToDeleteConvertedData, isToDeleteInvalidData, shouldUseNVENC] =
+    settingsQueries.map((query) => query.data);
+  const [
+    refetchIsToDeleteConvertedData,
+    refetchIsToDeleteInvalidData,
+    refetchShouldUseNVENC,
+  ] = settingsQueries.map((query) => query.refetch);
+
+  const { mutate: createDirectory, isLoading: isCreatingDirectory } =
+    trpc.directory.create.useMutation({
+      onSuccess: () => {
+        refreshDirectories();
+        toastSuccess('Directory added');
+      },
+      onError: () => toastError('Failed to add directory'),
+    });
+
+  const { mutate: deleteDirectory, isLoading: isDeletingDirectory } =
+    trpc.directory.delete.useMutation({
+      onSuccess: () => {
+        refreshDirectories();
+        toastSuccess('Directory removed');
+      },
+      onError: () => toastError('Failed to remove directory'),
+    });
+
+  const { mutate: updateSetting } = trpc.settings.update.useMutation({
+    onSuccess: (_, { setting }) => {
+      switch (setting) {
+        case 'isToDeleteConvertedData':
+          refetchIsToDeleteConvertedData();
+          break;
+        case 'isToDeleteInvalidData':
+          refetchIsToDeleteInvalidData();
+          break;
+        case 'shouldUseNVENC':
+          refetchShouldUseNVENC();
+          break;
+      }
+      toastSuccess(`Setting ${setting} updated`);
+    },
+    onError: (_, { setting }) =>
+      toastError(`Failed to update ${setting} setting`),
   });
 
-  if (isLoadingDirectories) {
+  const isLoading =
+    isLoadingSettings ||
+    isCreatingDirectory ||
+    isLoadingDirectories ||
+    isDeletingDirectory;
+
+  const hasError = hasLoadingDirectoriesFailed || hasFailedToLoadSettings;
+
+  const isDirectoriesEmpty = directories?.length === 0;
+
+  if (isLoading) {
     return <Backdrop open={isLoadingDirectories} />;
   }
 
-  if (hasLoadingDirectoriesFailed) {
+  if (hasError) {
     return <div>Failed to load directories</div>;
   }
-
-  const isDirectoriesEmpty = directories.length === 0;
-
-  const loadSettings = async () => {
-    try {
-      setIsLoadingSettings(true);
-      const [isToDeleteConvertedData, isToDeleteInvalidData, shouldUseNVENC] =
-        await Promise.all([
-          SettingsService.get('isToDeleteConvertedData'),
-          SettingsService.get('isToDeleteInvalidData'),
-          SettingsService.get('shouldUseNVENC'),
-        ]);
-      setIsToDeleteConvertedData(isToDeleteConvertedData);
-      setIsToDeleteInvalidData(isToDeleteInvalidData);
-      setShouldUseNVENC(shouldUseNVENC);
-    } catch (error) {
-      toastError('Failed to load settings');
-    } finally {
-      setIsLoadingSettings(false);
-    }
-  };
 
   const onNewDirectorySubmitHandler = async (event: React.FormEvent) => {
     event.preventDefault();
     await createDirectory({ directory: newDirectory });
     setNewDirectory('');
-    refreshDirectories();
   };
 
   const onDeleteDirectoryHandler = async (directory: string) => {
-    try {
-      setIsLoadingDirectories(true);
-      await DirectoryService.delete(directory);
-      await loadDirectories();
-      router.replace(router.asPath);
-      toastSuccess('Directory removed');
-    } catch (error) {
-      toastError('Failed to remove directory');
-    } finally {
-      setIsLoadingDirectories(false);
-    }
-  };
-
-  const onIsToDeleteConvertedDataChangeHandler = async (value: boolean) => {
-    try {
-      setIsToDeleteConvertedData(value);
-      await SettingsService.update('isToDeleteConvertedData', value);
-    } catch (error) {
-      toastError('Failed to update is to delete converted data setting');
-    }
-  };
-
-  const onIsToDeleteInvalidDataChangeHandler = async (value: boolean) => {
-    try {
-      setIsToDeleteInvalidData(value);
-      await SettingsService.update('isToDeleteInvalidData', value);
-    } catch (error) {
-      toastError('Failed to update is to delete invalid data setting');
-    }
-  };
-
-  const onShouldUseNVENCChangeHandler = async (value: boolean) => {
-    try {
-      setShouldUseNVENC(value);
-      await SettingsService.update('shouldUseNVENC', value);
-    } catch (error) {
-      toastError('Failed to update should use nvenc setting');
-    }
+    deleteDirectory({
+      directory,
+    });
   };
 
   const onLibraryUpdateHandler = async () => {
@@ -160,7 +164,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
               You don&apos;t have directories added
             </div>
           ) : (
-            directories.map((directory) => (
+            directories?.map((directory) => (
               <li key={directory} className="flex items-center justify-between">
                 <span>{directory}</span>
                 <button
@@ -181,23 +185,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
         <div className="flex flex-col gap-1">
           <CheckBox
             className="text-sm"
-            value={isToDeleteInvalidData}
-            onChange={onIsToDeleteInvalidDataChangeHandler}
+            value={!!isToDeleteInvalidData}
+            onChange={(value) =>
+              updateSetting({ setting: 'isToDeleteInvalidData', value })
+            }
           >
             Remove invalid data (animes, episodes and subtitles with invalid
             files)
           </CheckBox>
           <CheckBox
             className="text-sm"
-            value={isToDeleteConvertedData}
-            onChange={onIsToDeleteConvertedDataChangeHandler}
+            value={!!isToDeleteConvertedData}
+            onChange={(value) =>
+              updateSetting({ setting: 'isToDeleteConvertedData', value })
+            }
           >
             Delete original converted files
           </CheckBox>
           <CheckBox
             className="text-sm"
-            value={shouldUseNVENC}
-            onChange={onShouldUseNVENCChangeHandler}
+            value={!!shouldUseNVENC}
+            onChange={(value) =>
+              updateSetting({ setting: 'shouldUseNVENC', value })
+            }
           >
             Use Nvidia NVENC as encoder
           </CheckBox>

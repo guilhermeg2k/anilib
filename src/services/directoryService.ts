@@ -6,15 +6,15 @@ class DirectoryService {
     return subtitles.data;
   }
 
-  static async delete(directory: string) {
-    const encodedDirectory = encodeURIComponent(directory);
-    await axiosClient.delete(`/directory/${encodedDirectory}`);
-  }
-
   static async create(directory: string) {
     await axiosClient.post('/directory', {
       directory,
     });
+  }
+
+  static async delete(directory: string) {
+    const encodedDirectory = encodeURIComponent(directory);
+    await axiosClient.delete(`/directory/${encodedDirectory}`);
   }
 }
 

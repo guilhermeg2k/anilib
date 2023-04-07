@@ -15,9 +15,9 @@ export const directoryRouter = createRouter({
     }),
 
   delete: procedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ directory: z.string() }))
     .mutation(({ input }) => {
-      const { id } = input;
-      return DirectoryService.delete(id);
+      const { directory } = input;
+      return DirectoryService.delete(directory);
     }),
 });

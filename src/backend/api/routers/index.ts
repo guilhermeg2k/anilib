@@ -3,6 +3,7 @@ import { animeRouter } from './anime';
 import { directoryRouter } from './directory';
 import { episodeRouter } from './episode';
 import { episodePreviewRouter } from './episodePreview';
+import { settingsRouter } from './settings';
 import { subtitleRouter } from './subtitle';
 
 export const appRouter = createRouter({
@@ -11,6 +12,7 @@ export const appRouter = createRouter({
   episodePreview: episodePreviewRouter,
   subtitle: subtitleRouter,
   directory: directoryRouter,
+  settings: settingsRouter,
 });
 
 export type AppRouter = typeof appRouter;
