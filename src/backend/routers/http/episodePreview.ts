@@ -1,6 +1,6 @@
 import EpisodePreviewService from '@backend/service/episodePreviewService';
 import { z } from 'zod';
-import { createRouter, procedure } from '../trpc';
+import { createRouter, procedure } from '../../trpc';
 
 export const episodePreviewRouter = createRouter({
   listByEpisodeId: procedure

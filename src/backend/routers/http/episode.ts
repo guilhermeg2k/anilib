@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createRouter, procedure } from '../trpc';
+import { createRouter, procedure } from '../../trpc';
 import EpisodeService from '@backend/service/episodeService';
 
 export const episodeRouter = createRouter({

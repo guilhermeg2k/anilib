@@ -1,5 +1,5 @@
 import LibraryService from '@backend/service/libraryService';
-import { createRouter, procedure } from '../../api/trpc';
+import { createRouter, procedure } from '../../trpc';
 import { observable } from '@trpc/server/observable';
 import EventEmitter from 'events';
 

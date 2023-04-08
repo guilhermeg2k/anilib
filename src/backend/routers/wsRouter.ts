@@ -1,5 +1,5 @@
-import { createRouter } from '@backend/api/trpc';
-import { libraryRouter } from './library';
+import { createRouter } from '@backend/trpc';
+import { libraryRouter } from './ws/library';
 
 export const wsRouter = createRouter({
   ws: createRouter({

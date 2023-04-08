@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createRouter, procedure } from '../trpc';
+import { createRouter, procedure } from '../../trpc';
 import SettingsService from '@backend/service/settingsService';
 
 const zSetting = z.enum([

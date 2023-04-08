@@ -1,6 +1,6 @@
 import SubtitleService from '@backend/service/subtitleService';
 import { z } from 'zod';
-import { createRouter, procedure } from '../trpc';
+import { createRouter, procedure } from '../../trpc';
 
 export const subtitleRouter = createRouter({
   listByEpisodeId: procedure

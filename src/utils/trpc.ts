@@ -1,5 +1,5 @@
-import { AppRouter } from '@backend/api/routers';
-import { WsRouter } from '@backend/websocket/routers';
+import { HttpRouter } from '@backend/routers/httpRouter';
+import { WsRouter } from '@backend/routers/wsRouter';
 import {
   Operation,
   createWSClient,
@@ -57,7 +57,7 @@ const getSplitLink = () => {
   });
 };
 
-export const trpc = createTRPCNext<AppRouter & WsRouter>({
+export const trpc = createTRPCNext<HttpRouter & WsRouter>({
   config() {
     return {
       transformer: superjson,
