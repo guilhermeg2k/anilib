@@ -1,12 +1,10 @@
 import { LibraryStatus as LibraryStatusEnum } from '@backend/constants/libraryStatus';
-import { WebsocketEvent } from '@backend/constants/websocketEvents';
-import LibraryService from '@services/libraryService';
-import socketIOClient from 'library/socketIOClient';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
-import { Flip, Id, toast, ToastPosition } from 'react-toastify';
+import { Flip, Id, ToastPosition, toast } from 'react-toastify';
 import useLibraryStatusStore from 'store/libraryStatusStore';
 import Spinner from './Spinner';
+import { trpc } from '@utils/trpc';
 
 const TOAST_POSITION = 'bottom-right' as ToastPosition;
 const TOAST_TRANSITION = Flip;
@@ -31,8 +29,26 @@ const LibraryStatus = () => {
   const router = useRouter();
   const { status, setStatus } = useLibraryStatusStore();
 
+  trpc.ws.library.onUpdate.useSubscription(undefined, {
+    onData: (data) => {
+      onLibraryUpdateListener(data as LibraryStatusEnum);
+    },
+  });
+
+  trpc.ws.library.getStatus.useQuery(undefined, {
+    onSuccess: (status) => {
+      if (
+        status === LibraryStatusEnum.Updating ||
+        status === LibraryStatusEnum.Failed
+      ) {
+        onLibraryUpdateListener(status);
+      }
+    },
+  });
+
   const onCloseHandler = () => {
     toastId.current = null;
+    1;
   };
 
   const updatedToastOptions = {
@@ -118,29 +134,10 @@ const LibraryStatus = () => {
     }
   };
 
-  const fetchInitialStatus = async () => {
-    const status = await LibraryService.getStatus();
-    if (
-      status === LibraryStatusEnum.Updating ||
-      status === LibraryStatusEnum.Failed
-    ) {
-      showStatusToast(status);
-      setStatus(status);
-    }
-  };
-
   const onLibraryUpdateListener = (status: LibraryStatusEnum) => {
     setStatus(status);
     showStatusToast(status);
   };
-
-  useEffect(() => {
-    fetchInitialStatus();
-    socketIOClient.on(
-      WebsocketEvent.UpdateLibraryStatus,
-      onLibraryUpdateListener
-    );
-  }, []);
 
   useEffect(() => {
     if (status && status === LibraryStatusEnum.Updated) {

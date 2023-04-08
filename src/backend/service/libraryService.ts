@@ -1,6 +1,5 @@
 import { LibraryStatus } from '@backend/constants/libraryStatus';
-import { WebsocketEvent } from '@backend/constants/websocketEvents';
-import SocketIO from '@backend/websocket/socketIO';
+import { libraryEventEmitter } from '@backend/websocket/routers/library';
 import AnimeService from 'backend/service/animeService';
 import EpisodeService from 'backend/service/episodeService';
 import SubtitleService from 'backend/service/subtitleService';
@@ -64,7 +63,7 @@ class LibraryService {
 
   static updateStatus(status: LibraryStatus) {
     LibraryService.status = status;
-    SocketIO.send(WebsocketEvent.UpdateLibraryStatus, status);
+    libraryEventEmitter.emit('update', status);
   }
 }
 
