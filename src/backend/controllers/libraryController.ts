@@ -4,7 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 class LibraryController {
   static async getStatus(_: NextApiRequest, res: NextApiResponse) {
     try {
-      // const status = libraryService.getStatus();
+      const status = LibraryService.getStatus();
       res.json(status);
     } catch (error) {
       console.log(error);
@@ -14,7 +14,7 @@ class LibraryController {
 
   static async update(_: NextApiRequest, res: NextApiResponse) {
     try {
-      // libraryService.update();
+      LibraryService.update();
       res.status(200).end();
     } catch (error) {
       console.log(error);

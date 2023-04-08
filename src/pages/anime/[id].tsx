@@ -10,9 +10,9 @@ import { removeHTMLTags } from '@utils/stringUtils';
 import { trpc } from '@utils/trpc';
 import { format } from 'date-fns';
 import { toastPromise } from 'library/toastify';
+import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 
 const getCategoryColorClass = (colorSeed: number) => {
   const colorIndex = (colorSeed + 1) % 4;
@@ -31,10 +31,17 @@ const getCategoryColorClass = (colorSeed: number) => {
   }
 };
 
-const Anime = () => {
-  const router = useRouter();
-  const id = String(router.query.id);
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const id = params?.id ? String(params?.id) : '';
 
+  return {
+    props: {
+      id,
+    },
+  };
+};
+
+const Anime = ({ id }: { id: string }) => {
   const {
     data: anime,
     isLoading: isLoadingAnime,

@@ -1,6 +1,6 @@
-import EpisodeService from '@services/episodeService';
 import { z } from 'zod';
 import { createRouter, procedure } from '../trpc';
+import EpisodeService from '@backend/service/episodeService';
 
 export const episodeRouter = createRouter({
   listByAnimeId: procedure
@@ -19,6 +19,6 @@ export const episodeRouter = createRouter({
     .input(z.object({ id: z.string() }))
     .query(({ input }) => {
       const { id } = input;
-      return EpisodeService.getCoverImageBase64ById(id);
+      return EpisodeService.getImageCoverBase64ById(id);
     }),
 });
