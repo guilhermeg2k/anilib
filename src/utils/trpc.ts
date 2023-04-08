@@ -1,6 +1,7 @@
 import { AppRouter } from '@backend/api/routers';
 import { WsRouter } from '@backend/websocket/routers';
 import {
+  Operation,
   createWSClient,
   httpBatchLink,
   loggerLink,
@@ -10,15 +11,11 @@ import {
 import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
 
-const WS_URL = 'ws://localhost:3002';
+const HTTP_URL =
+  `${process.env.NEXT_PUBLIC_BASE_API_URL}/trpc` || 'localhost:3000/api/trpc';
 
-const queryClientConfig = {
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-    },
-  },
-};
+const WS_URL =
+  process.env.NEXT_PUBLIC_WEBSOCKET_CLIENT_ADDRESS || 'ws://localhost:3001';
 
 const getLoggerLink = () => {
   return loggerLink({
@@ -31,7 +28,7 @@ const getLoggerLink = () => {
 
 const getHTTPBatchLink = () => {
   return httpBatchLink({
-    url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/trpc`,
+    url: HTTP_URL,
   });
 };
 
@@ -49,9 +46,12 @@ const getWSLink = () => {
   });
 };
 
+const shouldUseWSLink = (operation: Operation) =>
+  operation.path.startsWith('ws.');
+
 const getSplitLink = () => {
   return splitLink({
-    condition: (op) => op.path.startsWith('ws.'),
+    condition: shouldUseWSLink,
     true: getWSLink(),
     false: getHTTPBatchLink(),
   });
@@ -62,10 +62,15 @@ export const trpc = createTRPCNext<AppRouter & WsRouter>({
     return {
       transformer: superjson,
       links: [getLoggerLink(), getSplitLink()],
-      queryClientConfig,
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      },
     };
   },
-
   ssr: false,
 });
 

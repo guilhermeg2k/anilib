@@ -14,12 +14,12 @@ class SocketIO {
       if (global.socketIOServer) {
         return;
       }
-      const port =
-        typeof SERVER_PORT === 'string' ? parseInt(SERVER_PORT) : SERVER_PORT;
+      // const port =
+      //   typeof SERVER_PORT === 'string' ? parseInt(SERVER_PORT) : SERVER_PORT;
 
-      console.log('Starting SocketIO');
-      const SocketIOServer = new Server(port);
-      global.socketIOServer = SocketIOServer;
+      // console.log('Starting SocketIO');
+      // // const SocketIOServer = new Server(port);
+      // global.socketIOServer = SocketIOServer;
     } catch (error) {
       console.log('Failed to init SocketIO');
       console.log(error);
