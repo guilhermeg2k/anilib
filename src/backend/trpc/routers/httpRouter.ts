@@ -1,4 +1,4 @@
-import { createRouter } from '@backend/trpc';
+import { createRouter } from '@backend/trpc/trpc';
 import { animeRouter } from './http/anime';
 import { directoryRouter } from './http/directory';
 import { episodeRouter } from './http/episode';

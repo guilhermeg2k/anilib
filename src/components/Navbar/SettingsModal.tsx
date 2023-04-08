@@ -1,3 +1,5 @@
+import { LibraryStatus } from '@backend/constants/libraryStatus';
+import { Setting } from '@backend/database/types';
 import AutoAnimate from '@components/AutoAnimate';
 import Backdrop from '@components/Backdrop';
 import Button from '@components/Button';
@@ -7,14 +9,11 @@ import Label from '@components/Label';
 import MaterialIcon from '@components/MaterialIcon';
 import Modal from '@components/Modal';
 import TextField from '@components/TextField';
-import { toastError, toastSuccess } from 'library/toastify';
-import PackageJSON from '../../../package.json';
-
-import { LibraryStatus } from '@backend/constants/libraryStatus';
-import { Setting } from '@backend/database/types';
 import { trpc } from '@utils/trpc';
+import { toastError, toastSuccess } from 'library/toastify';
 import React, { useState } from 'react';
-import useLibraryStatusStore from 'store/libraryStatusStore';
+import { useLibraryStatusStore } from 'store/libraryStatusStore';
+import PackageJSON from '../../../package.json';
 
 const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;
 const SETTINGS_TO_LOAD: Readonly<Setting[]> = [
@@ -100,7 +99,7 @@ const SettingsModal = ({
       toastError(`Failed to update ${setting} setting`),
   });
 
-  const { mutate: updateLibrary } = trpc.library.update.useMutation();
+  const { mutate: updateLibrary } = trpc.ws.library.update.useMutation();
 
   const isLibraryUpdating = status === LibraryStatus.Updating;
 

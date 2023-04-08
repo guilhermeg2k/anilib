@@ -1,17 +1,12 @@
 import { LibraryStatus } from '@backend/constants/libraryStatus';
-import create from 'zustand';
+import { atom, useAtom } from 'jotai';
 
-type LibraryStatusState = {
-  status: LibraryStatus | null;
-  setStatus: (status: LibraryStatus) => void;
+const statusAtom = atom<LibraryStatus>(LibraryStatus.Updated);
+
+export const useLibraryStatusStore = () => {
+  const [status, setStatus] = useAtom(statusAtom);
+  return {
+    status,
+    setStatus,
+  };
 };
-
-const useLibraryStatusStore = create<LibraryStatusState>((set) => ({
-  status: null,
-  setStatus: (status: LibraryStatus) =>
-    set(() => ({
-      status,
-    })),
-}));
-
-export default useLibraryStatusStore;
