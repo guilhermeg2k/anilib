@@ -1,7 +1,7 @@
 import { Popover } from '@components/popover';
 import { Tab } from '@headlessui/react';
-import { formatSecondsInTime } from 'common/utils/time-utils';
-import { Subtitle as Subtitles } from 'backend/database/types';
+import { formatSecondsInTime } from 'common/utils/time';
+import { Subtitle as Subtitles } from '@common/types/database';
 import { clsx } from 'clsx';
 import { useCueChange } from 'hooks/use-cue-change';
 import { useEventListener } from 'hooks/use-event-listener';
@@ -24,7 +24,7 @@ import {
   SubtitleSize,
 } from './video-player-store';
 import HTMLParser from 'html-react-parser';
-import { BRACES_CONTENT_REGEX } from '@common/constants/regex-constants';
+import { BRACES_CONTENT_REGEX } from '@common/constants/regex';
 
 export const VideoPlayer = ({
   videoUrl,

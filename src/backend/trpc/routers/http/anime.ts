@@ -1,4 +1,4 @@
-import AnimeService from '@backend/service/anime-service';
+import AnimeService from '@backend/service/anime';
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
 

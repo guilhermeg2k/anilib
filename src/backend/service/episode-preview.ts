@@ -1,16 +1,16 @@
 import {
   getFileInBase64,
   getFilesInDirectoryByExtensions,
-} from '@common/utils/file-utils';
+} from '@common/utils/file';
 import {
   extractJpgImageFromVideo,
   getVideoDurationInSeconds,
-} from '@common/utils/video-utils';
-import { sortByStringNumbersSum } from 'common/utils/string-utils';
-import { Episode } from 'backend/database/types';
+} from '@common/utils/video';
+import { sortByStringNumbersSum } from 'common/utils/string';
+import { Episode } from '@common/types/database';
 import pLimit from 'p-limit';
 import path from 'path';
-import EpisodeService from './episode-service';
+import EpisodeService from './episode';
 
 const PREVIEW_EXTENSIONS = ['.jpg'];
 

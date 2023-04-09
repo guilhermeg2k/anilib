@@ -1,8 +1,8 @@
 import database from 'backend/database';
-import { Anime } from 'backend/database/types';
-import { isPathRelativeToDir } from '@common/utils/file-utils';
+import { Anime } from '@common/types/database';
+import { isPathRelativeToDir } from '@common/utils/file';
 import { v4 as uuid } from 'uuid';
-import EpisodeRepository from './episode-repository';
+import EpisodeRepository from './episode';
 
 class AnimeRepository {
   static list() {

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { Anime, DatabaseData, Episode, Subtitle } from './types';
+import { Anime, DatabaseData, Episode, Subtitle } from '@common/types/database';
 
 type DatabaseProperty =
   | 'animes'

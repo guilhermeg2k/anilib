@@ -1,5 +1,5 @@
 import database from 'backend/database';
-import AnimeRepository from './anime-repository';
+import AnimeRepository from './anime';
 
 class DirectoryRepository {
   static list() {

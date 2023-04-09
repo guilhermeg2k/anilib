@@ -1,7 +1,7 @@
 import database from 'backend/database';
-import { Episode } from 'backend/database/types';
+import { Episode } from '@common/types/database';
 import { v4 as uuid } from 'uuid';
-import SubtitleRepository from './subtitle-repository';
+import SubtitleRepository from './subtitle';
 
 class EpisodeRepository {
   static list() {

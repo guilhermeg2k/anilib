@@ -1,4 +1,4 @@
-import LibraryService from '@backend/service/library-service';
+import LibraryService from '@backend/service/library';
 import { createRouter, procedure } from '../../trpc';
 import { observable } from '@trpc/server/observable';
 import EventEmitter from 'events';

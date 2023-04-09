@@ -1,7 +1,7 @@
-import { Episode, Subtitle } from 'backend/database/types';
-import SubtitleRepository from 'backend/repository/subtitle-repository';
-import { getFolderVttFilesByFileNamePrefix } from '@common/utils/file-utils';
-import { extractSubtitlesFromVideo } from '@common/utils/video-utils';
+import { Episode, Subtitle } from '@common/types/database';
+import SubtitleRepository from 'backend/repository/subtitle';
+import { getFolderVttFilesByFileNamePrefix } from '@common/utils/file';
+import { extractSubtitlesFromVideo } from '@common/utils/video';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';

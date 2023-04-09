@@ -1,12 +1,12 @@
-import { SQUARE_BRACKET_CONTENT_REGEX } from '@common/constants/regex-constants';
-import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anime-utils';
-import { Anime } from 'backend/database/types';
-import AnimeRepository from 'backend/repository/anime-repository';
-import { createDateByDayMonthAndYear } from '@common/utils/date-utils';
+import { SQUARE_BRACKET_CONTENT_REGEX } from '@common/constants/regex';
+import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anime';
+import { Anime } from '@common/types/database';
+import AnimeRepository from 'backend/repository/anime';
+import { createDateByDayMonthAndYear } from '@common/utils/date';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
-import AnilistService from './anilist-service';
+import AnilistService from './anilist';
 
 const fsPromises = fs.promises;
 class AnimeService {

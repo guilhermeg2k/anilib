@@ -1,4 +1,4 @@
-import { Title } from 'backend/database/types';
+import { Title } from '@common/types/database';
 import { stringSimilarity } from 'string-similarity-js';
 
 export const formatTitle = (title: Title) =>

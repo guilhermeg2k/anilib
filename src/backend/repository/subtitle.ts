@@ -1,5 +1,5 @@
 import database from 'backend/database';
-import { Subtitle } from 'backend/database/types';
+import { Subtitle } from '@common/types/database';
 import { v4 as uuid } from 'uuid';
 
 class SubtitleRepository {

@@ -1,4 +1,4 @@
-import EpisodePreviewService from '@backend/service/episode-preview-service';
+import EpisodePreviewService from '@backend/service/episode-preview';
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
 

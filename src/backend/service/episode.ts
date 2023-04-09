@@ -1,27 +1,27 @@
-import { getNumbersSumFromString } from 'common/utils/string-utils';
+import { getNumbersSumFromString } from 'common/utils/string';
 import {
   BRACES_CONTENT_REGEX,
   NOT_ALPHANUMERIC_REGEX,
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
-} from '@common/constants/regex-constants';
-import { Anime, Episode } from 'backend/database/types';
-import EpisodeRepository from 'backend/repository/episode-repository';
+} from '@common/constants/regex';
+import { Anime, Episode } from '@common/types/database';
+import EpisodeRepository from 'backend/repository/episode';
 import {
   getFileInBase64,
   getFilesInDirectoryByExtensions,
-} from '@common/utils/file-utils';
+} from '@common/utils/file';
 import {
   convertVideoToMp4,
   extractJpgImageFromVideo,
   isAudioCodecSupported,
   isVideoCodecSupported,
   isVideoContainerSupported,
-} from '@common/utils/video-utils';
+} from '@common/utils/video';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
-import SettingsService from './settings-service';
+import SettingsService from './settings';
 
 const fsPromises = fs.promises;
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
-import EpisodeService from '@backend/service/episode-service';
+import EpisodeService from '@backend/service/episode';
 
 export const episodeRouter = createRouter({
   listByAnimeId: procedure

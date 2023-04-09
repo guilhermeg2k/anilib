@@ -2,7 +2,7 @@ import { LibraryStatus as LibraryStatusEnum } from '@common/constants/library-st
 import { Flip, Id, ToastPosition, toast } from 'react-toastify';
 import Spinner from './spinner';
 import { trpc } from 'common/utils/trpc';
-import { useLibraryStatusStore } from 'store/library-status-store';
+import { useLibraryStatusStore } from 'store/library-status';
 import { useRef } from 'react';
 
 const TOAST_POSITION = 'bottom-right' as ToastPosition;

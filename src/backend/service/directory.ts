@@ -1,4 +1,4 @@
-import DirectoryRepository from 'backend/repository/directory-repository';
+import DirectoryRepository from 'backend/repository/directory';
 import fs from 'fs';
 
 class DirectoryService {

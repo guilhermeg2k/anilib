@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
-import SettingsService from '@backend/service/settings-service';
+import SettingsService from '@backend/service/settings';
 
 const zSetting = z.enum([
   'isToDeleteConvertedData',

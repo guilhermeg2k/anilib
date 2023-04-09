@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
-import EpisodeService from '@backend/service/episode-service';
+import EpisodeService from '@backend/service/episode';
 
 export default async function handler(
   req: NextApiRequest,

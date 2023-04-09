@@ -1,5 +1,5 @@
 import { LibraryStatus } from '@common/constants/library-status';
-import { Setting } from '@backend/database/types';
+import { Setting } from '@common/types/database';
 import AutoAnimate from '@components/auto-animate';
 import Backdrop from '@components/backdrop';
 import Button from '@components/button';
@@ -10,9 +10,9 @@ import MaterialIcon from '@components/material-icon';
 import Modal from '@components/modal';
 import TextField from '@components/text-field';
 import { trpc } from 'common/utils/trpc';
-import { toastError, toastSuccess } from '@common/utils/toastify-utils';
+import { toastError, toastSuccess } from '@common/utils/toastify';
 import React, { useState } from 'react';
-import { useLibraryStatusStore } from 'store/library-status-store';
+import { useLibraryStatusStore } from 'store/library-status';
 import PackageJSON from '../../../package.json';
 
 const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;

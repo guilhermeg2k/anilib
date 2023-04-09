@@ -1,4 +1,4 @@
-import SubtitleService from '@backend/service/subtitle-service';
+import SubtitleService from '@backend/service/subtitle';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 

@@ -1,5 +1,5 @@
-import { Setting } from '@backend/database/types';
-import SettingsRepository from 'backend/repository/settings-repository';
+import { Setting } from '@common/types/database';
+import SettingsRepository from 'backend/repository/settings';
 
 class SettingsService {
   static get(setting: Setting) {

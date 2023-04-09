@@ -1,4 +1,4 @@
-import { Setting } from '@backend/database/types';
+import { Setting } from '@common/types/database';
 import database from 'backend/database';
 
 class SettingsRepository {

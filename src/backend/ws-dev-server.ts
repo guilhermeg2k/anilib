@@ -1,7 +1,7 @@
 // THIS SERVER IS ONLY FOR DEVELOPMENT MODE
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import ws from 'ws';
-import { wsRouter } from './trpc/routers/ws-router';
+import { wsRouter } from './trpc/routers/ws';
 
 const wsServer = new ws.Server({
   port: 3001,

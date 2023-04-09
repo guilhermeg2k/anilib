@@ -1,10 +1,10 @@
 import { LibraryStatus } from '@common/constants/library-status';
-import AnimeService from 'backend/service/anime-service';
-import EpisodeService from 'backend/service/episode-service';
-import SubtitleService from 'backend/service/subtitle-service';
-import DirectoryService from './directory-service';
-import EpisodePreviewService from './episode-preview-service';
-import SettingsService from './settings-service';
+import AnimeService from 'backend/service/anime';
+import EpisodeService from 'backend/service/episode';
+import SubtitleService from 'backend/service/subtitle';
+import DirectoryService from './directory';
+import EpisodePreviewService from './episode-preview';
+import SettingsService from './settings';
 import { libraryEventEmitter } from '@backend/trpc/routers/ws/library';
 
 class LibraryService {
