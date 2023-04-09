@@ -2,11 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
-    "outDir": "dist",
-    "target": "ES2019",
-    "lib": ["ES2019", "DOM"],
+    "outDir": "build",
+    "lib": ["ES2022"],
+    "target": "ES2022",
     "isolatedModules": false,
     "noEmit": false
   },
-  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/backend/custom-next-server.ts"]
 }

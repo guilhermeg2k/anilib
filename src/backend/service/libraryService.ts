@@ -1,11 +1,11 @@
 import { LibraryStatus } from '@backend/constants/libraryStatus';
-import { libraryEventEmitter } from '@backend/websocket/routers/library';
 import AnimeService from 'backend/service/animeService';
 import EpisodeService from 'backend/service/episodeService';
 import SubtitleService from 'backend/service/subtitleService';
 import DirectoryService from './directoryService';
 import EpisodePreviewService from './episodePreviewService';
 import SettingsService from './settingsService';
+import { libraryEventEmitter } from '@backend/trpc/routers/ws/library';
 
 class LibraryService {
   private static status = LibraryStatus.Updated;

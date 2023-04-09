@@ -11,11 +11,16 @@ import {
 import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
 
-const HTTP_URL =
-  `${process.env.NEXT_PUBLIC_BASE_API_URL}/trpc` || 'localhost:3000/api/trpc';
+const IS_DEV = process.env.NODE_ENV !== 'production';
 
-const WS_URL =
-  process.env.NEXT_PUBLIC_WEBSOCKET_CLIENT_ADDRESS || 'ws://localhost:3001';
+const HTTP_URL = IS_DEV
+  ? 'http://localhost:3000/api/trpc'
+  : `${process.env.NEXT_PUBLIC_BASE_API_URL}/trpc` ??
+    'http://localhost:3000/api/trpc';
+
+const WS_URL = IS_DEV
+  ? 'ws://localhost:3001'
+  : process.env.NEXT_PUBLIC_WEBSOCKET_CLIENT_ADDRESS ?? 'ws://localhost:3000';
 
 const getLoggerLink = () => {
   return loggerLink({

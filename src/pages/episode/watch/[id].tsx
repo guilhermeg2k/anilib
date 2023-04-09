@@ -90,7 +90,7 @@ const Watch = () => {
             <VideoPlayer
               episodeTitle={episode.title}
               videoUrl={`/api/episode/video-stream/${episode.id}`}
-              coverImageBase64={coverImageBase64}
+              coverImageBase64={coverImageBase64 || ''}
               subtitles={subtitles}
               previews={previews}
               onNextEpisode={onNextEpisodeHandler}
