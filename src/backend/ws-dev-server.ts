@@ -9,12 +9,10 @@ const wsServer = new ws.Server({
 
 const handler = applyWSSHandler({ wss: wsServer, router: wsRouter });
 
-console.log('Websocket server started on port 3001');
-
 wsServer.on('connection', (ws) => {
-  console.log(`➕➕ Connection (${wsServer.clients.size})`);
+  console.log(`WSS - New connection (Total = ${wsServer.clients.size})`);
   ws.once('close', () => {
-    console.log(`➖➖ Connection (${wsServer.clients.size})`);
+    console.log(`WSS - Connection closed (Total = ${wsServer.clients.size})`);
   });
 });
 
@@ -23,3 +21,5 @@ process.on('SIGTERM', () => {
   handler.broadcastReconnectNotification();
   wsServer.close();
 });
+
+console.log('WSS - Server started on port 3001');

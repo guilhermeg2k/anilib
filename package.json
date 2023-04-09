@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "run-p dev:*",
     "dev:next": "next dev",
-    "dev:wss": "tsx src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
+    "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
     "build": "run-p build:*",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
