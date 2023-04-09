@@ -9,7 +9,12 @@ interface AnimeCardProps {
 
 const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, coverUrl }) => {
   return (
-    <Link href={`/anime/${id}`}>
+    <Link
+      href={{
+        pathname: '/anime/[id]',
+        query: { id },
+      }}
+    >
       <a className="flex flex-col gap-2 text-center duration-300 hover:scale-110  focus:scale-110 focus:outline-none">
         <div className="overflow-hidden rounded-md hover:border-[3px] hover:border-white">
           <Image

@@ -20,7 +20,14 @@ const EpisodeCard: React.FC<EpisodeCardProps> = ({
     : 'bg-neutral-800 hover:bg-neutral-700';
 
   return (
-    <Link href={`/episode/watch/${episodeId}`}>
+    <Link
+      href={{
+        pathname: '/episode/watch/[id]',
+        query: {
+          id: episodeId,
+        },
+      }}
+    >
       <a
         className={`${className} ${activeClass} flex items-center gap-1   py-2 px-4  duration-200 ease-in-out justify-between`}
       >

@@ -1,10 +1,9 @@
 import { LibraryStatus as LibraryStatusEnum } from '@backend/constants/library-status';
-import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
 import { Flip, Id, ToastPosition, toast } from 'react-toastify';
 import Spinner from './spinner';
 import { trpc } from '@utils/trpc';
 import { useLibraryStatusStore } from 'store/library-status-store';
+import { useRef } from 'react';
 
 const TOAST_POSITION = 'bottom-right' as ToastPosition;
 const TOAST_TRANSITION = Flip;
@@ -26,8 +25,7 @@ const ToastContent = ({
 
 const LibraryStatus = () => {
   const toastId = useRef<Id | null>();
-  const router = useRouter();
-  const { status, setStatus } = useLibraryStatusStore();
+  const { setStatus } = useLibraryStatusStore();
   trpc.ws.library.onUpdate.useSubscription(undefined, {
     onData: (data) => {
       onLibraryUpdateListener(data as LibraryStatusEnum);
@@ -137,12 +135,6 @@ const LibraryStatus = () => {
     setStatus(status);
     showStatusToast(status);
   };
-
-  useEffect(() => {
-    if (status && status === LibraryStatusEnum.Updated) {
-      router.replace(router.asPath);
-    }
-  }, [status]);
 
   return <></>;
 };
