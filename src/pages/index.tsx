@@ -1,11 +1,11 @@
-import AnimeCard from '@components/AnimeCard';
-import AutoAnimate from '@components/AutoAnimate';
-import Navbar from '@components/Navbar';
-import Page from '@components/Page';
+import AnimeCard from '@components/anime-card';
+import AutoAnimate from '@components/auto-animate';
+import Navbar from '@components/navbar';
+import Page from '@components/page';
 import {
   appendTitleSimilarityToTextToAnimes,
   formatTitle,
-} from '@utils/animeUtils';
+} from '@utils/anime-utils';
 import { trpc } from '@utils/trpc';
 import { Anime } from 'backend/database/types';
 import Head from 'next/head';

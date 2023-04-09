@@ -1,4 +1,4 @@
-import LibraryController from 'backend/controllers/libraryController';
+import LibraryController from 'backend/controllers/library-controller';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(

@@ -1,5 +1,5 @@
-import { HttpRouter } from '@backend/trpc/routers/httpRouter';
-import { WsRouter } from '@backend/trpc/routers/wsRouter';
+import { HttpRouter } from '@backend/trpc/routers/http-router';
+import { WsRouter } from '@backend/trpc/routers/ws-router';
 import {
   Operation,
   createWSClient,

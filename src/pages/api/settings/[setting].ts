@@ -1,4 +1,4 @@
-import SettingsController from 'backend/controllers/settingsController';
+import SettingsController from 'backend/controllers/settings-controller';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(

@@ -1,4 +1,4 @@
-import EpisodeController from 'backend/controllers/episodeController';
+import EpisodeController from 'backend/controllers/episode-controller';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(

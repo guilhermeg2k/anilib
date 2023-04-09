@@ -1,4 +1,4 @@
-import SubtitleService from '@backend/service/subtitleService';
+import SubtitleService from '@backend/service/subtitle-service';
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
 

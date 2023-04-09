@@ -1,7 +1,7 @@
-import EpisodeCard from '@components/EpisodeCard';
-import Navbar from '@components/Navbar';
-import Page from '@components/Page';
-import { VideoPlayer } from '@components/VideoPlayer/VideoPlayer';
+import EpisodeCard from '@components/episode-card';
+import Navbar from '@components/navbar';
+import Page from '@components/page';
+import { VideoPlayer } from '@components/video-player/video-player';
 import { trpc } from '@utils/trpc';
 import Head from 'next/head';
 import { useRouter } from 'next/router';

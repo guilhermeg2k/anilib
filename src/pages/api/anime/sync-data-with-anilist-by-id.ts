@@ -1,4 +1,4 @@
-import AnimeController from 'backend/controllers/animeController';
+import AnimeController from 'backend/controllers/anime-controller';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(

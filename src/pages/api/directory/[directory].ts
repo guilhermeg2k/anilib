@@ -1,4 +1,4 @@
-import DirectoryController from 'backend/controllers/directoryController';
+import DirectoryController from 'backend/controllers/directory-controller';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(

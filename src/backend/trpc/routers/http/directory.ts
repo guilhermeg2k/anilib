@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
-import DirectoryService from '@backend/service/directoryService';
+import DirectoryService from '@backend/service/directory-service';
 
 export const directoryRouter = createRouter({
   list: procedure.query(() => {

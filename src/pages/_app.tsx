@@ -1,4 +1,4 @@
-import LibraryStatus from '@components/LibraryStatus';
+import LibraryStatus from '@components/library-status';
 import axiosClient from 'library/axios';
 import type { AppProps } from 'next/app';
 import { useEffect } from 'react';

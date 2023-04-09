@@ -1,4 +1,4 @@
-import SubtitleController from 'backend/controllers/subtitleController';
+import SubtitleController from 'backend/controllers/subtitle-controller';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
