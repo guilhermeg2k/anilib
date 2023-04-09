@@ -4,11 +4,12 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
     "paths": {
-      "@constants/*": ["constants/*"],
+      "@backend/*": ["backend/*"],
       "@components/*": ["components/*"],
-      "@utils/*": ["utils/*"],
-      "@services/*": ["services/*"],
-      "@backend/*": ["backend/*"]
+      "@common/*": ["common/*"],
+      "@hooks/*": ["hooks/*"],
+      "@store/*": ["store/*"],
+      "@styles/*": ["styles/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,

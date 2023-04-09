@@ -1,12 +1,12 @@
 import {
   getFileInBase64,
   getFilesInDirectoryByExtensions,
-} from '@backend/utils/file-utils';
+} from '@common/utils/file-utils';
 import {
   extractJpgImageFromVideo,
   getVideoDurationInSeconds,
-} from '@backend/utils/video-utils';
-import { sortByStringNumbersSum } from '@utils/string-utils';
+} from '@common/utils/video-utils';
+import { sortByStringNumbersSum } from 'common/utils/string-utils';
 import { Episode } from 'backend/database/types';
 import pLimit from 'p-limit';
 import path from 'path';

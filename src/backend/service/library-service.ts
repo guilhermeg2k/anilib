@@ -1,4 +1,4 @@
-import { LibraryStatus } from '@backend/constants/library-status';
+import { LibraryStatus } from '@common/constants/library-status';
 import AnimeService from 'backend/service/anime-service';
 import EpisodeService from 'backend/service/episode-service';
 import SubtitleService from 'backend/service/subtitle-service';

@@ -1,4 +1,4 @@
-import { LibraryStatus } from '@backend/constants/library-status';
+import { LibraryStatus } from '@common/constants/library-status';
 import { Setting } from '@backend/database/types';
 import AutoAnimate from '@components/auto-animate';
 import Backdrop from '@components/backdrop';
@@ -9,8 +9,8 @@ import Label from '@components/label';
 import MaterialIcon from '@components/material-icon';
 import Modal from '@components/modal';
 import TextField from '@components/text-field';
-import { trpc } from '@utils/trpc';
-import { toastError, toastSuccess } from 'library/toastify';
+import { trpc } from 'common/utils/trpc';
+import { toastError, toastSuccess } from '@common/utils/toastify-utils';
 import React, { useState } from 'react';
 import { useLibraryStatusStore } from 'store/library-status-store';
 import PackageJSON from '../../../package.json';

@@ -1,23 +1,23 @@
-import { getNumbersSumFromString } from '@utils/string-utils';
+import { getNumbersSumFromString } from 'common/utils/string-utils';
 import {
   BRACES_CONTENT_REGEX,
   NOT_ALPHANUMERIC_REGEX,
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
-} from '@constants/regex-constants';
+} from '@common/constants/regex-constants';
 import { Anime, Episode } from 'backend/database/types';
 import EpisodeRepository from 'backend/repository/episode-repository';
 import {
   getFileInBase64,
   getFilesInDirectoryByExtensions,
-} from 'backend/utils/file-utils';
+} from '@common/utils/file-utils';
 import {
   convertVideoToMp4,
   extractJpgImageFromVideo,
   isAudioCodecSupported,
   isVideoCodecSupported,
   isVideoContainerSupported,
-} from 'backend/utils/video-utils';
+} from '@common/utils/video-utils';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';

@@ -1,7 +1,7 @@
-import { LibraryStatus as LibraryStatusEnum } from '@backend/constants/library-status';
+import { LibraryStatus as LibraryStatusEnum } from '@common/constants/library-status';
 import { Flip, Id, ToastPosition, toast } from 'react-toastify';
 import Spinner from './spinner';
-import { trpc } from '@utils/trpc';
+import { trpc } from 'common/utils/trpc';
 import { useLibraryStatusStore } from 'store/library-status-store';
 import { useRef } from 'react';
 

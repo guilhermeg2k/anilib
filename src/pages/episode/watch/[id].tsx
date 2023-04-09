@@ -2,7 +2,7 @@ import EpisodeCard from '@components/episode-card';
 import Navbar from '@components/navbar';
 import Page from '@components/page';
 import { VideoPlayer } from '@components/video-player/video-player';
-import { trpc } from '@utils/trpc';
+import { trpc } from 'common/utils/trpc';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 

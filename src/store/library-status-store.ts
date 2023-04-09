@@ -1,4 +1,4 @@
-import { LibraryStatus } from '@backend/constants/library-status';
+import { LibraryStatus } from '@common/constants/library-status';
 import { atom, useAtom } from 'jotai';
 
 const statusAtom = atom<LibraryStatus>(LibraryStatus.Updated);

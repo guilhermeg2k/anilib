@@ -1,6 +1,6 @@
 import database from 'backend/database';
 import { Anime } from 'backend/database/types';
-import { isPathRelativeToDir } from 'backend/utils/file-utils';
+import { isPathRelativeToDir } from '@common/utils/file-utils';
 import { v4 as uuid } from 'uuid';
 import EpisodeRepository from './episode-repository';
 

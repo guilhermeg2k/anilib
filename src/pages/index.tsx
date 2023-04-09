@@ -5,8 +5,8 @@ import Page from '@components/page';
 import {
   appendTitleSimilarityToTextToAnimes,
   formatTitle,
-} from '@utils/anime-utils';
-import { trpc } from '@utils/trpc';
+} from 'common/utils/anime-utils';
+import { trpc } from 'common/utils/trpc';
 import { Anime } from 'backend/database/types';
 import Head from 'next/head';
 import { useMemo, useState } from 'react';

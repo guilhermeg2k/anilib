@@ -1,8 +1,8 @@
-import { SQUARE_BRACKET_CONTENT_REGEX } from '@constants/regex-constants';
-import { getAnimeWithMostSimilarTitleToText } from '@utils/anime-utils';
+import { SQUARE_BRACKET_CONTENT_REGEX } from '@common/constants/regex-constants';
+import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anime-utils';
 import { Anime } from 'backend/database/types';
 import AnimeRepository from 'backend/repository/anime-repository';
-import { createDateByDayMonthAndYear } from 'backend/utils/date-utils';
+import { createDateByDayMonthAndYear } from '@common/utils/date-utils';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';

@@ -1,4 +1,4 @@
-import client from 'backend/library/graphql';
+import client from '@common/utils/graphql-utils';
 import { gql } from 'graphql-request';
 import { AnilistAnime, Page } from './types';
 
