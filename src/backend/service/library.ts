@@ -1,4 +1,3 @@
-import { LibraryStatus } from '@common/constants/library-status';
 import AnimeService from 'backend/service/anime';
 import EpisodeService from 'backend/service/episode';
 import SubtitleService from 'backend/service/subtitle';
@@ -6,19 +5,19 @@ import DirectoryService from './directory';
 import EpisodePreviewService from './episode-preview';
 import SettingsService from './settings';
 import { libraryEventEmitter } from '@backend/trpc/routers/ws/library';
+import { LibraryStatus } from '@common/types/library';
 
 class LibraryService {
-  private static status = LibraryStatus.Updated;
+  private static status: LibraryStatus = 'UPDATED';
 
   static async update() {
     try {
       const startTime = Date.now();
 
-      const libraryIsNotUpdating =
-        LibraryService.status !== LibraryStatus.Updating;
+      const libraryIsNotUpdating = LibraryService.status !== 'UPDATING';
 
       if (libraryIsNotUpdating) {
-        LibraryService.updateStatus(LibraryStatus.Updating);
+        LibraryService.updateStatus('UPDATING');
         if (SettingsService.get('isToDeleteInvalidData')) {
           await DirectoryService.deleteInvalids();
           await AnimeService.deleteInvalids();
@@ -46,13 +45,13 @@ class LibraryService {
           console.log('Converted episodes deleted!');
         }
 
-        this.updateStatus(LibraryStatus.Updated);
+        this.updateStatus('UPDATED');
       }
 
       const endTime = Date.now();
       console.log(`Library update elapsed time: ${endTime - startTime} ms`);
     } catch (error) {
-      this.updateStatus(LibraryStatus.Failed);
+      this.updateStatus('FAILED');
       console.log(error);
     }
   }
@@ -63,7 +62,7 @@ class LibraryService {
 
   static updateStatus(status: LibraryStatus) {
     LibraryService.status = status;
-    libraryEventEmitter.emit('update', status);
+    libraryEventEmitter.emit('UPDATE_STATUS', status);
   }
 }
 
