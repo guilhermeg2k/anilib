@@ -2,14 +2,14 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import MaterialIcon from './material-icon';
 
-interface ModalProps {
+type ModalProps = {
   title?: string;
   className?: string;
   open: boolean;
   disableBackdropClick?: boolean;
   onClose: () => void;
   children: React.ReactNode;
-}
+};
 
 const Modal: React.FC<ModalProps> = ({
   title = '',

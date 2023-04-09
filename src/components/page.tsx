@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-interface PageProps {
+type PageProps = {
   className?: string;
   children: ReactNode;
-}
+};
 
 const Page: React.FC<PageProps> = ({ className = '', children }) => {
   const mergedClassName = twMerge(

@@ -1,6 +1,6 @@
 import { MouseEvent, useRef, useState } from 'react';
 
-interface SliderProps {
+type SliderProps = {
   value?: number;
   maxValue?: number;
   onHover?: (value: number) => void;
@@ -10,7 +10,7 @@ interface SliderProps {
   activeClassName?: string;
   thumbClassName?: string;
   alwaysShowThumb?: boolean;
-}
+};
 
 const Slider = ({
   value = 0,

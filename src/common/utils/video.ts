@@ -12,11 +12,11 @@ const H264_SUPPORTED_PROFILES = ['baseline', 'main', 'high'];
 const AUDIO_SUPPORTED_CODECS = ['aac', 'flac'];
 const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
 
-interface Subtitle {
+type Subtitle = {
   title: string;
   language: string;
   filePath: string;
-}
+};
 
 const getDefaultOutputDir = (filePath: string) => {
   const fileExt = path.extname(filePath);

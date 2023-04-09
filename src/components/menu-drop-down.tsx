@@ -1,12 +1,12 @@
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment, ReactNode } from 'react';
 
-interface MenuDropdownProps {
+type MenuDropdownProps = {
   items: Array<React.ReactNode>;
   buttonClassName?: string;
   menuClassName?: string;
   children: ReactNode;
-}
+};
 
 const MenuDropdown: React.FC<MenuDropdownProps> = ({
   items,

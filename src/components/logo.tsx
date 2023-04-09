@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
-interface LogoProps {
+type LogoProps = {
   className?: string;
-}
+};
 
 const Logo: React.FC<LogoProps> = ({ className = '' }) => {
   return (

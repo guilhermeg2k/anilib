@@ -1,9 +1,9 @@
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import React, { ElementType, HTMLAttributes } from 'react';
 
-interface AutoAnimateProps extends HTMLAttributes<HTMLElement> {
+type AutoAnimateProps = {
   as?: ElementType;
-}
+} & HTMLAttributes<HTMLUListElement>;
 
 const AutoAnimate: React.FC<AutoAnimateProps> = ({
   as: Tag = 'div',

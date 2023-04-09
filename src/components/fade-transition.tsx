@@ -1,10 +1,10 @@
 import { Transition } from '@headlessui/react';
 import { Fragment, ReactNode } from 'react';
 
-interface FadeTransitionProps {
+type FadeTransitionProps = {
   show: boolean;
   children: ReactNode;
-}
+};
 
 const FadeTransition: React.FC<FadeTransitionProps> = ({ show, children }) => {
   return (

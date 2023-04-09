@@ -2,12 +2,12 @@ import Link from 'next/link';
 import { ReactNode } from 'react';
 import MaterialIcon from './material-icon';
 
-interface EpisodeCardProps {
+type EpisodeCardProps = {
   episodeId: string;
   className?: string;
   active?: boolean;
   children: ReactNode;
-}
+};
 
 const EpisodeCard: React.FC<EpisodeCardProps> = ({
   episodeId,

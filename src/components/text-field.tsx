@@ -1,7 +1,7 @@
 import React from 'react';
 import Label from './label';
 
-interface TextFieldProps {
+type TextFieldProps = {
   value: string;
   id: string;
   label?: string;
@@ -9,7 +9,7 @@ interface TextFieldProps {
   className?: string;
   maxLength?: number;
   onChange: (value: string) => void;
-}
+};
 
 const TextField: React.FC<TextFieldProps> = ({
   id,

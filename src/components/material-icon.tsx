@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 
-interface MaterialIconProps {
+type MaterialIconProps = {
   children: ReactNode;
   className?: string;
-}
+};
 
 const MaterialIcon: React.FC<MaterialIconProps> = ({
   className = '',

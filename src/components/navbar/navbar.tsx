@@ -3,11 +3,11 @@ import MaterialIcon from '@components/material-icon';
 import { ReactNode, useState } from 'react';
 import SettingsModal from './settings-modal';
 
-interface NavbarButtonProps {
+type NavbarButtonProps = {
   onClick: () => void;
   className?: string;
   children: ReactNode;
-}
+};
 
 const NavbarButton: React.FC<NavbarButtonProps> = ({
   onClick,

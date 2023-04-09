@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
 
-interface CheckBoxProps {
+type CheckBoxProps = {
   id?: string;
   value: boolean;
   className?: string;
   children: ReactNode;
   onChange: (value: boolean) => void;
-}
+};
 
 const CheckBox: React.FC<CheckBoxProps> = ({
   id,

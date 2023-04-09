@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 
-interface LabelProps {
+type LabelProps = {
   children: ReactNode;
   htmlFor?: string;
-}
+};
 
 const Label: React.FC<LabelProps> = ({ children, htmlFor }) => {
   return (

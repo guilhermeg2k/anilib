@@ -1,8 +1,8 @@
 import Spinner from './spinner';
 
-interface BackdropProps {
+type BackdropProps = {
   open: boolean;
-}
+};
 
 const Backdrop: React.FC<BackdropProps> = ({ open }) => {
   if (!open) {

@@ -1,6 +1,6 @@
-interface SpinnerProps {
+type SpinnerProps = {
   className?: string;
-}
+};
 
 const Spinner: React.FC<SpinnerProps> = ({ className = '' }) => {
   return (

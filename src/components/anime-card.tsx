@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-interface AnimeCardProps {
+type AnimeCardProps = {
   id: string;
   name: string;
   coverUrl: string;
-}
+};
 
 const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, coverUrl }) => {
   return (

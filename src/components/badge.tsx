@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 
-interface BadgeProps {
+type BadgeProps = {
   className?: string;
   children: ReactNode;
-}
+};
 
 const Badge: React.FC<BadgeProps> = ({ children, className = '' }) => {
   return (

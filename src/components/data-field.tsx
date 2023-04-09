@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 
-interface DataDisplayProps {
+type DataDisplayProps = {
   className?: string;
   children: ReactNode;
-}
+};
 
 const DataDisplay: React.FC<DataDisplayProps> = ({
   children,

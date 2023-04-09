@@ -1,13 +1,13 @@
 import { ReactNode } from 'react';
 
-interface ButtonProps {
+type ButtonProps = {
   size?: 'small' | 'normal' | 'large';
   className?: string;
   color?: 'red' | 'green' | 'white';
   disabled?: boolean;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   children: ReactNode;
-}
+};
 
 const Button: React.FC<ButtonProps> = ({
   children,

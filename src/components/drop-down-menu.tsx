@@ -1,11 +1,11 @@
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 
-interface DropDownMenuProps {
+type DropDownMenuProps = {
   items: Array<React.ReactNode>;
   className?: string;
   children: React.ReactNode;
-}
+};
 
 const DropDownMenu = ({
   items,
