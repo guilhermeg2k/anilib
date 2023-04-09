@@ -161,7 +161,7 @@ export const VideoPlayer = ({
             <track
               id={subtitle.id}
               key={subtitle.id}
-              src={`/api/subtitle/vtt-file/${subtitle.id}`}
+              src={`/api/subtitle-vtt-file/${subtitle.id}`}
               srcLang={subtitle.language}
               label={subtitle.label}
               kind="subtitles"

@@ -89,7 +89,7 @@ const Watch = () => {
           <section className="w-full">
             <VideoPlayer
               episodeTitle={episode.title}
-              videoUrl={`/api/episode/video-stream/${episode.id}`}
+              videoUrl={`/api/episode-video-stream/${episode.id}`}
               coverImageBase64={coverImageBase64 || ''}
               subtitles={subtitles}
               previews={previews}
