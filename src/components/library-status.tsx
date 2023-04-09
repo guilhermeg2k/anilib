@@ -1,9 +1,9 @@
-import { LibraryStatus as LibraryStatusEnum } from '@common/constants/library-status';
 import { Flip, Id, ToastPosition, toast } from 'react-toastify';
 import Spinner from './spinner';
 import { trpc } from 'common/utils/trpc';
 import { useLibraryStatusStore } from 'store/library-status';
 import { useRef } from 'react';
+import { LibraryStatus } from '@common/types/library';
 
 const TOAST_POSITION = 'bottom-right' as ToastPosition;
 const TOAST_TRANSITION = Flip;
@@ -28,16 +28,13 @@ const LibraryStatus = () => {
   const { setStatus } = useLibraryStatusStore();
   trpc.ws.library.onUpdate.useSubscription(undefined, {
     onData: (data) => {
-      onLibraryUpdateListener(data as LibraryStatusEnum);
+      onLibraryUpdateListener(data);
     },
   });
 
   trpc.ws.library.getStatus.useQuery(undefined, {
     onSuccess: (status) => {
-      if (
-        status === LibraryStatusEnum.Updating ||
-        status === LibraryStatusEnum.Failed
-      ) {
+      if (status === 'UPDATING' || status === 'FAILED') {
         onLibraryUpdateListener(status);
       }
     },
@@ -117,21 +114,21 @@ const LibraryStatus = () => {
     }
   };
 
-  const showStatusToast = (status: LibraryStatusEnum) => {
+  const showStatusToast = (status: LibraryStatus) => {
     switch (status) {
-      case LibraryStatusEnum.Updating:
+      case 'UPDATING':
         showUpdatingToast();
         break;
-      case LibraryStatusEnum.Updated:
+      case 'UPDATED':
         showUpdatedToast();
         break;
-      case LibraryStatusEnum.Failed:
+      case 'FAILED':
         showFailedToast();
         break;
     }
   };
 
-  const onLibraryUpdateListener = (status: LibraryStatusEnum) => {
+  const onLibraryUpdateListener = (status: LibraryStatus) => {
     setStatus(status);
     showStatusToast(status);
   };

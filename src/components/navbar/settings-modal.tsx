@@ -1,4 +1,3 @@
-import { LibraryStatus } from '@common/constants/library-status';
 import { Setting } from '@common/types/database';
 import AutoAnimate from '@components/auto-animate';
 import Backdrop from '@components/backdrop';
@@ -101,7 +100,7 @@ const SettingsModal = ({
 
   const { mutate: updateLibrary } = trpc.ws.library.update.useMutation();
 
-  const isLibraryUpdating = status === LibraryStatus.Updating;
+  const isLibraryUpdating = status === 'UPDATING';
 
   const isLoading =
     isLoadingSettings ||

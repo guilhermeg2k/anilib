@@ -2,7 +2,11 @@ import LibraryService from '@backend/service/library';
 import { createRouter, procedure } from '../../trpc';
 import { observable } from '@trpc/server/observable';
 import { TypedEventEmitter } from '@common/utils/typed-event-emitter';
-import { LibraryEvent } from '@common/types/library';
+import { LibraryStatus } from '@common/types/library';
+
+type LibraryEvent = {
+  UPDATE_STATUS: [status: LibraryStatus];
+};
 
 export const libraryEventEmitter = new TypedEventEmitter<LibraryEvent>();
 
@@ -16,8 +20,8 @@ export const libraryRouter = createRouter({
   }),
 
   onUpdate: procedure.subscription(() => {
-    return observable((emit) => {
-      const onUpdate = (status: string) => {
+    return observable<LibraryStatus>((emit) => {
+      const onUpdate = (status: LibraryStatus) => {
         emit.next(status);
       };
 
