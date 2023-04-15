@@ -47,8 +47,17 @@ const sortAndFilterAnimes = (animes: Anime[], searchText: string) => {
 const Home = () => {
   const [searchText, setSearchText] = useState('');
 
-  const { data: animes, isLoading: isLoadingAnimes } =
-    trpc.anime.list.useQuery();
+  const {
+    data: animes,
+    isLoading: isLoadingAnimes,
+    refetch: refetchAnimes,
+  } = trpc.anime.list.useQuery();
+
+  trpc.ws.library.onUpdate.useSubscription(undefined, {
+    onData: () => {
+      refetchAnimes();
+    },
+  });
 
   const isLibraryEmpty = animes?.length === 0;
 

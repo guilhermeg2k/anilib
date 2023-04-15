@@ -15,6 +15,7 @@ import { useLibraryStatusStore } from 'store/library-status';
 import PackageJSON from '../../../package.json';
 
 const VERSION = `Version ${PackageJSON.version} (${PackageJSON.versionName})`;
+
 const SETTINGS_TO_LOAD: Readonly<Setting[]> = [
   'isToDeleteConvertedData',
   'isToDeleteInvalidData',

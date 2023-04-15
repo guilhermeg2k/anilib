@@ -30,6 +30,7 @@ class LibraryService {
         console.log('Animes updated!');
 
         const animes = AnimeService.list();
+
         await EpisodeService.createFromAnimes(animes);
         console.log('Episodes updated!');
 
