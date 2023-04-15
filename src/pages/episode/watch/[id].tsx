@@ -1,9 +1,9 @@
+import { toastError } from '@common/utils/toastify';
 import EpisodeCard from '@components/episode-card';
-import Navbar from '@components/navbar';
 import Page from '@components/page';
+import Spinner from '@components/spinner';
 import { VideoPlayer } from '@components/video-player/video-player';
 import { trpc } from 'common/utils/trpc';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 
 const Watch = () => {
@@ -55,7 +55,13 @@ const Watch = () => {
     isLoadingPreviews ||
     isEpisodesLoading
   ) {
-    return <div>Loading...</div>;
+    return (
+      <Page>
+        <main className="h-full w-full flex items-center justify-center">
+          <Spinner />
+        </main>
+      </Page>
+    );
   }
 
   if (
@@ -65,7 +71,9 @@ const Watch = () => {
     hasEpisodesLoadingFailed ||
     hasPreviewsLoadingFailed
   ) {
-    return <div>Failed to load episode</div>;
+    router.push('/');
+    toastError('Failed to load episode');
+    return null;
   }
 
   const onNextEpisodeHandler = () => {
@@ -79,43 +87,37 @@ const Watch = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>{episode.title}</title>
-      </Head>
-      <Navbar />
-      <Page>
-        <main className="flex flex-col gap-2 2xl:flex-row 2xl:gap-4">
-          <section className="w-full">
-            <VideoPlayer
-              episodeTitle={episode.title}
-              videoUrl={`/api/episode-video-stream/${episode.id}`}
-              coverImageBase64={coverImageBase64 || ''}
-              subtitles={subtitles}
-              previews={previews}
-              onNextEpisode={onNextEpisodeHandler}
-            />
-          </section>
-          <aside className="flex flex-col gap-2 2xl:w-[40%]">
-            <h1 className="text-lg font-bold uppercase text-rose-700">
-              Episodes
-            </h1>
-            <div className="flex flex-col gap-2">
-              {episodes.map((episodeItem) => (
-                <EpisodeCard
-                  className={`w-full`}
-                  key={episodeItem.id}
-                  episodeId={episodeItem.id!}
-                  active={episode.id === episodeItem.id}
-                >
-                  {episodeItem.title}
-                </EpisodeCard>
-              ))}
-            </div>
-          </aside>
-        </main>
-      </Page>
-    </>
+    <Page title={episode.title}>
+      <main className="flex flex-col gap-2 2xl:flex-row 2xl:gap-4">
+        <section className="w-full">
+          <VideoPlayer
+            episodeTitle={episode.title}
+            videoUrl={`/api/episode-video-stream/${episode.id}`}
+            coverImageBase64={coverImageBase64 || ''}
+            subtitles={subtitles}
+            previews={previews}
+            onNextEpisode={onNextEpisodeHandler}
+          />
+        </section>
+        <aside className="flex flex-col gap-2 2xl:w-[40%]">
+          <h1 className="text-lg font-bold uppercase text-rose-700">
+            Episodes
+          </h1>
+          <div className="flex flex-col gap-2">
+            {episodes.map((episodeItem) => (
+              <EpisodeCard
+                className={`w-full`}
+                key={episodeItem.id}
+                episodeId={episodeItem.id!}
+                active={episode.id === episodeItem.id}
+              >
+                {episodeItem.title}
+              </EpisodeCard>
+            ))}
+          </div>
+        </aside>
+      </main>
+    </Page>
   );
 };
 
