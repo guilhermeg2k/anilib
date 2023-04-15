@@ -78,7 +78,3 @@ export const trpc = createTRPCNext<HttpRouter & WsRouter>({
   },
   ssr: false,
 });
-
-// import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
-// export type RouterInputs = inferRouterInputs<AppRouter>;
-// export type RouterOutputs = inferRouterOutputs<AppRouter>;

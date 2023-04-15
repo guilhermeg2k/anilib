@@ -1,35 +1,21 @@
+import { toastError, toastPromise } from '@common/utils/toastify';
 import Badge from '@components/badge';
 import DropDownMenu from '@components/drop-down-menu';
 import EpisodeCard from '@components/episode-card';
 import MaterialIcon from '@components/material-icon';
 import Navbar from '@components/navbar';
 import Page from '@components/page';
+import Spinner from '@components/spinner';
 import { Menu } from '@headlessui/react';
 import { formatTitle } from 'common/utils/anime';
 import { removeHTMLTags } from 'common/utils/string';
 import { trpc } from 'common/utils/trpc';
 import { format } from 'date-fns';
-import { toastPromise } from '@common/utils/toastify';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-
-const getCategoryColorClass = (colorSeed: number) => {
-  const colorIndex = (colorSeed + 1) % 4;
-  switch (colorIndex) {
-    case 0:
-      return 'bg-purple-500';
-    case 1:
-      return 'bg-amber-500';
-    case 2:
-      return 'bg-lime-500';
-    case 3:
-      return 'bg-blue-500';
-
-    default:
-      return '';
-  }
-};
+import { useRouter } from 'next/router';
+import { ReactNode } from 'react';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? String(params?.id) : '';
@@ -62,12 +48,22 @@ const Anime = ({ id }: { id: string }) => {
   const syncDataWithAnilistMutation =
     trpc.anime.syncDataWithAnilistById.useMutation();
 
+  const router = useRouter();
+
   if (isLoadingAnime || isLoadingEpisodes) {
-    return <Page>Loading</Page>;
+    return (
+      <PageLayout title="Loading">
+        <div className="h-full flex items-center justify-center">
+          <Spinner />
+        </div>
+      </PageLayout>
+    );
   }
 
   if (animeLoadError || episodesLoadError) {
-    return <Page>Failed to load data</Page>;
+    toastError('Failed to load anime');
+    router.push('/');
+    return null;
   }
 
   const syncDataWithAnilist = async () => {
@@ -87,7 +83,7 @@ const Anime = ({ id }: { id: string }) => {
   const imageCover = (
     <Image
       src={String(anime.coverUrl)}
-      alt={`${anime.title.native} Cover Image`}
+      alt={`${anime?.title.native} Cover Image`}
       layout="intrinsic"
       width={415}
       height={588}
@@ -183,6 +179,41 @@ const Anime = ({ id }: { id: string }) => {
       </Page>
     </>
   );
+};
+
+const PageLayout = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) => {
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+      </Head>
+      <Navbar />
+      <Page>{children}</Page>
+    </>
+  );
+};
+
+const getCategoryColorClass = (colorSeed: number) => {
+  const colorIndex = (colorSeed + 1) % 4;
+  switch (colorIndex) {
+    case 0:
+      return 'bg-purple-500';
+    case 1:
+      return 'bg-amber-500';
+    case 2:
+      return 'bg-lime-500';
+    case 3:
+      return 'bg-blue-500';
+
+    default:
+      return '';
+  }
 };
 
 export default Anime;
