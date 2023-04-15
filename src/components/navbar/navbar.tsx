@@ -33,7 +33,7 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-20 opacity-95 w-full">
-      <div className="h-[70px] md:h-[90px] bg-neutral-800 w-full flex items-center justify-between  px-4 md:px-36 lg:px-52">
+      <div className="h-[70px] md:h-[75px] bg-neutral-800 w-full flex items-center justify-between  px-4 md:px-36 lg:px-52">
         <Logo className="text-[35px] md:text-[47px]" />
         <div className="flex items-center gap-4">
           <NavbarButton onClick={onSettingsModalToggleHandler}>
