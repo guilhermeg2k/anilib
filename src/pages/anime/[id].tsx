@@ -3,7 +3,6 @@ import Badge from '@components/badge';
 import DropDownMenu from '@components/drop-down-menu';
 import EpisodeCard from '@components/episode-card';
 import MaterialIcon from '@components/material-icon';
-import Navbar from '@components/navbar';
 import Page from '@components/page';
 import Spinner from '@components/spinner';
 import { Menu } from '@headlessui/react';
@@ -12,10 +11,8 @@ import { removeHTMLTags } from 'common/utils/string';
 import { trpc } from 'common/utils/trpc';
 import { format } from 'date-fns';
 import { GetServerSideProps } from 'next';
-import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ReactNode } from 'react';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? String(params?.id) : '';
@@ -52,11 +49,11 @@ const Anime = ({ id }: { id: string }) => {
 
   if (isLoadingAnime || isLoadingEpisodes) {
     return (
-      <PageLayout title="Loading">
+      <Page title="Loading">
         <div className="h-full flex items-center justify-center">
           <Spinner />
         </div>
-      </PageLayout>
+      </Page>
     );
   }
 
@@ -96,106 +93,82 @@ const Anime = ({ id }: { id: string }) => {
   };
 
   return (
-    <>
-      <Head>
-        <title>{formatTitle(anime.title)}</title>
-      </Head>
-      <Navbar />
-      <Page>
-        <main className="flex flex-col items-center lg:items-start">
-          <section className="flex w-full flex-col items-center lg:flex-row lg:items-start lg:justify-center lg:gap-8">
-            <div>
-              <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
+    <Page title={formatTitle(anime.title)}>
+      <main className="flex flex-col items-center lg:items-start">
+        <section className="flex w-full flex-col items-center lg:flex-row lg:items-start lg:justify-center lg:gap-8">
+          <div>
+            <figure className="hidden lg:block lg:w-[315px] xl:w-[415px]">
+              {imageCover}
+            </figure>
+          </div>
+          <div className="flex flex-col gap-4 lg:w-full">
+            <header className="flex flex-col items-center gap-2  lg:items-start lg:gap-0">
+              <div className="flex items-center justify-between gap-2 md:w-full ">
+                <h1 className="text-2xl font-bold text-rose-700 lg:text-4xl">
+                  {formatTitle(anime.title)}
+                </h1>
+                <DropDownMenu
+                  items={[
+                    <Menu.Item
+                      as="button"
+                      key="sync_data_from_anilist"
+                      className="flex items-center justify-between p-1 px-2 uppercase text-white hover:bg-neutral-700"
+                      onClick={() => syncDataWithAnilist()}
+                    >
+                      Sync data from anilist
+                      <MaterialIcon className="md-18">sync</MaterialIcon>
+                    </Menu.Item>,
+                  ]}
+                  className="flex  justify-center"
+                >
+                  <MaterialIcon>more_vert</MaterialIcon>
+                </DropDownMenu>
+              </div>
+              <figure className="w-[130px] md:w-[170px] lg:hidden">
                 {imageCover}
               </figure>
-            </div>
-            <div className="flex flex-col gap-4 lg:w-full">
-              <header className="flex flex-col items-center gap-2  lg:items-start lg:gap-0">
-                <div className="flex items-center justify-between gap-2 md:w-full ">
-                  <h1 className="text-2xl font-bold text-rose-700 lg:text-4xl">
-                    {formatTitle(anime.title)}
-                  </h1>
-                  <DropDownMenu
-                    items={[
-                      <Menu.Item
-                        as="button"
-                        key="sync_data_from_anilist"
-                        className="flex items-center justify-between p-1 px-2 uppercase text-white hover:bg-neutral-700"
-                        onClick={() => syncDataWithAnilist()}
-                      >
-                        Sync data from anilist
-                        <MaterialIcon className="md-18">sync</MaterialIcon>
-                      </Menu.Item>,
-                    ]}
-                    className="flex  justify-center"
+              <div className="mt-4 flex flex-wrap gap-3">
+                {anime.genres.map((genre, index) => (
+                  <Badge
+                    key={genre}
+                    className={`${getCategoryColorClass(index)}`}
                   >
-                    <MaterialIcon>more_vert</MaterialIcon>
-                  </DropDownMenu>
-                </div>
-                <figure className="w-[130px] md:w-[170px] lg:hidden">
-                  {imageCover}
-                </figure>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {anime.genres.map((genre, index) => (
-                    <Badge
-                      key={genre}
-                      className={`${getCategoryColorClass(index)}`}
-                    >
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
-              </header>
-              <div className="flex flex-col gap-1">
-                <span className="font-bold uppercase">
-                  {`${anime.format}`}
-                  {anime.episodes && ` - ${anime.episodes} Episodes`}
-                </span>
-                <span className="text-sm font-semibold capitalize">{`${releaseDate.month} ${releaseDate.year} - ${anime.status} `}</span>
+                    {genre}
+                  </Badge>
+                ))}
               </div>
-              <p className="text-sm lg:text-base">
-                {removeHTMLTags(anime.description)}
-              </p>
+            </header>
+            <div className="flex flex-col gap-1">
+              <span className="font-bold uppercase">
+                {`${anime.format}`}
+                {anime.episodes && ` - ${anime.episodes} Episodes`}
+              </span>
+              <span className="text-sm font-semibold capitalize">{`${releaseDate.month} ${releaseDate.year} - ${anime.status} `}</span>
+            </div>
+            <p className="text-sm lg:text-base">
+              {removeHTMLTags(anime.description)}
+            </p>
 
-              <div className="flex flex-col gap-2 lg:max-h-[400px]">
-                <h2 className="text-lg font-bold text-rose-700">
-                  Available Episodes
-                </h2>
-                <div className="flex max-h-max flex-col gap-2 overflow-auto pr-2">
-                  {episodes.map((episode) => (
-                    <EpisodeCard
-                      className="w-full"
-                      key={episode.id}
-                      episodeId={episode.id!}
-                    >
-                      {episode.title}
-                    </EpisodeCard>
-                  ))}
-                </div>
+            <div className="flex flex-col gap-2 lg:max-h-[400px]">
+              <h2 className="text-lg font-bold text-rose-700">
+                Available Episodes
+              </h2>
+              <div className="flex max-h-max flex-col gap-2 overflow-auto pr-2">
+                {episodes.map((episode) => (
+                  <EpisodeCard
+                    className="w-full"
+                    key={episode.id}
+                    episodeId={episode.id!}
+                  >
+                    {episode.title}
+                  </EpisodeCard>
+                ))}
               </div>
             </div>
-          </section>
-        </main>
-      </Page>
-    </>
-  );
-};
-
-const PageLayout = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) => {
-  return (
-    <>
-      <Head>
-        <title>{title}</title>
-      </Head>
-      <Navbar />
-      <Page>{children}</Page>
-    </>
+          </div>
+        </section>
+      </main>
+    </Page>
   );
 };
 
