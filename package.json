@@ -4,16 +4,16 @@
   "versionName": "Tokoyami-dev",
   "private": true,
   "scripts": {
-    "dev": "run-p dev:*",
-    "dev:next": "migrate-dev && next dev",
+    "dev": "run-s prisma-migrate-dev && run-p dev:*",
+    "dev:next": "next dev",
     "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
-    "migrate-dev": "prisma migrate dev --name init",
-    "studio": "prisma studio",
+    "prisma-migrate-dev": "prisma migrate dev --name init",
     "build": "run-p build:*",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
     "start": "NODE_ENV=production PORT=3000 node ./build/backend/custom-next-server.js",
-    "lint": "next lint --dir ."
+    "lint": "next lint --dir .",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@formkit/auto-animate": "^1.0.0-beta.1",
