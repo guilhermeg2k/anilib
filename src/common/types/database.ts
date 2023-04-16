@@ -1,8 +1,17 @@
+import { Prisma } from '@prisma/client';
+
+export type AnimeCreateInput = Prisma.AnimeCreateInput;
+export type SeasonCreteInput = Prisma.SeasonCreateInput;
+export type GenreCreateInput = Prisma.GenreCreateInput;
+export type StudioCreateInput = Prisma.StudioCreateInput;
+export type AnimeTitleCreateInput = Prisma.AnimeTitleCreateWithoutAnimeInput;
+
 export type Title = {
   romaji: string;
   english: string;
   native: string;
 };
+
 export type Anime = {
   id?: string;
   anilistId: number;

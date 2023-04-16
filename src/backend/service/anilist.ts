@@ -1,6 +1,44 @@
 import client from '@common/utils/graphql';
 import { gql } from 'graphql-request';
-import { AnilistAnime, Page } from './types';
+import { AnilistAnime, Page } from '../../common/types/anilist';
+
+const ANIME_QUERY = `id
+          title {
+            romaji
+            english
+            native
+          }
+          bannerImage
+          coverImage {
+            extraLarge
+          }
+          siteUrl
+          description
+          episodes
+          startDate {
+            year
+            month
+            day
+          }
+          status
+          genres
+          format
+          meanScore
+          averageScore
+          season
+          seasonYear
+          studios {
+            nodes {
+              id
+              name
+              siteUrl
+            }
+          }
+          trailer {
+            id
+            site
+            thumbnail
+          }`;
 
 class AnilistService {
   static async getAnimesBySearch(searchText: string) {
@@ -14,33 +52,12 @@ class AnilistService {
           hasNextPage
           perPage
         }
-        media(search: "${searchText}", type: ANIME) {
-          id
-          title {
-            romaji
-            english
-            native
-          }
-          bannerImage
-          coverImage {
-            extraLarge
-          }
-          description
-          episodes
-          startDate {
-            year
-            month
-            day
-          }
-          status
-          genres
-          format
-        }
+        media(search: "${searchText}", type: ANIME) {${ANIME_QUERY}}
       }
     }`;
     const queryResult = await client.request(query);
     if (queryResult.Page && queryResult.Page.media) {
-      const queryPage = queryResult.Page as Page;
+      const queryPage = queryResult.Page as Page<AnilistAnime>;
       return queryPage.media;
     }
     return [];
@@ -48,28 +65,7 @@ class AnilistService {
 
   static async getAnimeById(id: number) {
     const query = gql`{
-      Media(id: ${id}) {
-        id
-          title {
-            romaji
-            english
-            native
-          }
-          bannerImage
-          coverImage {
-            extraLarge
-          }
-          description
-          episodes
-          startDate {
-            year
-            month
-            day
-          }
-          status
-          genres
-          format
-        }
+      Media(id: ${id}) {${ANIME_QUERY}}
     }`;
 
     const queryResult = await client.request(query);
