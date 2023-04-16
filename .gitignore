@@ -40,3 +40,8 @@ data.json
 
 #pnpm
 pnpm-lock.yaml
+
+#DB Prisma
+data/*
+src/backend/database/migrations/*
+

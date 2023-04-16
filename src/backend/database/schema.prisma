@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../../../data/database.db"
+}
+
+model Anime {
+  id                 String        @id @default(uuid())
+  anilist_id         Int
+  anilist_url        String
+  titles             AnimeTitle[]
+  genrers            AnimeGenrer[]
+  studios            Studio[]
+  banner_image_path  String
+  cover_image_path   String
+  description        String
+  number_of_episodes Int
+  release_date       DateTime
+  status             String
+  format             String
+  folder_path        String
+  mean_score         Int
+  average_score      Int
+  season             String
+  Episodes           Episode[]
+
+  @@map("animes")
+}
+
+model AnimeTitle {
+  id       Int    @id @default(autoincrement())
+  name     String
+  type     String
+  anime    Anime  @relation(fields: [anime_id], references: [id])
+  anime_id String @unique
+}
+
+model AnimeGenrer {
+  id       Int    @id @default(autoincrement())
+  name     String
+  anime    Anime  @relation(fields: [anime_id], references: [id])
+  anime_id String @unique
+}
+
+model Studio {
+  id       Int    @id
+  name     String
+  site_url String
+  anime    Anime  @relation(fields: [anime_id], references: [id])
+  anime_id String @unique
+}
+
+model Episode {
+  id                 String     @id @default(uuid())
+  title              String
+  file_path          String
+  original_file_path String
+  cover_image_path   String
+  was_convert        Boolean
+  anime              Anime      @relation(fields: [anime_id], references: [id])
+  anime_id           String
+  subtitles          Subtitle[]
+}
+
+model Subtitle {
+  id         String  @id @default(uuid())
+  file_path  String
+  language   String
+  label      String
+  episode    Episode @relation(fields: [episode_id], references: [id])
+  episode_id String
+}

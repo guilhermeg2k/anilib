@@ -5,8 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "run-p dev:*",
-    "dev:next": "next dev",
+    "dev:next": "migrate-dev && next dev",
     "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
+    "migrate-dev": "prisma migrate dev --name init",
+    "studio": "prisma studio",
     "build": "run-p build:*",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
@@ -16,6 +18,7 @@
   "dependencies": {
     "@formkit/auto-animate": "^1.0.0-beta.1",
     "@headlessui/react": "^1.6.6",
+    "@prisma/client": "^4.12.0",
     "@tanstack/react-query": "^4.28.0",
     "@trpc/client": "^10.18.0",
     "@trpc/next": "^10.18.0",
@@ -29,7 +32,7 @@
     "graphql-request": "^4.3.0",
     "html-react-parser": "^3.0.12",
     "jotai": "^2.0.3",
-    "next": "12.2.0",
+    "next": "^12.2.0",
     "p-limit": "^3.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -59,10 +62,14 @@
     "postcss": "^8.4.14",
     "prettier": "^2.7.1",
     "prettier-plugin-tailwindcss": "^0.1.13",
+    "prisma": "^4.12.0",
     "tailwind-merge": "^1.5.1",
     "tailwindcss": "^3.1.4",
     "tsc-alias": "^1.8.5",
     "tsx": "^3.12.6",
     "typescript": "^4.8.4"
+  },
+  "prisma": {
+    "schema": "src/backend/database/schema.prisma"
   }
 }
