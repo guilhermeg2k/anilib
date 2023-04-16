@@ -11,68 +11,81 @@ datasource db {
 }
 
 model Anime {
-  id                 String        @id @default(uuid())
-  anilist_id         Int
-  anilist_url        String
-  titles             AnimeTitle[]
-  genrers            AnimeGenrer[]
-  studios            Studio[]
-  banner_image_path  String
-  cover_image_path   String
-  description        String
-  number_of_episodes Int
-  release_date       DateTime
-  status             String
-  format             String
-  folder_path        String
-  mean_score         Int
-  average_score      Int
-  season             String
-  Episodes           Episode[]
-
-  @@map("animes")
+  id               String       @id @default(uuid())
+  anilistID        Int
+  anilistURL       String
+  titles           AnimeTitle[]
+  genres           Genre[]
+  bannerImagePath  String
+  coverImagePath   String
+  description      String
+  numberOfEpisodes Int
+  releaseDate      DateTime
+  status           String
+  format           String
+  folderPath       String       @unique
+  meanScore        Int
+  averageScore     Int
+  Episodes         Episode[]
+  season           Season?      @relation(fields: [seasonName, seasonYear], references: [name, year])
+  seasonName       String?
+  seasonYear       Int?
+  studios          Studio[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 }
 
 model AnimeTitle {
-  id       Int    @id @default(autoincrement())
-  name     String
-  type     String
-  anime    Anime  @relation(fields: [anime_id], references: [id])
-  anime_id String @unique
+  id      Int    @id @default(autoincrement())
+  name    String
+  type    String
+  anime   Anime  @relation(fields: [animeID], references: [id])
+  animeID String
 }
 
-model AnimeGenrer {
-  id       Int    @id @default(autoincrement())
-  name     String
-  anime    Anime  @relation(fields: [anime_id], references: [id])
-  anime_id String @unique
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  animes Anime[]
 }
 
 model Studio {
-  id       Int    @id
-  name     String
-  site_url String
-  anime    Anime  @relation(fields: [anime_id], references: [id])
-  anime_id String @unique
+  id         Int     @id @default(autoincrement())
+  anilistID  Int     @unique
+  anilistURL String
+  name       String
+  animes     Anime[]
+}
+
+model Season {
+  name  String
+  year  Int
+  Anime Anime[]
+
+  @@id([name, year])
 }
 
 model Episode {
-  id                 String     @id @default(uuid())
-  title              String
-  file_path          String
-  original_file_path String
-  cover_image_path   String
-  was_convert        Boolean
-  anime              Anime      @relation(fields: [anime_id], references: [id])
-  anime_id           String
-  subtitles          Subtitle[]
+  id               String     @id @default(uuid())
+  title            String
+  filePath         String
+  originalFilePath String
+  coverImagePath   String
+  wasConverted     Boolean
+  anime            Anime      @relation(fields: [animeID], references: [id])
+  animeID          String
+  subtitles        Subtitle[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 }
 
 model Subtitle {
-  id         String  @id @default(uuid())
-  file_path  String
-  language   String
-  label      String
-  episode    Episode @relation(fields: [episode_id], references: [id])
-  episode_id String
+  id        String   @id @default(uuid())
+  filePath  String
+  language  String
+  label     String
+  episode   Episode  @relation(fields: [episodeID], references: [id])
+  episodeID String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

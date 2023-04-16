@@ -4,10 +4,11 @@
   "versionName": "Tokoyami-dev",
   "private": true,
   "scripts": {
-    "dev": "run-s prisma-migrate-dev && run-p dev:*",
+    "dev": "run-p dev:*",
     "dev:next": "next dev",
     "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
-    "prisma-migrate-dev": "prisma migrate dev --name init",
+    "prisma-migrate-dev": "prisma migrate dev --name init && prisma generate",
+    "restart-db": "rm -rf ./data/",
     "build": "run-p build:*",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
