@@ -1,13 +1,6 @@
 import { prisma } from '@backend/database/prisma';
-import {
-  AnimeCreateInput,
-  AnimeTitleCreateInput,
-  GenreCreateInput,
-  SeasonCreteInput,
-  StudioCreateInput,
-} from '@common/types/database';
 import { isPathRelativeToDir } from '@common/utils/file';
-import { Anime } from '@prisma/client';
+import { Anime, Prisma } from '@prisma/client';
 import EpisodeRepository from './episode';
 
 class AnimeRepository {
@@ -44,18 +37,44 @@ class AnimeRepository {
     });
   }
 
-  static async create(
-    anime: AnimeCreateInput,
-    titles: AnimeTitleCreateInput[],
-    studios: StudioCreateInput[],
-    genres: GenreCreateInput[],
-    season: SeasonCreteInput
-  ) {
+  static async create({
+    anime,
+    titles,
+    format,
+    status,
+    season,
+    genres,
+    studios,
+  }: {
+    anime: Omit<Prisma.AnimeCreateInput, 'format' | 'status' | 'season'>;
+    titles: Prisma.AnimeTitleCreateInput[];
+    format: Prisma.AnimeFormatCreateInput;
+    status: Prisma.AnimeStatusCreateInput;
+    season: Prisma.SeasonCreateInput;
+    genres: Prisma.GenreCreateInput[];
+    studios: Prisma.StudioCreateInput[];
+  }) {
     return await prisma.anime.create({
       data: {
         ...anime,
         titles: {
           create: titles,
+        },
+        format: {
+          connectOrCreate: {
+            where: {
+              name: format.name,
+            },
+            create: format,
+          },
+        },
+        status: {
+          connectOrCreate: {
+            where: {
+              name: status.name,
+            },
+            create: status,
+          },
         },
         season: {
           connectOrCreate: {

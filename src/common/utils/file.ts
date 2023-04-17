@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-
 const fsPromises = fs.promises;
+const { pipeline } = require('stream/promises');
 
 export const getFilesInDirectoryByExtensions = async (
   folder: string,
@@ -65,4 +65,21 @@ export const getFolderVttFilesByFileNamePrefix = async (
 export const isPathRelativeToDir = (dir: string, relativePath: string) => {
   const relative = path.relative(dir, relativePath);
   return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+};
+
+export const downloadFile = async (imageURL: string, destFilePath: string) => {
+  const response = await fetch(imageURL);
+  if (!response.ok) {
+    throw new Error('DOWNLOAD_FILE_ERROR', {
+      cause: {
+        requestError: {
+          status: response.status,
+          statusText: response.statusText,
+        },
+      },
+    });
+  }
+  const fileStream = fs.createWriteStream(destFilePath);
+  await pipeline(response.body, fileStream);
+  fileStream.close();
 };

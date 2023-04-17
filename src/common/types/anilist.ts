@@ -1,10 +1,12 @@
+export type AnilistAnimeTitle = {
+  romaji?: string;
+  english?: string;
+  native?: string;
+};
+
 export type AnilistAnime = {
   id: number;
-  title: {
-    romaji: string;
-    english: string;
-    native: string;
-  };
+  title: AnilistAnimeTitle;
   bannerImage: string;
   coverImage: {
     extraLarge: string;

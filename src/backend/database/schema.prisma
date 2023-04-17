@@ -14,33 +14,47 @@ model Anime {
   id               String       @id @default(uuid())
   anilistID        Int
   anilistURL       String
-  titles           AnimeTitle[]
   genres           Genre[]
+  titles           AnimeTitle[]
   bannerImagePath  String
   coverImagePath   String
   description      String
   numberOfEpisodes Int
   releaseDate      DateTime
-  status           String
-  format           String
+  status           AnimeStatus  @relation(fields: [statusId], references: [id])
+  statusId         Int
+  format           AnimeFormat  @relation(fields: [formatId], references: [id])
+  formatId         Int
   folderPath       String       @unique
   meanScore        Int
   averageScore     Int
-  Episodes         Episode[]
-  season           Season?      @relation(fields: [seasonName, seasonYear], references: [name, year])
-  seasonName       String?
-  seasonYear       Int?
+  episodes         Episode[]
+  season           Season       @relation(fields: [seasonName, seasonYear], references: [name, year])
+  seasonName       String
+  seasonYear       Int
   studios          Studio[]
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 }
 
+model AnimeFormat {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Anime Anime[]
+}
+
+model AnimeStatus {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Anime Anime[]
+}
+
 model AnimeTitle {
-  id      Int    @id @default(autoincrement())
+  id      Int     @id @default(autoincrement())
   name    String
   type    String
-  anime   Anime  @relation(fields: [animeID], references: [id])
-  animeID String
+  Anime   Anime?  @relation(fields: [animeId], references: [id])
+  animeId String?
 }
 
 model Genre {

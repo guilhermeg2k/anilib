@@ -1,8 +1,10 @@
 import { SQUARE_BRACKET_CONTENT_REGEX } from '@common/constants/regex';
+import { AnilistAnimeTitle } from '@common/types/anilist';
 import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anime';
-import { Anime } from '@common/types/database';
-import AnimeRepository from 'backend/repository/anime';
 import { createDateByDayMonthAndYear } from '@common/utils/date';
+import { downloadFile } from '@common/utils/file';
+import { Anime } from '@prisma/client';
+import AnimeRepository from 'backend/repository/anime';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
@@ -12,44 +14,41 @@ const fsPromises = fs.promises;
 class AnimeService {
   private static createFromDirectoryPromiseLimiter = pLimit(6);
 
-  static list() {
-    const animes = AnimeRepository.list();
-    return animes;
+  static async list() {
+    return AnimeRepository.list();
   }
 
-  static getById(id: string) {
-    const anime = AnimeRepository.getById(id);
-    return anime;
+  static async getById(id: string) {
+    return AnimeRepository.getById(id);
   }
 
   static getByPath(path: string) {
-    const anime = AnimeRepository.listByPath(path);
-    return anime;
+    return AnimeRepository.listByPath(path);
   }
 
-  static deleteInvalids() {
-    const invalidAnimes = this.list().filter(
+  static async deleteInvalids() {
+    const invalidAnimes = (await this.list()).filter(
       (anime) => !fs.existsSync(anime.folderPath)
     );
 
-    invalidAnimes.forEach((invalidAnime) =>
-      AnimeRepository.deleteById(invalidAnime.id!)
+    return await AnimeRepository.deleteByIDS(
+      invalidAnimes.map((anime) => anime.id)
     );
   }
 
-  static syncDataWithAnilistById = async (animeId: string) => {
-    const anime = this.getById(animeId);
-    const anilistAnime = await AnilistService.getAnimeById(anime.anilistId);
+  static async syncDataWithAnilistById(animeId: string) {
+    const anime = await this.getById(animeId);
+    if (!anime) return;
+    const anilistAnime = await AnilistService.getAnimeById(anime.anilistID);
+
     const releaseDate = createDateByDayMonthAndYear(
       anilistAnime.startDate.day,
       anilistAnime.startDate.month,
       anilistAnime.startDate.year
     );
 
-    const updateAnime = <Anime>{
+    const updateAnime: Anime = {
       ...anime,
-      title: anilistAnime.title,
-      bannerUrl: anilistAnime.bannerImage,
       coverUrl: anilistAnime.coverImage.extraLarge,
       description: anilistAnime.description,
       episodes: anilistAnime.episodes,
@@ -60,7 +59,7 @@ class AnimeService {
     };
 
     AnimeRepository.update(updateAnime);
-  };
+  }
 
   static async createFromDirectories(directories: Array<string>) {
     const createdAnimesPromises = directories.map(async (directory) =>
@@ -79,9 +78,17 @@ class AnimeService {
     if (directoryExists) {
       const directoryFolders = await fsPromises.readdir(directoryPath);
       for (const folder of directoryFolders) {
+        console.log(
+          '🚀 ~ file: anime.ts:79 ~ AnimeService ~ createFromDirectory ~ folder:',
+          folder
+        );
         const createdAnime = await this.createFromFolderOnDirectory(
           folder,
           directoryPath
+        );
+        console.log(
+          '🚀 ~ file: anime.ts:87 ~ AnimeService ~ createFromDirectory ~ createdAnime:',
+          createdAnime
         );
         if (createdAnime) {
           createdAnimes.push(createdAnime);
@@ -101,11 +108,13 @@ class AnimeService {
 
     if (folderInfo.isDirectory()) {
       const animeAlreadyExists = Boolean(
-        AnimeRepository.listByPath(folderPath)
+        await AnimeRepository.listByPath(folderPath)
       );
+
       if (animeAlreadyExists) {
         return null;
       }
+
       const searchTitle = folder.replaceAll(SQUARE_BRACKET_CONTENT_REGEX, '');
       const createdAnime = await this.createFromFolderPathBySearchingOnAnilist(
         folderPath,
@@ -122,34 +131,91 @@ class AnimeService {
   ) {
     const searchResults = await AnilistService.getAnimesBySearch(searchText);
 
-    const anime = getAnimeWithMostSimilarTitleToText(searchResults, searchText);
+    const anilistAnime = getAnimeWithMostSimilarTitleToText(
+      searchResults,
+      searchText
+    );
 
-    if (anime) {
+    if (anilistAnime) {
       const releaseDate = createDateByDayMonthAndYear(
-        anime.startDate.day,
-        anime.startDate.month,
-        anime.startDate.year
+        anilistAnime.startDate.day,
+        anilistAnime.startDate.month,
+        anilistAnime.startDate.year
       );
 
-      const animeParsed = {
-        anilistId: anime.id,
-        title: anime.title,
-        bannerUrl: anime.bannerImage,
-        coverUrl: anime.coverImage.extraLarge,
-        description: anime.description,
-        episodes: anime.episodes,
-        status: anime.status,
-        genres: anime.genres,
-        format: anime.format,
+      const coverImagePath = path.join(folderPath, 'anime_cover.jpg');
+      const bannerImagePath = path.join(folderPath, 'anime_banner.jpg');
+
+      await downloadFile(anilistAnime.coverImage.extraLarge, coverImagePath);
+      await downloadFile(anilistAnime.bannerImage, bannerImagePath);
+
+      const anime = {
+        anilistID: anilistAnime.id,
+        description: anilistAnime.description,
+        numberOfEpisodes: anilistAnime.episodes,
+        averageScore: anilistAnime.averageScore,
+        meanScore: anilistAnime.meanScore,
         releaseDate,
         folderPath,
+        bannerImagePath,
+        coverImagePath,
+        anilistURL: anilistAnime.siteUrl,
       };
 
-      const createdAnime = AnimeRepository.create(animeParsed);
+      const season = {
+        name: anilistAnime.season,
+        year: anilistAnime.seasonYear,
+      };
+
+      const genres = anilistAnime.genres.map((genre) => ({
+        name: genre,
+      }));
+
+      const studios = anilistAnime.studios.nodes.map((studio) => ({
+        anilistID: studio.id,
+        anilistURL: studio.siteUrl,
+        name: studio.name,
+      }));
+
+      const titles = this.getTitlesFromAnilistTitle(anilistAnime.title);
+
+      const format = {
+        name: anilistAnime.format,
+      };
+
+      const status = {
+        name: anilistAnime.status,
+      };
+
+      const createdAnime = await AnimeRepository.create({
+        anime,
+        studios,
+        format,
+        status,
+        genres,
+        season,
+        titles,
+      });
 
       return createdAnime;
     }
     return null;
+  }
+
+  static getTitlesFromAnilistTitle(title: AnilistAnimeTitle) {
+    const titles = [];
+
+    for (const type in title) {
+      const typeParsed = type as keyof AnilistAnimeTitle;
+      if (title[typeParsed]) {
+        titles.push({
+          name: title[typeParsed] || '',
+          type,
+        });
+      }
+    }
+
+    return titles;
   }
 }
 
