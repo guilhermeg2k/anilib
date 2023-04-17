@@ -19,7 +19,7 @@ model Anime {
   bannerImagePath  String
   coverImagePath   String
   description      String
-  numberOfEpisodes Int
+  numberOfEpisodes Int?
   releaseDate      DateTime
   status           AnimeStatus  @relation(fields: [statusId], references: [id])
   statusId         Int

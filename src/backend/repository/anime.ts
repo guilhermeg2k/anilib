@@ -3,34 +3,34 @@ import { isPathRelativeToDir } from '@common/utils/file';
 import { Anime, Prisma } from '@prisma/client';
 import EpisodeRepository from './episode';
 
+const ALL_ANIME_RELATIONS_INCLUDE = {
+  season: true,
+  genres: true,
+  studios: true,
+  titles: true,
+  format: true,
+  status: true,
+  episodes: true,
+};
+
 class AnimeRepository {
   static async list() {
     return await prisma.anime.findMany({
-      include: {
-        season: true,
-        genres: true,
-        studios: true,
-        titles: true,
-      },
+      include: ALL_ANIME_RELATIONS_INCLUDE,
     });
   }
 
   static getById(id: string) {
-    return prisma.anime.findUnique({
+    return prisma.anime.findUniqueOrThrow({
       where: {
         id,
       },
-      include: {
-        season: true,
-        genres: true,
-        studios: true,
-        titles: true,
-      },
+      include: ALL_ANIME_RELATIONS_INCLUDE,
     });
   }
 
   static async listByPath(path: string) {
-    return await prisma.anime.findFirst({
+    return await prisma.anime.findFirstOrThrow({
       where: {
         folderPath: path,
       },

@@ -1,44 +1,45 @@
-import { Anime } from '@common/types/database';
 import AnimeCard from '@components/anime-card';
 import AutoAnimate from '@components/auto-animate';
 import Page from '@components/page';
 import Spinner from '@components/spinner';
+import { AnimeTitle } from '@prisma/client';
 import {
-  appendTitleSimilarityToTextToAnimes,
-  formatTitle,
+  calculateAnimeTitleSimilarity,
+  getDisplayTitle,
 } from 'common/utils/anime';
 import { trpc } from 'common/utils/trpc';
 import { useMemo, useState } from 'react';
 
-const filterAnimesByTextSimilarity = <T extends { titleSimilarity: number }>(
-  animes: T[]
+const sortAndFilterAnimes = <T extends { id: string; titles: AnimeTitle[] }>(
+  animes: T[],
+  searchText: string
 ) => {
-  const titleSimilarityMinRate = 0.2;
-  const animesFilteredBySimilarity = animes.filter(
-    (anime) => anime.titleSimilarity >= titleSimilarityMinRate
-  );
-  return animesFilteredBySimilarity;
-};
-
-const sortAndFilterAnimes = (animes: Anime[], searchText: string) => {
   const shouldFilterBySearchText = searchText.length > 3;
+
   if (shouldFilterBySearchText) {
-    const animesWithTitleSimilarityToText = appendTitleSimilarityToTextToAnimes(
-      animes,
-      searchText
-    );
-    const animesFilteredBySimilarity = filterAnimesByTextSimilarity(
-      animesWithTitleSimilarityToText
-    );
-    const animesSortedBySimilarity = animesFilteredBySimilarity.sort(
-      (animeA, animeB) =>
-        animeA.titleSimilarity > animeB.titleSimilarity ? -1 : 1
-    );
+    const similaritiesRate = new Map<string, number>();
+
+    animes.forEach((anime) => {
+      const titleSimilarity = calculateAnimeTitleSimilarity(
+        anime.titles,
+        searchText
+      );
+      similaritiesRate.set(anime.id, titleSimilarity);
+    });
+
+    const animesSortedBySimilarity = animes
+      .sort((animeA, animeB) => {
+        const similarityA = similaritiesRate.get(animeA.id) ?? 0;
+        const similarityB = similaritiesRate.get(animeB.id) ?? 0;
+        return similarityA > similarityB ? -1 : 1;
+      })
+      .filter((anime) => similaritiesRate.get(anime.id) ?? 0 > 0.2);
+
     return animesSortedBySimilarity;
   }
 
   const animesSortedAlphabeticallyByTitle = animes.sort((animeA, animeB) =>
-    formatTitle(animeA.title) < formatTitle(animeB.title) ? -1 : 1
+    animeA.titles[0].name < animeB.titles[0].name ? -1 : 1
   );
 
   return animesSortedAlphabeticallyByTitle;
@@ -106,8 +107,8 @@ const Home = () => {
               <AnimeCard
                 key={anime.id}
                 id={anime.id!}
-                coverUrl={anime.coverUrl}
-                name={formatTitle(anime.title)}
+                imageBase64={anime.coverImage}
+                name={getDisplayTitle(anime.titles)}
               />
             ))
           )}

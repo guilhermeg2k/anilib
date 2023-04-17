@@ -4,10 +4,10 @@ import Link from 'next/link';
 type AnimeCardProps = {
   id: string;
   name: string;
-  coverUrl: string;
+  imageBase64: string;
 };
 
-const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, coverUrl }) => {
+const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, imageBase64 }) => {
   return (
     <Link
       href={{
@@ -18,7 +18,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, coverUrl }) => {
       <a className="flex flex-col gap-2 text-center duration-300 hover:scale-110  focus:scale-110 focus:outline-none">
         <div className="overflow-hidden rounded-md hover:border-[3px] hover:border-white">
           <Image
-            src={coverUrl}
+            src={`data:image/png;base64,${imageBase64}`}
             alt={`${name} cover image`}
             layout="responsive"
             width={460}

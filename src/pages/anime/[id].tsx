@@ -6,7 +6,7 @@ import MaterialIcon from '@components/material-icon';
 import Page from '@components/page';
 import Spinner from '@components/spinner';
 import { Menu } from '@headlessui/react';
-import { formatTitle } from 'common/utils/anime';
+import { getDisplayTitle } from 'common/utils/anime';
 import { removeHTMLTags } from 'common/utils/string';
 import { trpc } from 'common/utils/trpc';
 import { format } from 'date-fns';
@@ -79,8 +79,8 @@ const Anime = ({ id }: { id: string }) => {
 
   const imageCover = (
     <Image
-      src={String(anime.coverUrl)}
-      alt={`${anime?.title.native} Cover Image`}
+      src={`data:image/png;base64,${anime.coverImage}`}
+      alt={`${getDisplayTitle(anime.titles)} Cover Image`}
       layout="intrinsic"
       width={415}
       height={588}
@@ -93,7 +93,7 @@ const Anime = ({ id }: { id: string }) => {
   };
 
   return (
-    <Page title={formatTitle(anime.title)}>
+    <Page title={getDisplayTitle(anime.titles)}>
       <main className="flex flex-col items-center lg:items-start">
         <section className="flex w-full flex-col items-center lg:flex-row lg:items-start lg:justify-center lg:gap-8">
           <div>
@@ -105,7 +105,7 @@ const Anime = ({ id }: { id: string }) => {
             <header className="flex flex-col items-center gap-2  lg:items-start lg:gap-0">
               <div className="flex items-center justify-between gap-2 md:w-full ">
                 <h1 className="text-2xl font-bold text-rose-700 lg:text-4xl">
-                  {formatTitle(anime.title)}
+                  {getDisplayTitle(anime.titles)}
                 </h1>
                 <DropDownMenu
                   items={[
@@ -130,20 +130,21 @@ const Anime = ({ id }: { id: string }) => {
               <div className="mt-4 flex flex-wrap gap-3">
                 {anime.genres.map((genre, index) => (
                   <Badge
-                    key={genre}
+                    key={genre.id}
                     className={`${getCategoryColorClass(index)}`}
                   >
-                    {genre}
+                    {genre.name}
                   </Badge>
                 ))}
               </div>
             </header>
             <div className="flex flex-col gap-1">
               <span className="font-bold uppercase">
-                {`${anime.format}`}
-                {anime.episodes && ` - ${anime.episodes} Episodes`}
+                {`${anime.format.name}`}
+                {anime.numberOfEpisodes &&
+                  ` - ${anime.numberOfEpisodes} Episodes`}
               </span>
-              <span className="text-sm font-semibold capitalize">{`${releaseDate.month} ${releaseDate.year} - ${anime.status} `}</span>
+              <span className="text-sm font-semibold capitalize">{`${releaseDate.month} ${releaseDate.year} - ${anime.status.name} `}</span>
             </div>
             <p className="text-sm lg:text-base">
               {removeHTMLTags(anime.description)}
@@ -154,11 +155,11 @@ const Anime = ({ id }: { id: string }) => {
                 Available Episodes
               </h2>
               <div className="flex max-h-max flex-col gap-2 overflow-auto pr-2">
-                {episodes.map((episode) => (
+                {anime.episodes.map((episode) => (
                   <EpisodeCard
                     className="w-full"
                     key={episode.id}
-                    episodeId={episode.id!}
+                    episodeId={episode.id}
                   >
                     {episode.title}
                   </EpisodeCard>

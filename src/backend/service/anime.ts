@@ -9,21 +9,62 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import AnilistService from './anilist';
+import { AnimeWithAllRelations } from '@common/types/prisma';
 
 const fsPromises = fs.promises;
 class AnimeService {
   private static createFromDirectoryPromiseLimiter = pLimit(6);
 
   static async list() {
-    return AnimeRepository.list();
+    const animes = await AnimeRepository.list();
+    const animesWithImagesInBase64 = await Promise.all(
+      animes.map(
+        async (anime) => await AnimeService.getAnimeWithImagesInBase64(anime)
+      )
+    );
+    return animesWithImagesInBase64;
   }
 
   static async getById(id: string) {
-    return AnimeRepository.getById(id);
+    const anime = await AnimeRepository.getById(id);
+    const animeWithImagesInBase64 =
+      await AnimeService.getAnimeWithImagesInBase64(anime);
+    return animeWithImagesInBase64;
   }
 
   static getByPath(path: string) {
     return AnimeRepository.listByPath(path);
+  }
+
+  static async getAnimeWithImagesInBase64(anime: AnimeWithAllRelations) {
+    const coverImage = await fsPromises.readFile(anime.coverImagePath, {
+      encoding: 'base64',
+    });
+
+    const bannerImage = await fsPromises.readFile(anime.bannerImagePath, {
+      encoding: 'base64',
+    });
+
+    return {
+      id: anime.id,
+      episodes: anime.episodes,
+      anilistID: anime.anilistID,
+      anilistURL: anime.anilistURL,
+      description: anime.description,
+      titles: anime.titles,
+      numberOfEpisodes: anime.numberOfEpisodes,
+      releaseDate: anime.releaseDate,
+      status: anime.status,
+      format: anime.format,
+      genres: anime.genres,
+      meanScore: anime.meanScore,
+      averageScore: anime.averageScore,
+      season: anime.season,
+      createdAt: anime.createdAt,
+      updatedAt: anime.updatedAt,
+      coverImage,
+      bannerImage,
+    };
   }
 
   static async deleteInvalids() {
