@@ -7,10 +7,10 @@ import {
   getVideoDurationInSeconds,
 } from '@common/utils/video';
 import { sortByStringNumbersSum } from 'common/utils/string';
-import { Episode } from '@common/types/database';
 import pLimit from 'p-limit';
 import path from 'path';
 import EpisodeService from './episode';
+import { Episode } from '@prisma/client';
 
 const PREVIEW_EXTENSIONS = ['.jpg'];
 
@@ -43,13 +43,14 @@ class EpisodePreviewService {
     return previewsInBase64.flat(Infinity);
   }
 
-  static async createFromEpisodes(episodes: Array<Episode>) {
+  static async createFromEpisodes(episodes: Episode[]) {
     const createdPreviews = Array<string>();
 
     for (const episode of episodes) {
       const episodePreviews = await EpisodePreviewService.createFromEpisode(
         episode
       );
+
       if (episodePreviews) {
         createdPreviews.push(...episodePreviews);
       }
@@ -59,14 +60,6 @@ class EpisodePreviewService {
   }
 
   private static async createFromEpisode(episode: Episode) {
-    const episodePreviews = await this.listByEpisodeId(episode.id!);
-
-    const episodeHasPreviews = episodePreviews.length > 0;
-
-    if (episodeHasPreviews) {
-      return;
-    }
-
     const createFromFramePromises = Array<Promise<string>>();
     const createFromFramePromisesLimiter = pLimit(6);
     const episodeDurationInSeconds = await getVideoDurationInSeconds(

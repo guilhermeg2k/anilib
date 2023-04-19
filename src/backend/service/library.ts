@@ -35,11 +35,12 @@ class LibraryService {
         console.log('Episodes updated!');
 
         const episodes = await EpisodeService.list();
+
         await SubtitleService.createFromEpisodes(episodes);
         console.log('Subtitles updated!');
 
-        // await EpisodePreviewService.createFromEpisodes(episodes);
-        // console.log('Episode previews updated!');
+        await EpisodePreviewService.createFromEpisodes(episodes);
+        console.log('Episode previews updated!');
 
         // if (SettingsService.get('isToDeleteConvertedData')) {
         //   await EpisodeService.deleteConverted();
