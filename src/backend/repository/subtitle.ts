@@ -1,52 +1,43 @@
-import database from 'backend/database';
-import { Subtitle } from '@common/types/database';
-import { v4 as uuid } from 'uuid';
+import { prisma } from '@backend/database/prisma';
+import { Subtitle } from '@prisma/client';
 
 class SubtitleRepository {
   static list() {
-    const subtitleList = new Array<Subtitle>();
-    const subtitles = <Map<string, Subtitle>>database.list('subtitles');
-    subtitles.forEach((subtitle, id) => {
-      subtitleList.push({
-        ...subtitle,
-        id,
-      });
-    });
-    return subtitleList;
+    return prisma.subtitle.findMany();
   }
 
   static getById(id: string) {
-    const subtitle = <Subtitle>database.get('subtitles', id);
-    return subtitle;
+    return prisma.subtitle.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
-  static listByEpisodeId(episodeId: string) {
-    const subtitles = this.list().filter(
-      (subtitle) => subtitle.episodeId === episodeId
-    );
-    return subtitles;
+  static listByEpisodeId(episodeID: string) {
+    return prisma.subtitle.findMany({
+      where: {
+        episodeID,
+      },
+    });
   }
 
-  static create(subtitle: Subtitle) {
-    const key = uuid();
-    const createdSubtitle = database.insertOrUpdate('subtitles', key, subtitle);
-    return <Subtitle>createdSubtitle;
-  }
-
-  static update(subtitle: Subtitle) {
-    database.insertOrUpdate('subtitles', subtitle.id!, subtitle);
+  static create(subtitle: Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>) {
+    return prisma.subtitle.create({
+      data: subtitle,
+    });
   }
 
   static deleteById(id: string) {
-    database.delete('subtitles', id);
+    return prisma.subtitle.delete({
+      where: { id },
+    });
   }
 
   static deleteByEpisodeId(episodeId: string) {
-    const subtitlesToDelete = this.list().filter(
-      (subtitle) => subtitle.episodeId === episodeId
-    );
-
-    subtitlesToDelete.forEach((subtitle) => this.deleteById(subtitle.id!));
+    return prisma.subtitle.deleteMany({
+      where: { episodeID: episodeId },
+    });
   }
 }
 

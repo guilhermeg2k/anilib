@@ -34,9 +34,9 @@ class LibraryService {
         await EpisodeService.createFromAnimes(animes);
         console.log('Episodes updated!');
 
-        // const episodes = EpisodeService.list();
-        // await SubtitleService.createFromEpisodes(episodes);
-        // console.log('Subtitles updated!');
+        const episodes = await EpisodeService.list();
+        await SubtitleService.createFromEpisodes(episodes);
+        console.log('Subtitles updated!');
 
         // await EpisodePreviewService.createFromEpisodes(episodes);
         // console.log('Episode previews updated!');

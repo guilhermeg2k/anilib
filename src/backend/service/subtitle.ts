@@ -1,38 +1,34 @@
-import { Episode, Subtitle } from '@common/types/database';
 import SubtitleRepository from 'backend/repository/subtitle';
 import { getFolderVttFilesByFileNamePrefix } from '@common/utils/file';
 import { extractSubtitlesFromVideo } from '@common/utils/video';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
+import { Episode, Subtitle } from '@prisma/client';
 
 class SubtitleService {
   private static createFromEpisodePromiseLimiter = pLimit(6);
-  private static removeCommentsFromEpisodePromiseLimiter = pLimit(6);
 
   static list() {
-    const subtitles = SubtitleRepository.list();
-    return subtitles;
+    return SubtitleRepository.list();
   }
 
   static listByEpisodeId(episodeId: string) {
-    const subtitles = SubtitleRepository.listByEpisodeId(episodeId);
-    return subtitles;
+    return SubtitleRepository.listByEpisodeId(episodeId);
   }
 
   static getById(id: string) {
-    const episode = SubtitleRepository.getById(id);
-    return episode;
+    return SubtitleRepository.getById(id);
   }
 
-  static deleteInvalids() {
-    const invalidSubtitles = this.list().filter(
+  static async deleteInvalids() {
+    const invalidSubtitles = (await this.list()).filter(
       (subtitle) => !fs.existsSync(subtitle.filePath)
     );
 
-    invalidSubtitles.forEach((invalidSubtitle) =>
-      SubtitleRepository.deleteById(invalidSubtitle.id!)
-    );
+    for await (const invalidSubtitle of invalidSubtitles) {
+      await SubtitleRepository.deleteById(invalidSubtitle.id);
+    }
   }
 
   static async createFromEpisodes(episodes: Array<Episode>) {
@@ -46,8 +42,11 @@ class SubtitleService {
   }
 
   static async createFromEpisode(episode: Episode) {
+    console.log('create from episode');
     const createdSubtitles = Array<Subtitle>();
-    const episodeSubtitles = SubtitleRepository.listByEpisodeId(episode.id!);
+    const episodeSubtitles = await SubtitleRepository.listByEpisodeId(
+      episode.id
+    );
     const episodeDoesNotHaveSubtitles = episodeSubtitles.length === 0;
 
     if (episodeDoesNotHaveSubtitles) {
@@ -82,26 +81,27 @@ class SubtitleService {
     return createdSubtitles;
   }
 
-  private static async create(subtitle: Subtitle) {
-    const createdSubtitle = await SubtitleRepository.create(subtitle);
-    return createdSubtitle;
+  private static async create(
+    subtitle: Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>
+  ) {
+    return SubtitleRepository.create(subtitle);
   }
 
   private static async createFromVttFiles(
     vttFiles: Array<string>,
     episodeId: string
   ) {
-    const createdSubtitles = Array<Subtitle>();
+    const createdSubtitles: Subtitle[] = [];
 
     for (const subtitleFile of vttFiles) {
       const subtitleFileName = path.basename(subtitleFile);
       const lang = subtitleFileName.match(/.*-(.*)\.vtt/);
       if (lang && lang[1]) {
-        const newSubtitle = <Subtitle>{
+        const newSubtitle = {
           label: lang[1],
           language: lang[1],
           filePath: subtitleFile,
-          episodeId,
+          episodeID: episodeId,
         };
         const createdEpisode = await this.create(newSubtitle);
         createdSubtitles.push(createdEpisode);
@@ -115,27 +115,22 @@ class SubtitleService {
     videoFilePath: string,
     episodeId: string
   ) {
-    const createdSubtitles = Array<Subtitle>();
+    const createdSubtitles: Subtitle[] = [];
     const fileExists = fs.existsSync(videoFilePath);
     if (fileExists) {
       const videoSubtitles = await extractSubtitlesFromVideo(videoFilePath);
       for (const subtitle of videoSubtitles) {
-        const newSubtitle = <Subtitle>{
+        const newSubtitle = {
           label: subtitle.title,
           language: subtitle.language,
           filePath: subtitle.filePath,
-          wasCommentsRemoved: false,
-          episodeId,
+          episodeID: episodeId,
         };
         const createdEpisode = await this.create(newSubtitle);
         createdSubtitles.push(createdEpisode);
       }
     }
     return createdSubtitles;
-  }
-
-  static update(subtitle: Subtitle) {
-    SubtitleRepository.update(subtitle);
   }
 }
 

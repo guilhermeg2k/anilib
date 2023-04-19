@@ -4,10 +4,7 @@ import {
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
 } from '@common/constants/regex';
-import {
-  getFileInBase64,
-  getFilesInDirectoryByExtensions,
-} from '@common/utils/file';
+import { getFilesInDirectoryByExtensions } from '@common/utils/file';
 import {
   convertVideoToMp4,
   extractJpgImageFromVideo,
@@ -78,9 +75,9 @@ class EpisodeService {
       (episode) => !fs.existsSync(episode.filePath)
     );
 
-    invalidEpisodes.forEach((invalidEpisode) =>
-      EpisodeRepository.deleteById(invalidEpisode.id!)
-    );
+    for await (const invalidEpisode of invalidEpisodes) {
+      await EpisodeRepository.deleteById(invalidEpisode.id);
+    }
   }
 
   static async createFromAnimes(animes: Array<Anime>) {

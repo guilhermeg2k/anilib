@@ -13,7 +13,7 @@ export default async function handler(
       try {
         const { id } = req.query;
         if (id && typeof id === 'string') {
-          const subtitle = SubtitleService.getById(id);
+          const subtitle = await SubtitleService.getById(id);
           if (subtitle) {
             const vttFilePath = subtitle.filePath;
             const { size } = fs.statSync(vttFilePath);
