@@ -9,14 +9,17 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import AnilistService from './anilist';
-import { AnimeWithAllRelations } from '@common/types/prisma';
 
 const fsPromises = fs.promises;
 class AnimeService {
   private static createFromDirectoryPromiseLimiter = pLimit(6);
 
   static async list() {
-    const animes = await AnimeRepository.list();
+    return AnimeRepository.list();
+  }
+
+  static async listWithAllRelations() {
+    const animes = await AnimeRepository.listWithAllRelations();
     const animesWithImagesInBase64 = await Promise.all(
       animes.map(
         async (anime) => await AnimeService.getAnimeWithImagesInBase64(anime)
@@ -36,7 +39,9 @@ class AnimeService {
     return AnimeRepository.listByPath(path);
   }
 
-  static async getAnimeWithImagesInBase64(anime: AnimeWithAllRelations) {
+  static async getAnimeWithImagesInBase64<
+    T extends { coverImagePath: string; bannerImagePath: string }
+  >(anime: T) {
     const coverImage = await fsPromises.readFile(anime.coverImagePath, {
       encoding: 'base64',
     });
@@ -46,29 +51,14 @@ class AnimeService {
     });
 
     return {
-      id: anime.id,
-      episodes: anime.episodes,
-      anilistID: anime.anilistID,
-      anilistURL: anime.anilistURL,
-      description: anime.description,
-      titles: anime.titles,
-      numberOfEpisodes: anime.numberOfEpisodes,
-      releaseDate: anime.releaseDate,
-      status: anime.status,
-      format: anime.format,
-      genres: anime.genres,
-      meanScore: anime.meanScore,
-      averageScore: anime.averageScore,
-      season: anime.season,
-      createdAt: anime.createdAt,
-      updatedAt: anime.updatedAt,
+      ...anime,
       coverImage,
       bannerImage,
     };
   }
 
   static async deleteInvalids() {
-    const invalidAnimes = (await this.list()).filter(
+    const invalidAnimes = (await this.listWithAllRelations()).filter(
       (anime) => !fs.existsSync(anime.folderPath)
     );
 
@@ -77,6 +67,7 @@ class AnimeService {
     );
   }
 
+  //TODO: FIX THIS FUNCTION
   static async syncDataWithAnilistById(animeId: string) {
     const anime = await this.getById(animeId);
     if (!anime) return;
@@ -119,10 +110,6 @@ class AnimeService {
     if (directoryExists) {
       const directoryFolders = await fsPromises.readdir(directoryPath);
       for (const folder of directoryFolders) {
-        console.log(
-          '🚀 ~ file: anime.ts:79 ~ AnimeService ~ createFromDirectory ~ folder:',
-          folder
-        );
         const createdAnime = await this.createFromFolderOnDirectory(
           folder,
           directoryPath

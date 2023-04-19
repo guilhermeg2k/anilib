@@ -15,6 +15,10 @@ const ALL_ANIME_RELATIONS_INCLUDE = {
 
 class AnimeRepository {
   static async list() {
+    return await prisma.anime.findMany();
+  }
+
+  static async listWithAllRelations() {
     return await prisma.anime.findMany({
       include: ALL_ANIME_RELATIONS_INCLUDE,
     });
@@ -28,9 +32,9 @@ class AnimeRepository {
       include: ALL_ANIME_RELATIONS_INCLUDE,
     });
   }
-
+  //TODO: CREATE A THROWABLE VERSION OF THIS
   static async listByPath(path: string) {
-    return await prisma.anime.findFirstOrThrow({
+    return await prisma.anime.findFirst({
       where: {
         folderPath: path,
       },
@@ -133,7 +137,7 @@ class AnimeRepository {
   }
 
   static async deleteByDirectory(directory: string) {
-    const animesToDelete = (await this.list()).filter((anime) =>
+    const animesToDelete = (await this.listWithAllRelations()).filter((anime) =>
       isPathRelativeToDir(directory, anime.folderPath)
     );
 

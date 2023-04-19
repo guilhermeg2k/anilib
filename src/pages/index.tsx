@@ -52,7 +52,7 @@ const Home = () => {
     data: animes,
     isLoading: isLoadingAnimes,
     refetch: refetchAnimes,
-  } = trpc.anime.list.useQuery();
+  } = trpc.anime.listWithAllRelations.useQuery();
 
   trpc.ws.library.onUpdate.useSubscription(undefined, {
     onData: () => {

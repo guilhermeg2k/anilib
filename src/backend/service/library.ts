@@ -29,22 +29,22 @@ class LibraryService {
         await AnimeService.createFromDirectories(directories);
         console.log('Animes updated!');
 
-        const animes = AnimeService.list();
+        const animes = await AnimeService.list();
 
         await EpisodeService.createFromAnimes(animes);
         console.log('Episodes updated!');
 
-        const episodes = EpisodeService.list();
-        await SubtitleService.createFromEpisodes(episodes);
-        console.log('Subtitles updated!');
+        // const episodes = EpisodeService.list();
+        // await SubtitleService.createFromEpisodes(episodes);
+        // console.log('Subtitles updated!');
 
-        await EpisodePreviewService.createFromEpisodes(episodes);
-        console.log('Episode previews updated!');
+        // await EpisodePreviewService.createFromEpisodes(episodes);
+        // console.log('Episode previews updated!');
 
-        if (SettingsService.get('isToDeleteConvertedData')) {
-          await EpisodeService.deleteConverted();
-          console.log('Converted episodes deleted!');
-        }
+        // if (SettingsService.get('isToDeleteConvertedData')) {
+        //   await EpisodeService.deleteConverted();
+        //   console.log('Converted episodes deleted!');
+        // }
 
         this.updateStatus('UPDATED');
       }

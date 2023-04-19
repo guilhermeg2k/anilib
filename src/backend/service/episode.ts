@@ -41,8 +41,15 @@ class EpisodeService {
     return episodes;
   }
 
-  static getById(id: string) {
-    return EpisodeRepository.getById(id);
+  static async getById(id: string) {
+    const episode = await EpisodeRepository.getById(id);
+    const coverImage = await fsPromises.readFile(episode?.coverImagePath, {
+      encoding: 'base64',
+    });
+    return {
+      ...episode,
+      coverImage,
+    };
   }
 
   static getByPath(path: string) {
@@ -51,16 +58,6 @@ class EpisodeService {
 
   static getByOriginalPath(path: string) {
     return EpisodeRepository.getByOriginalFilePath(path);
-  }
-
-  //TODO: Remove this method
-  static async getImageCoverBase64ById(episodeId: string) {
-    const episode = EpisodeRepository.getById(episodeId);
-    if (episode?.coverImagePath) {
-      const imageBase64 = await getFileInBase64(episode?.coverImagePath);
-      return imageBase64;
-    }
-    return null;
   }
 
   static async deleteConverted() {

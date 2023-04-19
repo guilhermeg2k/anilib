@@ -32,26 +32,19 @@ const Watch = () => {
   });
 
   const {
-    data: coverImageBase64,
-    isLoading: isLoadingCoverImage64,
-    isError: hasCoverImageLoadingFailed,
-  } = trpc.episode.getCoverImageBase64ById.useQuery({ id });
-
-  const {
     data: episodes,
     isLoading: isEpisodesLoading,
     isError: hasEpisodesLoadingFailed,
   } = trpc.episode.listByAnimeId.useQuery(
-    { animeId: String(episode?.animeId) },
+    { animeId: String(episode?.animeID) },
     {
-      enabled: Boolean(episode?.animeId),
+      enabled: Boolean(episode?.animeID),
     }
   );
 
   if (
     isLoadingEpisode ||
     isLoadingSubtitle ||
-    isLoadingCoverImage64 ||
     isLoadingPreviews ||
     isEpisodesLoading
   ) {
@@ -67,7 +60,6 @@ const Watch = () => {
   if (
     hasEpisodeLoadingFailed ||
     hasSubtitleLoadingFailed ||
-    hasCoverImageLoadingFailed ||
     hasEpisodesLoadingFailed ||
     hasPreviewsLoadingFailed
   ) {
@@ -93,7 +85,7 @@ const Watch = () => {
           <VideoPlayer
             episodeTitle={episode.title}
             videoUrl={`/api/episode-video-stream/${episode.id}`}
-            coverImageBase64={coverImageBase64 || ''}
+            coverImageBase64={episode.coverImage || ''}
             subtitles={subtitles}
             previews={previews}
             onNextEpisode={onNextEpisodeHandler}

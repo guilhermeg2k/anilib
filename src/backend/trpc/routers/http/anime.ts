@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
 
 export const animeRouter = createRouter({
-  list: procedure.query(() => {
-    return AnimeService.list();
+  listWithAllRelations: procedure.query(() => {
+    return AnimeService.listWithAllRelations();
   }),
 
   getById: procedure.input(z.object({ id: z.string() })).query(({ input }) => {

@@ -23,7 +23,7 @@ class EpisodeRepository {
   }
 
   static getById(id: string) {
-    return prisma.episode.findUnique({
+    return prisma.episode.findUniqueOrThrow({
       where: {
         id,
       },
