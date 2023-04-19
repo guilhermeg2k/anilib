@@ -1,72 +1,73 @@
-import database from 'backend/database';
-import { Episode } from '@common/types/database';
-import { v4 as uuid } from 'uuid';
-import SubtitleRepository from './subtitle';
+import { prisma } from '@backend/database/prisma';
+import { Episode } from '@prisma/client';
 
 class EpisodeRepository {
   static list() {
-    const episodesList = new Array<Episode>();
-    const episodes = <Map<string, Episode>>database.list('episodes');
-    episodes.forEach((episode, id) => {
-      episodesList.push({
-        ...episode,
-        id,
-      });
-    });
-    return episodesList;
+    return prisma.episode.findMany();
   }
 
-  static listByAnimeId(animeId: string) {
-    const animeEpisodes = this.list().filter(
-      (episode) => episode.animeId === animeId
-    );
-    return animeEpisodes;
+  static listByAnimeId(animeID: string) {
+    return prisma.episode.findMany({
+      where: {
+        animeID,
+      },
+    });
   }
 
   static listConvertedEpisodes() {
-    const convertedEpisodes = this.list().filter(
-      (episode) => episode.wasConverted
-    );
-    return convertedEpisodes;
+    return prisma.episode.findMany({
+      where: {
+        wasConverted: true,
+      },
+    });
   }
 
   static getById(id: string) {
-    const episode = <Episode>database.get('episodes', id);
-    if (episode) {
-      episode.id = id;
-    }
-    return episode;
+    return prisma.episode.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
   static getByFilePath(path: string) {
-    const episode = this.list().find((episode) => episode.filePath === path);
-    return episode;
+    return prisma.episode.findUnique({
+      where: {
+        filePath: path,
+      },
+    });
   }
 
   static getByOriginalFilePath(path: string) {
-    const episode = this.list().find(
-      (episode) => episode.originalFilePath === path
-    );
-    return episode;
+    return prisma.episode.findUnique({
+      where: {
+        originalFilePath: path,
+      },
+    });
   }
 
-  static create(episode: Episode) {
-    const key = uuid();
-    const createdEpisode = database.insertOrUpdate('episodes', key, episode);
-    return <Episode>createdEpisode;
+  static async create(
+    episode: Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>
+  ) {
+    await prisma.episode.create({
+      data: episode,
+    });
   }
 
   static deleteById(id: string) {
-    database.delete('episodes', id);
-    SubtitleRepository.deleteByEpisodeId(id);
+    return prisma.episode.delete({
+      where: {
+        id,
+      },
+    });
   }
 
   static deleteByAnimeId(animeId: string) {
-    const episodesToDelete = this.list().filter(
-      (episode) => episode.animeId === animeId
-    );
-
-    episodesToDelete.forEach((episode) => this.deleteById(episode.id!));
+    return prisma.episode.deleteMany({
+      where: {
+        animeID: animeId,
+      },
+    });
   }
 }
 

@@ -1,12 +1,9 @@
-import { getNumbersSumFromString } from 'common/utils/string';
 import {
   BRACES_CONTENT_REGEX,
   NOT_ALPHANUMERIC_REGEX,
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
 } from '@common/constants/regex';
-import { Anime, Episode } from '@common/types/database';
-import EpisodeRepository from 'backend/repository/episode';
 import {
   getFileInBase64,
   getFilesInDirectoryByExtensions,
@@ -18,6 +15,9 @@ import {
   isVideoCodecSupported,
   isVideoContainerSupported,
 } from '@common/utils/video';
+import { Anime, Episode } from '@prisma/client';
+import EpisodeRepository from 'backend/repository/episode';
+import { getNumbersSumFromString } from 'common/utils/string';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
@@ -32,31 +32,28 @@ class EpisodeService {
   private static createFromAnimeAndFilePathPromiseLimiter = pLimit(3);
 
   static list() {
-    const episodes = EpisodeRepository.list();
-    return episodes;
+    return EpisodeRepository.list();
   }
 
-  static listByAnimeId(animeId: string) {
-    const episodes = EpisodeRepository.listByAnimeId(animeId);
+  static async listByAnimeId(animeId: string) {
+    const episodes = await EpisodeRepository.listByAnimeId(animeId);
     episodes.sort(this.sortByStringNumbersSum);
     return episodes;
   }
 
   static getById(id: string) {
-    const episode = EpisodeRepository.getById(id);
-    return episode;
+    return EpisodeRepository.getById(id);
   }
 
   static getByPath(path: string) {
-    const episode = EpisodeRepository.getByFilePath(path);
-    return episode;
+    return EpisodeRepository.getByFilePath(path);
   }
 
   static getByOriginalPath(path: string) {
-    const episode = EpisodeRepository.getByOriginalFilePath(path);
-    return episode;
+    return EpisodeRepository.getByOriginalFilePath(path);
   }
 
+  //TODO: Remove this method
   static async getImageCoverBase64ById(episodeId: string) {
     const episode = EpisodeRepository.getById(episodeId);
     if (episode?.coverImagePath) {
@@ -67,7 +64,7 @@ class EpisodeService {
   }
 
   static async deleteConverted() {
-    const convertedEpisodes = EpisodeRepository.listConvertedEpisodes();
+    const convertedEpisodes = await EpisodeRepository.listConvertedEpisodes();
     const deleteConvertedEpisodesPromises = convertedEpisodes.map(
       async (episode) => {
         const fileExists = fs.existsSync(episode.originalFilePath);
@@ -79,8 +76,8 @@ class EpisodeService {
     await Promise.all(deleteConvertedEpisodesPromises);
   }
 
-  static deleteInvalids() {
-    const invalidEpisodes = this.list().filter(
+  static async deleteInvalids() {
+    const invalidEpisodes = (await this.list()).filter(
       (episode) => !fs.existsSync(episode.filePath)
     );
 
@@ -90,6 +87,8 @@ class EpisodeService {
   }
 
   static async createFromAnimes(animes: Array<Anime>) {
+    console.log('create from animes');
+
     const createEpisodesPromises = animes.map(async (anime) => {
       await this.createFromAnime(anime);
     });
@@ -103,10 +102,11 @@ class EpisodeService {
       anime.folderPath,
       EPISODE_FILES_EXTENSIONS
     );
-    const episodePromises = episodeFilePaths.map((episodeFilePath) => {
+
+    const episodePromises = episodeFilePaths.map(async (episodeFilePath) => {
       const episodeDoesNotExists =
-        !this.getByPath(episodeFilePath) &&
-        !this.getByOriginalPath(episodeFilePath);
+        !(await this.getByPath(episodeFilePath)) &&
+        !(await this.getByOriginalPath(episodeFilePath));
       if (episodeDoesNotExists) {
         return this.createFromAnimeAndFilePathPromiseLimiter(() =>
           this.createFromAnimeAndFilePath(anime, episodeFilePath)
@@ -122,6 +122,7 @@ class EpisodeService {
     anime: Anime,
     episodeFilePath: string
   ) {
+    console.log('salve 1');
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
     const episodeTitle = this.buildEpisodeTitle(episodeFileName);
@@ -133,9 +134,9 @@ class EpisodeService {
       scaleWidth: 1920,
     });
 
-    const newEpisode = {
+    const newEpisode: Omit<Episode, 'id' | 'createdAt' | 'updatedAt'> = {
       title: episodeTitle,
-      animeId: anime.id!,
+      animeID: anime.id,
       coverImagePath: episodeCoverImagePath,
       filePath: episodeFilePath,
       originalFilePath: episodeFilePath,
@@ -168,13 +169,14 @@ class EpisodeService {
       newEpisode.filePath = episodeFileMp4;
     }
 
-    const createdEpisode = this.create(newEpisode);
+    const createdEpisode = await this.create(newEpisode);
     return createdEpisode;
   }
 
-  private static create(episode: Episode) {
-    const createdEpisode = EpisodeRepository.create(episode);
-    return createdEpisode;
+  private static create(
+    episode: Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>
+  ) {
+    return EpisodeRepository.create(episode);
   }
 
   private static buildEpisodeTitle = (episodeFileName: string) => {

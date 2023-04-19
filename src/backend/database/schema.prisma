@@ -82,8 +82,8 @@ model Season {
 model Episode {
   id               String     @id @default(uuid())
   title            String
-  filePath         String
-  originalFilePath String
+  filePath         String     @unique
+  originalFilePath String     @unique
   coverImagePath   String
   wasConverted     Boolean
   anime            Anime      @relation(fields: [animeID], references: [id])
