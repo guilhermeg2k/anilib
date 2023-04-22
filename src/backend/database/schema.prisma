@@ -104,6 +104,12 @@ model Subtitle {
 }
 
 model Directory {
-  id   String @id @default(uuid())
+  id   Int    @id @default(autoincrement())
   path String @unique
+}
+
+model UpdateLibrarySetting {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  value Boolean @default(true)
 }

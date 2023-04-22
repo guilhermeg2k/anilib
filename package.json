@@ -9,6 +9,7 @@
     "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
     "prisma-migrate-dev": "prisma migrate dev --name init && prisma generate",
     "db-nuke": "rm -rf ./data/",
+    "db-seed": "tsx src/backend/database/seeds/settings.ts",
     "build": "run-p build:*",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
 import SettingsService from '@backend/service/settings';
 
+//TODO:UPDATE THIS
 const zSetting = z.enum([
   'isToDeleteConvertedData',
   'isToDeleteInvalidData',
@@ -9,6 +10,10 @@ const zSetting = z.enum([
 ]);
 
 export const settingsRouter = createRouter({
+  list: procedure.query(() => {
+    return SettingsService.list();
+  }),
+
   get: procedure
     .input(
       z.object({
@@ -23,12 +28,12 @@ export const settingsRouter = createRouter({
   update: procedure
     .input(
       z.object({
-        setting: zSetting,
+        id: z.number(),
         value: z.boolean(),
       })
     )
     .mutation(({ input }) => {
-      const { setting, value } = input;
-      return SettingsService.set(setting, value);
+      const { id, value } = input;
+      return SettingsService.set(id, value);
     }),
 });

@@ -1,18 +1,29 @@
+import { prisma } from '@backend/database/prisma';
+//TODO: Change setting type
 import { Setting } from '@common/types/database';
-import database from 'backend/database';
 
 class SettingsRepository {
   static list() {
-    const settings = <Map<string, string>>database.list('settings');
-    return settings;
+    return prisma.updateLibrarySetting.findMany();
   }
 
-  static get(settings: Setting) {
-    return <boolean>database.get('settings', settings);
+  static getByName(name: Setting) {
+    return prisma.updateLibrarySetting.findUnique({
+      where: {
+        name,
+      },
+    });
   }
 
-  static set(settings: Setting, value: Boolean) {
-    database.insertOrUpdate('settings', settings, value);
+  static set(id: number, value: boolean) {
+    return prisma.updateLibrarySetting.update({
+      where: {
+        id,
+      },
+      data: {
+        value,
+      },
+    });
   }
 }
 

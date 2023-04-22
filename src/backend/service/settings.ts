@@ -2,12 +2,16 @@ import { Setting } from '@common/types/database';
 import SettingsRepository from 'backend/repository/settings';
 
 class SettingsService {
-  static get(setting: Setting) {
-    return SettingsRepository.get(setting);
+  static list() {
+    return SettingsRepository.list();
   }
 
-  static set(setting: Setting, value: boolean) {
-    SettingsRepository.set(setting, value);
+  static get(setting: Setting) {
+    return SettingsRepository.getByName(setting);
+  }
+
+  static set(id: number, value: boolean) {
+    return SettingsRepository.set(id, value);
   }
 }
 
