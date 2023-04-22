@@ -28,6 +28,7 @@ model Anime {
   folderPath       String       @unique
   meanScore        Int
   averageScore     Int
+  popularity       Int
   episodes         Episode[]
   season           Season       @relation(fields: [seasonName, seasonYear], references: [name, year])
   seasonName       String

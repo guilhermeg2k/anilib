@@ -25,6 +25,7 @@ const ANIME_QUERY = `id
           format
           meanScore
           averageScore
+          popularity
           season
           seasonYear
           studios {

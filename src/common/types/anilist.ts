@@ -24,6 +24,7 @@ export type AnilistAnime = {
   format: string;
   meanScore: number;
   averageScore: number;
+  popularity: number;
   season: string;
   seasonYear: number;
   studios: {

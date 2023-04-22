@@ -86,6 +86,7 @@ class AnimeService {
       numberOfEpisodes: anilistAnime.episodes,
       averageScore: anilistAnime.averageScore,
       meanScore: anilistAnime.meanScore,
+      popularity: anilistAnime.popularity,
       releaseDate,
       anilistURL: anilistAnime.siteUrl,
     };
@@ -213,6 +214,7 @@ class AnimeService {
         numberOfEpisodes: anilistAnime.episodes,
         averageScore: anilistAnime.averageScore,
         meanScore: anilistAnime.meanScore,
+        popularity: anilistAnime.popularity,
         releaseDate,
         folderPath,
         bannerImagePath,
