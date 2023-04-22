@@ -158,7 +158,7 @@ class EpisodeService {
         videoFilePath: episodeFilePath,
         shouldUseNVENC,
         outputDir: episodeFileDir,
-        outputFileName: `${episodeFileName}-new`,
+        outputFileName: `${episodeFileName} [ANILIB COMPATIBLE]`,
       });
       newEpisode.originalFilePath = episodeFilePath;
       newEpisode.filePath = episodeFileMp4;

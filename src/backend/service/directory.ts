@@ -3,31 +3,24 @@ import fs from 'fs';
 
 class DirectoryService {
   static list() {
-    const directories = DirectoryRepository.list();
-    return directories;
-  }
-
-  static get(directory: string) {
-    const foundDirectory = DirectoryRepository.get(directory);
-    return foundDirectory;
+    return DirectoryRepository.list();
   }
 
   static create(directory: string) {
-    const newDirectory = DirectoryRepository.create(directory);
-    return newDirectory;
+    return DirectoryRepository.create(directory);
   }
 
-  static delete(directory: string) {
-    DirectoryRepository.delete(directory);
+  static delete(path: string) {
+    return DirectoryRepository.deleteByPath(path);
   }
 
-  static deleteInvalids() {
-    const invalidDirectories = this.list().filter(
-      (directory) => !fs.existsSync(directory)
+  static async deleteInvalids() {
+    const invalidDirectories = (await this.list()).filter(
+      (directory) => !fs.existsSync(directory.path)
     );
 
     invalidDirectories.forEach((invalidDirectory) =>
-      DirectoryRepository.delete(invalidDirectory)
+      DirectoryRepository.deleteByPath(invalidDirectory.path)
     );
   }
 }

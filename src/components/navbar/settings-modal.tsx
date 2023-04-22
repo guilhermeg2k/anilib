@@ -72,7 +72,7 @@ const SettingsModal = ({
     });
 
   const { mutate: deleteDirectory, isLoading: isDeletingDirectory } =
-    trpc.directory.delete.useMutation({
+    trpc.directory.deleteByPath.useMutation({
       onSuccess: () => {
         refreshDirectories();
         toastSuccess('Directory removed');
@@ -153,13 +153,16 @@ const SettingsModal = ({
             </div>
           ) : (
             directories?.map((directory) => (
-              <li key={directory} className="flex items-center justify-between">
-                <span>{directory}</span>
+              <li
+                key={directory.id}
+                className="flex items-center justify-between"
+              >
+                <span>{directory.path}</span>
                 <button
                   className="h-[24px]"
                   onClick={() =>
                     deleteDirectory({
-                      directory,
+                      path: directory.path,
                     })
                   }
                 >

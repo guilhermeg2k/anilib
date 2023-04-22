@@ -85,7 +85,7 @@ model Episode {
   filePath         String     @unique
   originalFilePath String?    @unique
   coverImagePath   String
-  anime            Anime      @relation(fields: [animeID], references: [id])
+  anime            Anime      @relation(fields: [animeID], references: [id], onDelete: Cascade)
   animeID          String
   subtitles        Subtitle[]
   createdAt        DateTime   @default(now())
@@ -97,8 +97,13 @@ model Subtitle {
   filePath  String
   language  String
   label     String
-  episode   Episode  @relation(fields: [episodeID], references: [id])
+  episode   Episode  @relation(fields: [episodeID], references: [id], onDelete: Cascade)
   episodeID String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Directory {
+  id   String @id @default(uuid())
+  path String @unique
 }

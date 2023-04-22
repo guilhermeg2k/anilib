@@ -1,31 +1,27 @@
-import database from 'backend/database';
+import { prisma } from '@backend/database/prisma';
 import AnimeRepository from './anime';
 
 class DirectoryRepository {
   static list() {
-    const directoriesList = new Array<string>();
-    const directories = <Map<string, string>>database.list('directories');
-    directories.forEach((directory) => directoriesList.push(directory));
-    return directoriesList;
-  }
-
-  static get(directory: string) {
-    const foundDirectory = <string>database.get('directories', directory);
-    return foundDirectory;
+    return prisma.directory.findMany();
   }
 
   static create(directory: string) {
-    const newDirectory = database.insertOrUpdate(
-      'directories',
-      directory,
-      directory
-    );
-    return newDirectory;
+    return prisma.directory.create({
+      data: {
+        path: directory,
+      },
+    });
   }
 
-  static delete(directory: string) {
-    database.delete('directories', directory);
-    AnimeRepository.deleteByDirectory(directory);
+  static async deleteByPath(path: string) {
+    console.log(path);
+    await prisma.directory.delete({
+      where: {
+        path,
+      },
+    });
+    await AnimeRepository.deleteByDirectory(path);
   }
 }
 

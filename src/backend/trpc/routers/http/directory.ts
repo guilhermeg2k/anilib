@@ -14,10 +14,10 @@ export const directoryRouter = createRouter({
       return DirectoryService.create(directory);
     }),
 
-  delete: procedure
-    .input(z.object({ directory: z.string() }))
+  deleteByPath: procedure
+    .input(z.object({ path: z.string() }))
     .mutation(({ input }) => {
-      const { directory } = input;
-      return DirectoryService.delete(directory);
+      const { path } = input;
+      return DirectoryService.delete(path);
     }),
 });
