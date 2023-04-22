@@ -153,7 +153,7 @@ class EpisodeService {
       isAudioCodecNotSupported;
 
     if (needsToConvertEpisodeVideo) {
-      const shouldUseNVENC = SettingsService.get('shouldUseNVENC');
+      const shouldUseNVENC = SettingsService.getByName('shouldUseNVENC');
       const episodeFileMp4 = await convertVideoToMp4({
         videoFilePath: episodeFilePath,
         shouldUseNVENC,

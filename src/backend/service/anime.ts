@@ -79,18 +79,48 @@ class AnimeService {
       anilistAnime.startDate.year
     );
 
-    const updateAnime: Anime = {
-      ...anime,
-      coverUrl: anilistAnime.coverImage.extraLarge,
+    const updateAnime = {
+      id: anime.id,
+      anilistID: anilistAnime.id,
       description: anilistAnime.description,
-      episodes: anilistAnime.episodes,
-      status: anilistAnime.status,
-      genres: anilistAnime.genres,
-      format: anilistAnime.format,
+      numberOfEpisodes: anilistAnime.episodes,
+      averageScore: anilistAnime.averageScore,
+      meanScore: anilistAnime.meanScore,
       releaseDate,
+      anilistURL: anilistAnime.siteUrl,
     };
 
-    AnimeRepository.update(updateAnime);
+    const season = {
+      name: anilistAnime.season,
+      year: anilistAnime.seasonYear,
+    };
+
+    const genres = anilistAnime.genres.map((genre) => ({
+      name: genre,
+    }));
+
+    const studios = anilistAnime.studios.nodes.map((studio) => ({
+      anilistID: studio.id,
+      anilistURL: studio.siteUrl,
+      name: studio.name,
+    }));
+
+    const format = {
+      name: anilistAnime.format,
+    };
+
+    const status = {
+      name: anilistAnime.status,
+    };
+
+    return AnimeRepository.update({
+      anime: updateAnime,
+      studios,
+      format,
+      status,
+      genres,
+      season,
+    });
   }
 
   static async createFromDirectories(directories: Array<string>) {

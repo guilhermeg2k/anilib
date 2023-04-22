@@ -1,6 +1,6 @@
 import { prisma } from '@backend/database/prisma';
 import { isPathRelativeToDir } from '@common/utils/file';
-import { Anime, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import EpisodeRepository from './episode';
 
 const ALL_ANIME_RELATIONS_INCLUDE = {
@@ -107,13 +107,70 @@ class AnimeRepository {
       },
     });
   }
-
-  static async update(anime: Anime) {
+  //TODO: FIX THIS MESS
+  static async update({
+    anime,
+    format,
+    status,
+    season,
+    genres,
+    studios,
+  }: {
+    anime: Omit<Prisma.AnimeCreateInput, 'format' | 'status' | 'season'>;
+    titles: Prisma.AnimeTitleCreateInput[];
+    format: Prisma.AnimeFormatCreateInput;
+    status: Prisma.AnimeStatusCreateInput;
+    season: Prisma.SeasonCreateInput;
+    genres: Prisma.GenreCreateInput[];
+    studios: Prisma.StudioCreateInput[];
+  }) {
     return await prisma.anime.update({
       where: {
         id: anime.id,
       },
-      data: anime,
+      data: {
+        ...anime,
+        format: {
+          connectOrCreate: {
+            where: {
+              name: format.name,
+            },
+            create: format,
+          },
+        },
+        status: {
+          connectOrCreate: {
+            where: {
+              name: status.name,
+            },
+            create: status,
+          },
+        },
+        season: {
+          connectOrCreate: {
+            where: {
+              name_year: season,
+            },
+            create: season,
+          },
+        },
+        genres: {
+          connectOrCreate: genres.map((genre) => ({
+            where: {
+              name: genre.name,
+            },
+            create: genre,
+          })),
+        },
+        studios: {
+          connectOrCreate: studios.map((studio) => ({
+            where: {
+              anilistID: studio.anilistID,
+            },
+            create: studio,
+          })),
+        },
+      },
     });
   }
 

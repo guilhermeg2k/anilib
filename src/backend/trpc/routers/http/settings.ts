@@ -22,7 +22,7 @@ export const settingsRouter = createRouter({
     )
     .query(({ input }) => {
       const { setting } = input;
-      return SettingsService.get(setting);
+      return SettingsService.getByName(setting);
     }),
 
   update: procedure
