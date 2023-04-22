@@ -42,7 +42,6 @@ class SubtitleService {
   }
 
   static async createFromEpisode(episode: Episode) {
-    console.log('create from episode');
     const createdSubtitles = Array<Subtitle>();
     const episodeSubtitles = await SubtitleRepository.listByEpisodeId(
       episode.id

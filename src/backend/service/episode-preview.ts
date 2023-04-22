@@ -95,7 +95,7 @@ class EpisodePreviewService {
   private static async createFromFrame(episode: Episode, frame: number) {
     const previewOutputDir = path.join(
       path.dirname(episode.coverImagePath),
-      'preview'
+      'previews'
     );
 
     const previewFilePath = await extractJpgImageFromVideo({

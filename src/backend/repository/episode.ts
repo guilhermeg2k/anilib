@@ -17,7 +17,9 @@ class EpisodeRepository {
   static listConvertedEpisodes() {
     return prisma.episode.findMany({
       where: {
-        wasConverted: true,
+        NOT: {
+          originalFilePath: null,
+        },
       },
     });
   }

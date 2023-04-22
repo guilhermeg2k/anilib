@@ -61,9 +61,11 @@ class EpisodeService {
     const convertedEpisodes = await EpisodeRepository.listConvertedEpisodes();
     const deleteConvertedEpisodesPromises = convertedEpisodes.map(
       async (episode) => {
-        const fileExists = fs.existsSync(episode.originalFilePath);
-        if (fileExists) {
-          return fsPromises.unlink(episode.originalFilePath);
+        if (episode.originalFilePath) {
+          const fileExists = fs.existsSync(episode.originalFilePath);
+          if (fileExists) {
+            return fsPromises.unlink(episode.originalFilePath);
+          }
         }
       }
     );
@@ -81,8 +83,6 @@ class EpisodeService {
   }
 
   static async createFromAnimes(animes: Array<Anime>) {
-    console.log('create from animes');
-
     const createEpisodesPromises = animes.map(async (anime) => {
       await this.createFromAnime(anime);
     });
@@ -116,15 +116,14 @@ class EpisodeService {
     anime: Anime,
     episodeFilePath: string
   ) {
-    console.log('salve 1');
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
     const episodeTitle = this.buildEpisodeTitle(episodeFileName);
-
+    const episodeFileDir = path.dirname(episodeFilePath);
     const episodeCoverImagePath = await extractJpgImageFromVideo({
       videoFilePath: episodeFilePath,
       secondToExtract: EPISODE_IMAGE_COVER_SECOND,
-      outputFileName: episodeFileName,
+      outputFileName: 'episode_cover',
       scaleWidth: 1920,
     });
 
@@ -133,10 +132,10 @@ class EpisodeService {
       animeID: anime.id,
       coverImagePath: episodeCoverImagePath,
       filePath: episodeFilePath,
-      originalFilePath: episodeFilePath,
-      wasConverted: false,
+      originalFilePath: null,
     };
 
+    //TODO: This checks seems to be redundant, since they are done again on the convertVideoToMp4 function
     const isVideoCodecNotSupported = !(await isVideoCodecSupported(
       episodeFilePath
     ));
@@ -155,11 +154,13 @@ class EpisodeService {
 
     if (needsToConvertEpisodeVideo) {
       const shouldUseNVENC = SettingsService.get('shouldUseNVENC');
-      const episodeFileMp4 = await convertVideoToMp4(
-        episodeFilePath,
-        shouldUseNVENC
-      );
-      newEpisode.wasConverted = true;
+      const episodeFileMp4 = await convertVideoToMp4({
+        videoFilePath: episodeFilePath,
+        shouldUseNVENC,
+        outputDir: episodeFileDir,
+        outputFileName: `${episodeFileName}-new`,
+      });
+      newEpisode.originalFilePath = episodeFilePath;
       newEpisode.filePath = episodeFileMp4;
     }
 

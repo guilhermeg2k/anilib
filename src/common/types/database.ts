@@ -24,7 +24,6 @@ export type Episode = {
   filePath: string;
   originalFilePath: string;
   coverImagePath: string;
-  wasConverted: boolean;
   animeId: string;
 };
 

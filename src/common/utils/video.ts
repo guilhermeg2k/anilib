@@ -27,21 +27,23 @@ const getDefaultOutputDir = (filePath: string) => {
   return fileOutputDir;
 };
 
-export const convertVideoToMp4 = async (
-  videoFilePath: string,
+export const convertVideoToMp4 = async ({
+  videoFilePath,
   shouldUseNVENC = false,
-  outputDir = getDefaultOutputDir(videoFilePath)
-) => {
+  outputDir = getDefaultOutputDir(videoFilePath),
+  outputFileName = path.basename(videoFilePath, path.extname(videoFilePath)),
+}: {
+  videoFilePath: string;
+  shouldUseNVENC: boolean;
+  outputDir?: string;
+  outputFileName?: string;
+}) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
     await fsPromises.mkdir(outputDir);
   }
 
-  const videoFileExt = path.extname(videoFilePath);
-  const mp4FileName = path
-    .basename(videoFilePath)
-    .replace(videoFileExt, '.mp4');
-  const mp4FilePath = path.join(outputDir, mp4FileName);
+  const mp4FilePath = path.join(outputDir, outputFileName + '.mp4');
   const videoDoesNotExists = !fs.existsSync(mp4FilePath);
 
   if (videoDoesNotExists) {
@@ -180,7 +182,7 @@ export const extractJpgImageFromVideo = async ({
 
 export const extractSubtitlesFromVideo = async (
   videoFilePath: string,
-  outputDir = getDefaultOutputDir(videoFilePath)
+  outputDir = path.join(getDefaultOutputDir(videoFilePath), 'subtitles')
 ) => {
   const outputDirDoesNotExists = !fs.existsSync(outputDir);
   if (outputDirDoesNotExists) {
