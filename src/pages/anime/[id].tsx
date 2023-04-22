@@ -30,7 +30,7 @@ const Anime = ({ id }: { id: string }) => {
     isLoading: isLoadingAnime,
     error: animeLoadError,
     refetch: refetchAnime,
-  } = trpc.anime.getById.useQuery({
+  } = trpc.anime.getWithAllRelationsById.useQuery({
     id,
   });
 

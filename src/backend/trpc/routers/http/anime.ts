@@ -7,10 +7,12 @@ export const animeRouter = createRouter({
     return AnimeService.listWithAllRelations();
   }),
 
-  getById: procedure.input(z.object({ id: z.string() })).query(({ input }) => {
-    const { id } = input;
-    return AnimeService.getById(id);
-  }),
+  getWithAllRelationsById: procedure
+    .input(z.object({ id: z.string() }))
+    .query(({ input }) => {
+      const { id } = input;
+      return AnimeService.getWithAllRelationsById(id);
+    }),
 
   syncDataWithAnilistById: procedure
     .input(z.object({ id: z.string() }))

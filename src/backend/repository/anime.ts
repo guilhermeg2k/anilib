@@ -1,6 +1,15 @@
 import { prisma } from '@backend/database/prisma';
+import {
+  AnimeCreateInputWithoutRelations,
+  AnimeFormatInput,
+  AnimeStatusInput,
+  AnimeTitleInput,
+  AnimeUpdateInputWithoutRelations,
+  GenreInput,
+  SeasonInput,
+  StudioInput,
+} from '@common/types/prisma';
 import { isPathRelativeToDir } from '@common/utils/file';
-import { Prisma } from '@prisma/client';
 import EpisodeRepository from './episode';
 
 const ALL_ANIME_RELATIONS_INCLUDE = {
@@ -24,15 +33,6 @@ class AnimeRepository {
     });
   }
 
-  static getById(id: string) {
-    return prisma.anime.findUniqueOrThrow({
-      where: {
-        id,
-      },
-      include: ALL_ANIME_RELATIONS_INCLUDE,
-    });
-  }
-  //TODO: CREATE A THROWABLE VERSION OF THIS
   static async listByPath(path: string) {
     return await prisma.anime.findFirst({
       where: {
@@ -41,7 +41,16 @@ class AnimeRepository {
     });
   }
 
-  static async create({
+  static getWithAllRelationsById(id: string) {
+    return prisma.anime.findUniqueOrThrow({
+      where: {
+        id,
+      },
+      include: ALL_ANIME_RELATIONS_INCLUDE,
+    });
+  }
+
+  static async createWithAllRelations({
     anime,
     titles,
     format,
@@ -50,13 +59,13 @@ class AnimeRepository {
     genres,
     studios,
   }: {
-    anime: Omit<Prisma.AnimeCreateInput, 'format' | 'status' | 'season'>;
-    titles: Prisma.AnimeTitleCreateInput[];
-    format: Prisma.AnimeFormatCreateInput;
-    status: Prisma.AnimeStatusCreateInput;
-    season: Prisma.SeasonCreateInput;
-    genres: Prisma.GenreCreateInput[];
-    studios: Prisma.StudioCreateInput[];
+    anime: AnimeCreateInputWithoutRelations;
+    titles: AnimeTitleInput[];
+    format: AnimeFormatInput;
+    status: AnimeStatusInput;
+    season: SeasonInput;
+    genres: GenreInput[];
+    studios: StudioInput[];
   }) {
     return await prisma.anime.create({
       data: {
@@ -107,8 +116,8 @@ class AnimeRepository {
       },
     });
   }
-  //TODO: FIX THIS MESS
-  static async update({
+
+  static async updateWithAllRelations({
     anime,
     format,
     status,
@@ -116,13 +125,12 @@ class AnimeRepository {
     genres,
     studios,
   }: {
-    anime: Omit<Prisma.AnimeCreateInput, 'format' | 'status' | 'season'>;
-    titles: Prisma.AnimeTitleCreateInput[];
-    format: Prisma.AnimeFormatCreateInput;
-    status: Prisma.AnimeStatusCreateInput;
-    season: Prisma.SeasonCreateInput;
-    genres: Prisma.GenreCreateInput[];
-    studios: Prisma.StudioCreateInput[];
+    anime: AnimeUpdateInputWithoutRelations;
+    format: AnimeFormatInput;
+    status: AnimeStatusInput;
+    season: SeasonInput;
+    genres: GenreInput[];
+    studios: StudioInput[];
   }) {
     return await prisma.anime.update({
       where: {
@@ -183,7 +191,7 @@ class AnimeRepository {
     });
   }
 
-  static async deleteByIDS(ids: string[]) {
+  static async deleteByIds(ids: string[]) {
     return await prisma.anime.deleteMany({
       where: {
         id: {
