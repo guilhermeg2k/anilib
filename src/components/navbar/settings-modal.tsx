@@ -91,7 +91,7 @@ const SettingsModal = ({
 
   const onCreateNewDirectory = async (event: React.FormEvent) => {
     event.preventDefault();
-    await createDirectory({ directory: newDirectory });
+    await createDirectory({ path: newDirectory });
     setNewDirectory('');
   };
 

@@ -6,16 +6,15 @@ class DirectoryRepository {
     return prisma.directory.findMany();
   }
 
-  static create(directory: string) {
+  static create(path: string) {
     return prisma.directory.create({
       data: {
-        path: directory,
+        path,
       },
     });
   }
 
   static async deleteByPath(path: string) {
-    console.log(path);
     await prisma.directory.delete({
       where: {
         path,

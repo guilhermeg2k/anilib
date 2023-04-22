@@ -8,16 +8,16 @@ export const directoryRouter = createRouter({
   }),
 
   create: procedure
-    .input(z.object({ directory: z.string() }))
+    .input(z.object({ path: z.string() }))
     .mutation(({ input }) => {
-      const { directory } = input;
-      return DirectoryService.create(directory);
+      const { path } = input;
+      return DirectoryService.create(path);
     }),
 
   deleteByPath: procedure
     .input(z.object({ path: z.string() }))
     .mutation(({ input }) => {
       const { path } = input;
-      return DirectoryService.delete(path);
+      return DirectoryService.deleteByPath(path);
     }),
 });

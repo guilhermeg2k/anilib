@@ -6,11 +6,11 @@ class DirectoryService {
     return DirectoryRepository.list();
   }
 
-  static create(directory: string) {
-    return DirectoryRepository.create(directory);
+  static create(path: string) {
+    return DirectoryRepository.create(path);
   }
 
-  static delete(path: string) {
+  static deleteByPath(path: string) {
     return DirectoryRepository.deleteByPath(path);
   }
 
@@ -19,9 +19,9 @@ class DirectoryService {
       (directory) => !fs.existsSync(directory.path)
     );
 
-    invalidDirectories.forEach((invalidDirectory) =>
-      DirectoryRepository.deleteByPath(invalidDirectory.path)
-    );
+    for await (const invalidDirectory of invalidDirectories) {
+      await DirectoryRepository.deleteByPath(invalidDirectory.path);
+    }
   }
 }
 
