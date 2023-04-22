@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 const Watch = () => {
   const router = useRouter();
   const id = String(router.query.id);
+
   const {
     data: episode,
     isLoading: isLoadingEpisode,

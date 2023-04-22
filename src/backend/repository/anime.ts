@@ -10,7 +10,6 @@ import {
   StudioInput,
 } from '@common/types/prisma';
 import { isPathRelativeToDir } from '@common/utils/file';
-import EpisodeRepository from './episode';
 
 const ALL_ANIME_RELATIONS_INCLUDE = {
   season: true,
@@ -183,7 +182,6 @@ class AnimeRepository {
   }
 
   static async deleteById(id: string) {
-    await EpisodeRepository.deleteByAnimeId(id);
     return await prisma.anime.delete({
       where: {
         id,

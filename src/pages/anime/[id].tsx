@@ -14,6 +14,23 @@ import { GetServerSideProps } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
+const getCategoryColorClass = (colorSeed: number) => {
+  const colorIndex = (colorSeed + 1) % 4;
+  switch (colorIndex) {
+    case 0:
+      return 'bg-purple-500';
+    case 1:
+      return 'bg-amber-500';
+    case 2:
+      return 'bg-lime-500';
+    case 3:
+      return 'bg-blue-500';
+
+    default:
+      return '';
+  }
+};
+
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? String(params?.id) : '';
 
@@ -34,20 +51,12 @@ const Anime = ({ id }: { id: string }) => {
     id,
   });
 
-  const {
-    data: episodes,
-    isLoading: isLoadingEpisodes,
-    error: episodesLoadError,
-  } = trpc.episode.listByAnimeId.useQuery({
-    animeId: id,
-  });
-
   const syncDataWithAnilistMutation =
     trpc.anime.syncDataWithAnilistById.useMutation();
 
   const router = useRouter();
 
-  if (isLoadingAnime || isLoadingEpisodes) {
+  if (isLoadingAnime) {
     return (
       <Page title="Loading">
         <div className="h-full flex items-center justify-center">
@@ -57,7 +66,7 @@ const Anime = ({ id }: { id: string }) => {
     );
   }
 
-  if (animeLoadError || episodesLoadError) {
+  if (animeLoadError) {
     toastError('Failed to load anime');
     router.push('/');
     return null;
@@ -171,23 +180,6 @@ const Anime = ({ id }: { id: string }) => {
       </main>
     </Page>
   );
-};
-
-const getCategoryColorClass = (colorSeed: number) => {
-  const colorIndex = (colorSeed + 1) % 4;
-  switch (colorIndex) {
-    case 0:
-      return 'bg-purple-500';
-    case 1:
-      return 'bg-amber-500';
-    case 2:
-      return 'bg-lime-500';
-    case 3:
-      return 'bg-blue-500';
-
-    default:
-      return '';
-  }
 };
 
 export default Anime;

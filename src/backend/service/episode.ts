@@ -12,13 +12,13 @@ import {
   isVideoCodecSupported,
   isVideoContainerSupported,
 } from '@common/utils/video';
-import { Anime, Episode } from '@prisma/client';
 import EpisodeRepository from 'backend/repository/episode';
 import { getNumbersSumFromString } from 'common/utils/string';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import SettingsService from './settings';
+import { Anime, Episode, EpisodeInput } from '@common/types/prisma';
 
 const fsPromises = fs.promises;
 
@@ -26,7 +26,7 @@ const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
 const EPISODE_IMAGE_COVER_SECOND = 5;
 
 class EpisodeService {
-  private static createFromAnimeAndFilePathPromiseLimiter = pLimit(3);
+  private static createFromAnimeAndFilePathPromiseLimiter = pLimit(2);
 
   static list() {
     return EpisodeRepository.list();
@@ -58,17 +58,20 @@ class EpisodeService {
   }
 
   static async deleteConverted() {
-    const convertedEpisodes = await EpisodeRepository.listConvertedEpisodes();
+    const convertedEpisodes = await EpisodeRepository.listConverted();
+
     const deleteConvertedEpisodesPromises = convertedEpisodes.map(
       async (episode) => {
         if (episode.originalFilePath) {
           const fileExists = fs.existsSync(episode.originalFilePath);
+
           if (fileExists) {
             return fsPromises.unlink(episode.originalFilePath);
           }
         }
       }
     );
+
     await Promise.all(deleteConvertedEpisodesPromises);
   }
 
@@ -91,7 +94,7 @@ class EpisodeService {
     return createdEpisodes.flat(Infinity);
   }
 
-  static async createFromAnime(anime: Anime) {
+  private static async createFromAnime(anime: Anime) {
     const episodeFilePaths = await getFilesInDirectoryByExtensions(
       anime.folderPath,
       EPISODE_FILES_EXTENSIONS
@@ -101,6 +104,7 @@ class EpisodeService {
       const episodeDoesNotExists =
         !(await this.getByPath(episodeFilePath)) &&
         !(await this.getByOriginalPath(episodeFilePath));
+
       if (episodeDoesNotExists) {
         return this.createFromAnimeAndFilePathPromiseLimiter(() =>
           this.createFromAnimeAndFilePath(anime, episodeFilePath)
@@ -127,7 +131,7 @@ class EpisodeService {
       scaleWidth: 1920,
     });
 
-    const newEpisode: Omit<Episode, 'id' | 'createdAt' | 'updatedAt'> = {
+    const newEpisode: EpisodeInput = {
       title: episodeTitle,
       animeID: anime.id,
       coverImagePath: episodeCoverImagePath,
@@ -135,42 +139,24 @@ class EpisodeService {
       originalFilePath: null,
     };
 
-    //TODO: This checks seems to be redundant, since they are done again on the convertVideoToMp4 function
-    const isVideoCodecNotSupported = !(await isVideoCodecSupported(
-      episodeFilePath
-    ));
+    if (await this.episodeNeedsToBeConverted(episodeFilePath)) {
+      const shouldUseNVENC = await SettingsService.getByName('shouldUseNVENC');
 
-    const isAudioCodecNotSupported = !(await isAudioCodecSupported(
-      episodeFilePath
-    ));
-
-    const isVideoContainerNotSupported =
-      !isVideoContainerSupported(episodeFilePath);
-
-    const needsToConvertEpisodeVideo =
-      isVideoCodecNotSupported ||
-      isVideoContainerNotSupported ||
-      isAudioCodecNotSupported;
-
-    if (needsToConvertEpisodeVideo) {
-      const shouldUseNVENC = SettingsService.getByName('shouldUseNVENC');
       const episodeFileMp4 = await convertVideoToMp4({
         videoFilePath: episodeFilePath,
-        shouldUseNVENC,
         outputDir: episodeFileDir,
         outputFileName: `${episodeFileName} [ANILIB COMPATIBLE]`,
+        shouldUseNVENC: shouldUseNVENC.value,
       });
+
       newEpisode.originalFilePath = episodeFilePath;
       newEpisode.filePath = episodeFileMp4;
     }
 
-    const createdEpisode = await this.create(newEpisode);
-    return createdEpisode;
+    return this.create(newEpisode);
   }
 
-  private static create(
-    episode: Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>
-  ) {
+  private static create(episode: EpisodeInput) {
     return EpisodeRepository.create(episode);
   }
 
@@ -192,6 +178,25 @@ class EpisodeService {
     const episodeBNumbersSum = getNumbersSumFromString(episodeB.title);
     return episodeANumbersSum > episodeBNumbersSum ? 1 : -1;
   };
+
+  private static async episodeNeedsToBeConverted(episodeFilePath: string) {
+    const isVideoCodecNotSupported = !(await isVideoCodecSupported(
+      episodeFilePath
+    ));
+
+    const isAudioCodecNotSupported = !(await isAudioCodecSupported(
+      episodeFilePath
+    ));
+
+    const isVideoContainerNotSupported =
+      !isVideoContainerSupported(episodeFilePath);
+
+    return (
+      isVideoCodecNotSupported ||
+      isVideoContainerNotSupported ||
+      isAudioCodecNotSupported
+    );
+  }
 }
 
 export default EpisodeService;

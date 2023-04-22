@@ -1,7 +1,6 @@
 import { Popover } from '@components/popover';
 import { Tab } from '@headlessui/react';
 import { formatSecondsInTime } from 'common/utils/time';
-import { Subtitle as Subtitles } from '@common/types/database';
 import { clsx } from 'clsx';
 import { useCueChange } from 'hooks/use-cue-change';
 import { useEventListener } from 'hooks/use-event-listener';
@@ -25,6 +24,7 @@ import {
 } from './video-player-store';
 import HTMLParser from 'html-react-parser';
 import { BRACES_CONTENT_REGEX } from '@common/constants/regex';
+import { Subtitle } from '@common/types/prisma';
 
 export const VideoPlayer = ({
   videoUrl,
@@ -37,7 +37,7 @@ export const VideoPlayer = ({
   videoUrl: string;
   coverImageBase64: string;
   episodeTitle: string;
-  subtitles: Array<Subtitles>;
+  subtitles: Array<Subtitle>;
   previews: Array<string | null>;
   onNextEpisode: () => void;
 }) => {
@@ -763,7 +763,7 @@ const toggleFullscreen = (videoPlayerDiv: HTMLDivElement | null) => {
   }
 };
 
-const getDefaultSubtitle = (subtitles: Array<Subtitles>) =>
+const getDefaultSubtitle = (subtitles: Array<Subtitle>) =>
   subtitles.length === 1
     ? subtitles[0].id
     : subtitles.find((subtitle) => subtitle.language === 'por')?.id;

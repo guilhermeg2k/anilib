@@ -1,5 +1,5 @@
 import { prisma } from '@backend/database/prisma';
-import { Episode } from '@prisma/client';
+import { EpisodeInput } from '@common/types/prisma';
 
 class EpisodeRepository {
   static list() {
@@ -14,7 +14,7 @@ class EpisodeRepository {
     });
   }
 
-  static listConvertedEpisodes() {
+  static listConverted() {
     return prisma.episode.findMany({
       where: {
         NOT: {
@@ -48,9 +48,7 @@ class EpisodeRepository {
     });
   }
 
-  static async create(
-    episode: Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>
-  ) {
+  static async create(episode: EpisodeInput) {
     await prisma.episode.create({
       data: episode,
     });

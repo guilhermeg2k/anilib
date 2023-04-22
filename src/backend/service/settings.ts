@@ -7,7 +7,7 @@ class SettingsService {
   }
 
   static getByName(setting: Setting) {
-    return SettingsRepository.getByName(setting);
+    return SettingsRepository.getByNameOrThrow(setting);
   }
 
   static set(id: number, value: boolean) {

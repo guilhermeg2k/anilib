@@ -33,12 +33,10 @@ class LibraryService {
         console.log('Animes updated!');
 
         const animes = await AnimeService.list();
-
         await EpisodeService.createFromAnimes(animes);
         console.log('Episodes updated!');
 
         const episodes = await EpisodeService.list();
-
         await SubtitleService.createFromEpisodes(episodes);
         console.log('Subtitles updated!');
 

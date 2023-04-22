@@ -7,8 +7,8 @@ class SettingsRepository {
     return prisma.updateLibrarySetting.findMany();
   }
 
-  static getByName(name: Setting) {
-    return prisma.updateLibrarySetting.findUnique({
+  static getByNameOrThrow(name: Setting) {
+    return prisma.updateLibrarySetting.findUniqueOrThrow({
       where: {
         name,
       },

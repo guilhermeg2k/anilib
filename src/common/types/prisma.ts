@@ -7,10 +7,12 @@ import {
   Genre as DBGenre,
   Season as DBSeason,
   Studio as DBStudio,
+  Subtitle as DBSubtitle,
   Prisma,
 } from '@prisma/client';
 
 export type Anime = DBAnime;
+export type Subtitle = DBSubtitle;
 export type AnimeFormat = DBAnimeFormat;
 export type AnimeStatus = DBAnimeStatus;
 export type AnimeTitle = DBAnimeTitle;
@@ -40,7 +42,7 @@ export type AnimeUpdateInputWithoutRelations =
 export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
 export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
 export type AnimeTitleInput = Prisma.AnimeTitleCreateInput;
-export type EpisodeInput = Prisma.EpisodeCreateInput;
+export type EpisodeInput = Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>;
 export type GenreInput = Prisma.GenreCreateInput;
 export type SeasonInput = Prisma.SeasonCreateInput;
 export type StudioInput = Prisma.StudioCreateInput;
