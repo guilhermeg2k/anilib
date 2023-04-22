@@ -1,17 +1,9 @@
 import { prisma } from '@backend/database/prisma';
-import { Subtitle } from '@prisma/client';
+import { SubtitleInput } from '@common/types/prisma';
 
 class SubtitleRepository {
   static list() {
     return prisma.subtitle.findMany();
-  }
-
-  static getById(id: string) {
-    return prisma.subtitle.findUnique({
-      where: {
-        id,
-      },
-    });
   }
 
   static listByEpisodeId(episodeID: string) {
@@ -22,7 +14,15 @@ class SubtitleRepository {
     });
   }
 
-  static create(subtitle: Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>) {
+  static getById(id: string) {
+    return prisma.subtitle.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  static create(subtitle: SubtitleInput) {
     return prisma.subtitle.create({
       data: subtitle,
     });

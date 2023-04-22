@@ -1,10 +1,10 @@
-import SubtitleRepository from 'backend/repository/subtitle';
+import { Episode, Subtitle, SubtitleInput } from '@common/types/prisma';
 import { getFolderVttFilesByFileNamePrefix } from '@common/utils/file';
 import { extractSubtitlesFromVideo } from '@common/utils/video';
+import SubtitleRepository from 'backend/repository/subtitle';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
-import { Episode, Subtitle } from '@prisma/client';
 
 class SubtitleService {
   private static createFromEpisodePromiseLimiter = pLimit(6);
@@ -34,7 +34,7 @@ class SubtitleService {
   static async createFromEpisodes(episodes: Array<Episode>) {
     const createEpisodesPromises = episodes.map((episode) =>
       this.createFromEpisodePromiseLimiter(() =>
-        SubtitleService.createFromEpisode(episode)
+        this.createFromEpisode(episode)
       )
     );
     const createdSubtitles = await Promise.all(createEpisodesPromises);
@@ -61,14 +61,14 @@ class SubtitleService {
       const episodeHasVttFiles = subtitleFiles.length > 0;
 
       if (episodeHasVttFiles) {
-        const createdFromFiles = await SubtitleService.createFromVttFiles(
+        const createdFromFiles = await this.createFromVttFiles(
           subtitleFiles,
           episode.id!
         );
         createdSubtitles.push(...createdFromFiles);
       } else {
         if (episode.originalFilePath) {
-          const createdFromVideo = await SubtitleService.createFromVideo(
+          const createdFromVideo = await this.createFromVideo(
             episode.originalFilePath,
             episode.id!
           );
@@ -80,9 +80,7 @@ class SubtitleService {
     return createdSubtitles;
   }
 
-  private static async create(
-    subtitle: Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>
-  ) {
+  private static async create(subtitle: SubtitleInput) {
     return SubtitleRepository.create(subtitle);
   }
 
@@ -96,7 +94,7 @@ class SubtitleService {
       const subtitleFileName = path.basename(subtitleFile);
       const lang = subtitleFileName.match(/.*-(.*)\.vtt/);
       if (lang && lang[1]) {
-        const newSubtitle = {
+        const newSubtitle: SubtitleInput = {
           label: lang[1],
           language: lang[1],
           filePath: subtitleFile,
@@ -119,7 +117,7 @@ class SubtitleService {
     if (fileExists) {
       const videoSubtitles = await extractSubtitlesFromVideo(videoFilePath);
       for (const subtitle of videoSubtitles) {
-        const newSubtitle = {
+        const newSubtitle: SubtitleInput = {
           label: subtitle.title,
           language: subtitle.language,
           filePath: subtitle.filePath,

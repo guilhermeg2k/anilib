@@ -18,8 +18,8 @@ const Watch = () => {
 
   const {
     data: subtitles,
-    isLoading: isLoadingSubtitle,
-    isError: hasSubtitleLoadingFailed,
+    isLoading: isLoadingSubtitles,
+    isError: loadSubtitleError,
   } = trpc.subtitle.listByEpisodeId.useQuery({
     episodeId: id,
   });
@@ -45,7 +45,7 @@ const Watch = () => {
 
   if (
     isLoadingEpisode ||
-    isLoadingSubtitle ||
+    isLoadingSubtitles ||
     isLoadingPreviews ||
     isEpisodesLoading
   ) {
@@ -60,7 +60,7 @@ const Watch = () => {
 
   if (
     hasEpisodeLoadingFailed ||
-    hasSubtitleLoadingFailed ||
+    loadSubtitleError ||
     hasEpisodesLoadingFailed ||
     hasPreviewsLoadingFailed
   ) {

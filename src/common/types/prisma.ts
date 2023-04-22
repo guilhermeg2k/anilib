@@ -21,6 +21,13 @@ export type Genre = DBGenre;
 export type Season = DBSeason;
 export type Studio = DBStudio;
 
+export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
+export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
+export type AnimeTitleInput = Prisma.AnimeTitleCreateInput;
+export type GenreInput = Prisma.GenreCreateInput;
+export type SeasonInput = Prisma.SeasonCreateInput;
+export type StudioInput = Prisma.StudioCreateInput;
+
 export type AnimeWithAllRelations = Anime & {
   season: Season;
   genres: Genre[];
@@ -39,10 +46,6 @@ export type AnimeCreateInputWithoutRelations = Omit<
 export type AnimeUpdateInputWithoutRelations =
   Partial<AnimeCreateInputWithoutRelations>;
 
-export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
-export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
-export type AnimeTitleInput = Prisma.AnimeTitleCreateInput;
 export type EpisodeInput = Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>;
-export type GenreInput = Prisma.GenreCreateInput;
-export type SeasonInput = Prisma.SeasonCreateInput;
-export type StudioInput = Prisma.StudioCreateInput;
+
+export type SubtitleInput = Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>;
