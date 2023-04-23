@@ -9,7 +9,6 @@ import {
   SeasonInput,
   StudioInput,
 } from '@common/types/prisma';
-import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anime';
 import { createDateByDayMonthAndYear } from '@common/utils/date';
 import { downloadFile } from '@common/utils/file';
 import AnimeRepository from 'backend/repository/anime';
@@ -17,6 +16,7 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import AnilistService from './anilist';
+import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anilist';
 
 const fsPromises = fs.promises;
 
