@@ -1,13 +1,7 @@
+import SettingsService from '@backend/service/settings';
+import { ZSettingName } from '@common/types/prisma';
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
-import SettingsService from '@backend/service/settings';
-
-//TODO:UPDATE THIS
-const zSetting = z.enum([
-  'isToDeleteConvertedData',
-  'isToDeleteInvalidData',
-  'shouldUseNVENC',
-]);
 
 export const settingsRouter = createRouter({
   list: procedure.query(() => {
@@ -17,7 +11,7 @@ export const settingsRouter = createRouter({
   get: procedure
     .input(
       z.object({
-        setting: zSetting,
+        setting: ZSettingName,
       })
     )
     .query(({ input }) => {

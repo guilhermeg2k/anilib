@@ -1,27 +1,33 @@
 import { prisma } from '../prisma';
+import { SettingName } from '@common/types/prisma';
 
-//TODO: Move this from here
-export type Setting = typeof SETTINGS[number]['name'];
+type Setting = {
+  name: SettingName;
+  defaultValue: boolean;
+};
 
-const SETTINGS = [
+export const AVAILABLE_SETTINGS: Setting[] = [
   {
     name: 'DELETE_INVALID_DATA',
-    value: true,
+    defaultValue: true,
   },
   {
     name: 'DELETE_CONVERTED_DATA',
-    value: false,
+    defaultValue: false,
   },
   {
     name: 'USE_NVENC',
-    value: false,
+    defaultValue: false,
   },
-] as const;
+];
 
 const seed = async () => {
-  for await (const setting of SETTINGS) {
+  for await (const setting of AVAILABLE_SETTINGS) {
     await prisma.updateLibrarySetting.create({
-      data: setting,
+      data: {
+        name: setting.name,
+        value: setting.defaultValue,
+      },
     });
   }
 };

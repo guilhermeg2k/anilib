@@ -1,13 +1,12 @@
 import { prisma } from '@backend/database/prisma';
-//TODO: Change setting type
-import { Setting } from '@common/types/database';
+import { SettingName } from '@common/types/prisma';
 
 class SettingsRepository {
   static list() {
     return prisma.updateLibrarySetting.findMany();
   }
 
-  static getByNameOrThrow(name: Setting) {
+  static getByNameOrThrow(name: SettingName) {
     return prisma.updateLibrarySetting.findUniqueOrThrow({
       where: {
         name,

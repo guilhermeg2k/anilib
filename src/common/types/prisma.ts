@@ -10,6 +10,7 @@ import {
   Subtitle as DBSubtitle,
   Prisma,
 } from '@prisma/client';
+import { z } from 'zod';
 
 export type Anime = DBAnime;
 export type Subtitle = DBSubtitle;
@@ -49,3 +50,11 @@ export type AnimeUpdateInputWithoutRelations =
 export type EpisodeInput = Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>;
 
 export type SubtitleInput = Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>;
+
+export const ZSettingName = z.enum([
+  'DELETE_INVALID_DATA',
+  'DELETE_CONVERTED_DATA',
+  'USE_NVENC',
+]);
+
+export type SettingName = z.infer<typeof ZSettingName>;

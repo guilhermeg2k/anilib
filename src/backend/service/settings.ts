@@ -1,4 +1,4 @@
-import { Setting } from '@common/types/database';
+import { SettingName } from '@common/types/prisma';
 import SettingsRepository from 'backend/repository/settings';
 
 class SettingsService {
@@ -6,7 +6,7 @@ class SettingsService {
     return SettingsRepository.list();
   }
 
-  static getByName(setting: Setting) {
+  static getByName(setting: SettingName) {
     return SettingsRepository.getByNameOrThrow(setting);
   }
 
