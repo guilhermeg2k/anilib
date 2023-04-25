@@ -8,6 +8,7 @@ import {
   Season as DBSeason,
   Studio as DBStudio,
   Subtitle as DBSubtitle,
+  Directory as DBDirectory,
   Prisma,
 } from '@prisma/client';
 import { z } from 'zod';
@@ -21,6 +22,7 @@ export type Episode = DBEpisode;
 export type Genre = DBGenre;
 export type Season = DBSeason;
 export type Studio = DBStudio;
+export type Directory = DBDirectory;
 
 export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
 export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
@@ -28,6 +30,7 @@ export type AnimeTitleInput = Prisma.AnimeTitleCreateInput;
 export type GenreInput = Prisma.GenreCreateInput;
 export type SeasonInput = Prisma.SeasonCreateInput;
 export type StudioInput = Prisma.StudioCreateInput;
+export type DirectoryInput = Prisma.DirectoryCreateInput;
 
 export type AnimeWithAllRelations = Anime & {
   season: Season;
@@ -41,7 +44,14 @@ export type AnimeWithAllRelations = Anime & {
 
 export type AnimeCreateInputWithoutRelations = Omit<
   Prisma.AnimeCreateInput,
-  'format' | 'status' | 'season' | 'titles' | 'studios' | 'genres' | 'episodes'
+  | 'format'
+  | 'status'
+  | 'season'
+  | 'titles'
+  | 'studios'
+  | 'genres'
+  | 'episodes'
+  | 'directory'
 >;
 
 export type AnimeUpdateInputWithoutRelations =

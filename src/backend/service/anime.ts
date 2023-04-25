@@ -5,6 +5,7 @@ import {
   AnimeFormatInput,
   AnimeStatusInput,
   AnimeTitleInput,
+  Directory,
   GenreInput,
   SeasonInput,
   StudioInput,
@@ -104,7 +105,7 @@ class AnimeService {
     });
   }
 
-  static async createFromDirectories(directories: Array<string>) {
+  static async createFromDirectories(directories: Array<Directory>) {
     const createdAnimesPromises = directories.map(async (directory) =>
       this.createFromDirectoryPromiseLimiter(() =>
         this.createFromDirectory(directory)
@@ -114,17 +115,17 @@ class AnimeService {
     return createdAnimes.flat(Infinity);
   }
 
-  private static async createFromDirectory(directoryPath: string) {
+  private static async createFromDirectory(directory: Directory) {
     const createdAnimes = Array<Anime>();
-    const directoryExists = fs.existsSync(directoryPath);
+    const directoryExists = fs.existsSync(directory.path);
 
     if (directoryExists) {
-      const directoryFolders = await fsPromises.readdir(directoryPath);
+      const directoryFolders = await fsPromises.readdir(directory.path);
 
       for (const folder of directoryFolders) {
         const createdAnime = await this.createFromFolderOnDirectory(
           folder,
-          directoryPath
+          directory
         );
 
         if (createdAnime) {
@@ -138,9 +139,9 @@ class AnimeService {
 
   private static async createFromFolderOnDirectory(
     folder: string,
-    folderDirectoryPath: string
+    directory: Directory
   ) {
-    const folderPath = path.join(folderDirectoryPath, folder);
+    const folderPath = path.join(directory.path, folder);
     const folderInfo = await fsPromises.stat(folderPath);
 
     if (folderInfo.isDirectory()) {
@@ -154,6 +155,7 @@ class AnimeService {
 
       const searchTitle = folder.replaceAll(SQUARE_BRACKET_CONTENT_REGEX, '');
       const createdAnime = await this.createFromFolderPathBySearchingOnAnilist(
+        directory,
         folderPath,
         searchTitle
       );
@@ -163,6 +165,7 @@ class AnimeService {
   }
 
   private static async createFromFolderPathBySearchingOnAnilist(
+    directory: Directory,
     folderPath: string,
     searchText: string
   ) {
@@ -186,6 +189,7 @@ class AnimeService {
 
       const createdAnime = await AnimeRepository.createWithAllRelations({
         anime,
+        directory,
         studios,
         format,
         status,

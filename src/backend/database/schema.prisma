@@ -26,6 +26,8 @@ model Anime {
   format           AnimeFormat  @relation(fields: [formatId], references: [id])
   formatId         Int
   folderPath       String       @unique
+  directory        Directory    @relation(fields: [directoryId], references: [id], onDelete: Cascade)
+  directoryId      Int
   meanScore        Int
   averageScore     Int
   popularity       Int
@@ -105,8 +107,9 @@ model Subtitle {
 }
 
 model Directory {
-  id   Int    @id @default(autoincrement())
-  path String @unique
+  id    Int     @id @default(autoincrement())
+  path  String  @unique
+  Anime Anime[]
 }
 
 model UpdateLibrarySetting {

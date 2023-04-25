@@ -5,6 +5,7 @@ import {
   AnimeStatusInput,
   AnimeTitleInput,
   AnimeUpdateInputWithoutRelations,
+  Directory,
   GenreInput,
   SeasonInput,
   StudioInput,
@@ -51,6 +52,7 @@ class AnimeRepository {
 
   static async createWithAllRelations({
     anime,
+    directory,
     titles,
     format,
     status,
@@ -59,6 +61,7 @@ class AnimeRepository {
     studios,
   }: {
     anime: AnimeCreateInputWithoutRelations;
+    directory: Directory;
     titles: AnimeTitleInput[];
     format: AnimeFormatInput;
     status: AnimeStatusInput;
@@ -71,6 +74,11 @@ class AnimeRepository {
         ...anime,
         titles: {
           create: titles,
+        },
+        directory: {
+          connect: {
+            id: directory.id,
+          },
         },
         format: {
           connectOrCreate: {

@@ -25,9 +25,7 @@ class LibraryService {
           await SubtitleService.deleteInvalids();
         }
 
-        const directories = (await DirectoryService.list()).map(
-          (directory) => directory.path
-        );
+        const directories = await DirectoryService.list();
 
         await AnimeService.createFromDirectories(directories);
         console.log('Animes updated!');
