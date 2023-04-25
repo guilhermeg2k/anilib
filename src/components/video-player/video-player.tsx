@@ -110,18 +110,31 @@ export const VideoPlayer = ({
     setIsFullscreen(Boolean(document.fullscreenElement));
   }, [setIsFullscreen]);
 
+  const setInitialSubtitle = useCallback(() => {
+    if (video) {
+      const defaultSubtitle = getDefaultSubtitle(subtitles) ?? '';
+      setCurrentSubtitleId(defaultSubtitle);
+
+      Array.from(video.textTracks).forEach((textTrack) => {
+        if (textTrack.id !== defaultSubtitle) {
+          textTrack.mode = 'hidden';
+        } else {
+          textTrack.mode = 'showing';
+          setCurrentSubtitleId(textTrack.id);
+        }
+      });
+    }
+  }, [video, subtitles, setCurrentSubtitleId]);
+
   useEventListener('fullscreenchange', onFullScreenChange);
 
   useEventListener('keyup', onKeyUpHandler);
 
+  useEffect(setInitialSubtitle, [setInitialSubtitle]);
+
   useEffect(() => {
     setShouldShowControls(hasMouseMoved || !isPlaying);
   }, [hasMouseMoved, isPlaying, setShouldShowControls]);
-
-  useEffect(() => {
-    const defaultSubtitle = getDefaultSubtitle(subtitles) ?? '';
-    setCurrentSubtitleId(defaultSubtitle);
-  }, [subtitles, setCurrentSubtitleId]);
 
   useEffect(() => {
     if (video) {
@@ -157,6 +170,7 @@ export const VideoPlayer = ({
         <source src={videoUrl} type="video/mp4" />
         {subtitles.map((subtitle) => {
           const isSubtitleDefault = currentSubtitleId === subtitle.id;
+
           return (
             <track
               id={subtitle.id}
