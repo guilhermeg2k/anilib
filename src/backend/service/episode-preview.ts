@@ -10,7 +10,7 @@ import { sortByStringNumbersSum } from 'common/utils/string';
 import pLimit from 'p-limit';
 import path from 'path';
 import EpisodeService from './episode';
-import { Episode } from '@common/types/prisma';
+import { Episode } from '@common/types/database';
 
 const PREVIEW_EXTENSIONS = ['.jpg'];
 const PREVIEW_FOLDER_NAME = 'previews';

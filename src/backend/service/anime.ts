@@ -9,7 +9,7 @@ import {
   GenreInput,
   SeasonInput,
   StudioInput,
-} from '@common/types/prisma';
+} from '@common/types/database';
 import { createDateByDayMonthAndYear } from '@common/utils/date';
 import { downloadFile } from '@common/utils/file';
 import AnimeRepository from 'backend/repository/anime';

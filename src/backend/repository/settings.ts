@@ -1,5 +1,5 @@
 import { prisma } from '@backend/database/prisma';
-import { SettingName } from '@common/types/prisma';
+import { SettingName } from '@common/types/database';
 
 class SettingsRepository {
   static list() {

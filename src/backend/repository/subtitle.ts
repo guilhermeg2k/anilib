@@ -1,5 +1,5 @@
 import { prisma } from '@backend/database/prisma';
-import { SubtitleInput } from '@common/types/prisma';
+import { SubtitleInput } from '@common/types/database';
 
 class SubtitleRepository {
   static list() {

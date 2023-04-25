@@ -1,4 +1,4 @@
-import { Episode, Subtitle, SubtitleInput } from '@common/types/prisma';
+import { Episode, Subtitle, SubtitleInput } from '@common/types/database';
 import { getFolderVttFilesByFileNamePrefix } from '@common/utils/file';
 import { extractSubtitlesFromVideo } from '@common/utils/video';
 import SubtitleRepository from 'backend/repository/subtitle';

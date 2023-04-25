@@ -24,7 +24,7 @@ import {
 } from './video-player-store';
 import HTMLParser from 'html-react-parser';
 import { BRACES_CONTENT_REGEX } from '@common/constants/regex';
-import { Subtitle } from '@common/types/prisma';
+import { Subtitle } from '@common/types/database';
 
 export const VideoPlayer = ({
   videoUrl,

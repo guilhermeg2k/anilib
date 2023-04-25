@@ -9,7 +9,7 @@ import {
   GenreInput,
   SeasonInput,
   StudioInput,
-} from '@common/types/prisma';
+} from '@common/types/database';
 import { isPathRelativeToDir } from '@common/utils/file';
 
 const ALL_ANIME_RELATIONS_INCLUDE = {

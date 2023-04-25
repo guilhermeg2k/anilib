@@ -18,7 +18,7 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import SettingsService from './settings';
-import { Anime, Episode, EpisodeInput } from '@common/types/prisma';
+import { Anime, Episode, EpisodeInput } from '@common/types/database';
 
 const fsPromises = fs.promises;
 

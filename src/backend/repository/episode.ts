@@ -1,5 +1,5 @@
 import { prisma } from '@backend/database/prisma';
-import { EpisodeInput } from '@common/types/prisma';
+import { EpisodeInput } from '@common/types/database';
 
 class EpisodeRepository {
   static list() {

@@ -1,5 +1,5 @@
 import SettingsService from '@backend/service/settings';
-import { ZSettingName } from '@common/types/prisma';
+import { ZSettingName } from '@common/types/database';
 import { z } from 'zod';
 import { createRouter, procedure } from '../../trpc';
 

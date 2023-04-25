@@ -1,4 +1,4 @@
-import { SettingName } from '@common/types/prisma';
+import { SettingName } from '@common/types/database';
 import SettingsRepository from 'backend/repository/settings';
 
 class SettingsService {

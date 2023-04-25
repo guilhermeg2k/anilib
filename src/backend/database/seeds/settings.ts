@@ -1,5 +1,5 @@
 import { prisma } from '../prisma';
-import { SettingName } from '@common/types/prisma';
+import { SettingName } from '@common/types/database';
 
 type Setting = {
   name: SettingName;

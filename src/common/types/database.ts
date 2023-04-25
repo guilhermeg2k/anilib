@@ -1,49 +1,70 @@
-export type Title = {
-  romaji?: string;
-  english?: string;
-  native?: string;
+import {
+  Anime as DBAnime,
+  AnimeFormat as DBAnimeFormat,
+  AnimeStatus as DBAnimeStatus,
+  AnimeTitle as DBAnimeTitle,
+  Episode as DBEpisode,
+  Genre as DBGenre,
+  Season as DBSeason,
+  Studio as DBStudio,
+  Subtitle as DBSubtitle,
+  Directory as DBDirectory,
+  Prisma,
+} from '@prisma/client';
+import { z } from 'zod';
+
+export type Anime = DBAnime;
+export type Subtitle = DBSubtitle;
+export type AnimeFormat = DBAnimeFormat;
+export type AnimeStatus = DBAnimeStatus;
+export type AnimeTitle = DBAnimeTitle;
+export type Episode = DBEpisode;
+export type Genre = DBGenre;
+export type Season = DBSeason;
+export type Studio = DBStudio;
+export type Directory = DBDirectory;
+
+export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
+export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
+export type AnimeTitleInput = Prisma.AnimeTitleCreateInput;
+export type GenreInput = Prisma.GenreCreateInput;
+export type SeasonInput = Prisma.SeasonCreateInput;
+export type StudioInput = Prisma.StudioCreateInput;
+export type DirectoryInput = Prisma.DirectoryCreateInput;
+
+export type AnimeWithAllRelations = Anime & {
+  season: Season;
+  genres: Genre[];
+  studios: Studio[];
+  titles: AnimeTitle[];
+  episodes: Episode[];
+  format: AnimeFormat;
+  status: AnimeStatus;
 };
 
-export type Anime = {
-  id?: string;
-  anilistId: number;
-  title: Title;
-  coverUrl: string;
-  description: string;
-  episodes?: number;
-  releaseDate: Date;
-  status: string;
-  genres: Array<string>;
-  format: string;
-  folderPath: string;
-};
+export type AnimeCreateInputWithoutRelations = Omit<
+  Prisma.AnimeCreateInput,
+  | 'format'
+  | 'status'
+  | 'season'
+  | 'titles'
+  | 'studios'
+  | 'genres'
+  | 'episodes'
+  | 'directory'
+>;
 
-export type Episode = {
-  id?: string;
-  title: string;
-  filePath: string;
-  originalFilePath: string;
-  coverImagePath: string;
-  animeId: string;
-};
+export type AnimeUpdateInputWithoutRelations =
+  Partial<AnimeCreateInputWithoutRelations>;
 
-export type Subtitle = {
-  id?: string;
-  filePath: string;
-  language: string;
-  label: string;
-  episodeId?: string;
-  wasCommentsRemoved: boolean;
-};
-export type DatabaseData = {
-  directories: Map<string, string>;
-  animes: Map<string, Anime>;
-  episodes: Map<string, Episode>;
-  subtitles: Map<string, Subtitle>;
-  settings: Map<string, Boolean>;
-};
+export type EpisodeInput = Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>;
 
-export type Setting =
-  | 'isToDeleteConvertedData'
-  | 'isToDeleteInvalidData'
-  | 'shouldUseNVENC';
+export type SubtitleInput = Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>;
+
+export const ZSettingName = z.enum([
+  'DELETE_INVALID_DATA',
+  'DELETE_CONVERTED_DATA',
+  'USE_NVENC',
+]);
+
+export type SettingName = z.infer<typeof ZSettingName>;
