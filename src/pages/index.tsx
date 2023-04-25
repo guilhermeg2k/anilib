@@ -14,11 +14,11 @@ const sortAndFilterAnimes = <T extends { id: string; titles: AnimeTitle[] }>(
   animes: T[],
   searchText: string
 ) => {
+  const minSimilarityRate = 0.2;
   const shouldFilterBySearchText = searchText.length > 3;
 
   if (shouldFilterBySearchText) {
     const similaritiesRate = new Map<string, number>();
-
     animes.forEach((anime) => {
       const titleSimilarity = calculateAnimeTitleSimilarity(
         anime.titles,
@@ -33,7 +33,9 @@ const sortAndFilterAnimes = <T extends { id: string; titles: AnimeTitle[] }>(
         const similarityB = similaritiesRate.get(animeB.id) ?? 0;
         return similarityA > similarityB ? -1 : 1;
       })
-      .filter((anime) => similaritiesRate.get(anime.id) ?? 0 > 0.2);
+      .filter(
+        (anime) => (similaritiesRate.get(anime.id) ?? 0) > minSimilarityRate
+      );
 
     return animesSortedBySimilarity;
   }
