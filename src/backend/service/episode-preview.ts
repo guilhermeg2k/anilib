@@ -13,12 +13,17 @@ import EpisodeService from './episode';
 import { Episode } from '@common/types/prisma';
 
 const PREVIEW_EXTENSIONS = ['.jpg'];
+const PREVIEW_FOLDER_NAME = 'previews';
 
 class EpisodePreviewService {
   static async listByEpisodeId(episodeId: string) {
     const episode = await EpisodeService.getById(episodeId);
+    console.log(
+      '🚀 ~ file: episode-preview.ts:20 ~ EpisodePreviewService ~ listByEpisodeId ~ episode:',
+      episode
+    );
     const episodeImageCoverDir = path.dirname(episode.coverImagePath);
-    const previewFolder = path.join(episodeImageCoverDir, 'preview');
+    const previewFolder = path.join(episodeImageCoverDir, PREVIEW_FOLDER_NAME);
 
     const previewFiles = await getFilesInDirectoryByExtensions(
       previewFolder,
@@ -95,7 +100,7 @@ class EpisodePreviewService {
   private static async createFromFrame(episode: Episode, frame: number) {
     const previewOutputDir = path.join(
       path.dirname(episode.coverImagePath),
-      'previews'
+      PREVIEW_FOLDER_NAME
     );
 
     const previewFilePath = await extractJpgImageFromVideo({
