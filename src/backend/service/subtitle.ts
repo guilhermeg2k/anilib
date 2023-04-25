@@ -98,7 +98,7 @@ class SubtitleService {
           label: lang[1],
           language: lang[1],
           filePath: subtitleFile,
-          episodeId: episodeId,
+          episodeId,
         };
         const createdEpisode = await this.create(newSubtitle);
         createdSubtitles.push(createdEpisode);
@@ -121,7 +121,7 @@ class SubtitleService {
           label: subtitle.title,
           language: subtitle.language,
           filePath: subtitle.filePath,
-          episodeId: episodeId,
+          episodeId,
         };
         const createdEpisode = await this.create(newSubtitle);
         createdSubtitles.push(createdEpisode);

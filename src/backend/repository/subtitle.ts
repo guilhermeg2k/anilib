@@ -36,7 +36,7 @@ class SubtitleRepository {
 
   static deleteByEpisodeId(episodeId: string) {
     return prisma.subtitle.deleteMany({
-      where: { episodeId: episodeId },
+      where: { episodeId },
     });
   }
 }

@@ -65,7 +65,7 @@ class EpisodeRepository {
   static deleteByAnimeId(animeId: string) {
     return prisma.episode.deleteMany({
       where: {
-        animeId: animeId,
+        animeId,
       },
     });
   }
