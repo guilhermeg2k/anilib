@@ -18,10 +18,6 @@ const PREVIEW_FOLDER_NAME = 'previews';
 class EpisodePreviewService {
   static async listByEpisodeId(episodeId: string) {
     const episode = await EpisodeService.getById(episodeId);
-    console.log(
-      '🚀 ~ file: episode-preview.ts:20 ~ EpisodePreviewService ~ listByEpisodeId ~ episode:',
-      episode
-    );
     const episodeImageCoverDir = path.dirname(episode.coverImagePath);
     const previewFolder = path.join(episodeImageCoverDir, PREVIEW_FOLDER_NAME);
 

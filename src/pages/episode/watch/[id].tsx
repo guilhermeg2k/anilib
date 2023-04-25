@@ -46,7 +46,12 @@ const Watch = ({ id }: { id: string }) => {
     data: episodes,
     isLoading: isEpisodesLoading,
     isError: hasEpisodesLoadingFailed,
-  } = trpc.episode.listByAnimeId.useQuery({ animeId: id });
+  } = trpc.episode.listByAnimeId.useQuery(
+    { animeId: episode?.animeId ?? '' },
+    {
+      enabled: !!episode?.animeId,
+    }
+  );
 
   if (
     isLoadingEpisode ||
