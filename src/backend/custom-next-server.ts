@@ -6,7 +6,7 @@ import { parse } from 'url';
 import ws from 'ws';
 import { wsRouter } from './trpc/routers/ws';
 
-const port = parseInt(process.env.PORT || '3000', 10);
+const port = parseInt(process.env.NEXT_PUBLIC_SERVER_PORT || '3000', 10);
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();

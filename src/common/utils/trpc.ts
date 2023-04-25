@@ -12,15 +12,13 @@ import { createTRPCNext } from '@trpc/next';
 import superjson from 'superjson';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
+const SERVER_IP = process.env.NEXT_PUBLIC_SERVER_IP ?? 'localhost';
+const SERVER_PORT = process.env.NEXT_PUBLIC_SERVER_PORT ?? 3000;
 
-const HTTP_URL = IS_DEV
-  ? 'http://localhost:3000/api/trpc'
-  : `${process.env.NEXT_PUBLIC_BASE_API_URL}/trpc` ??
-    'http://localhost:3000/api/trpc';
-
+const HTTP_URL = `http://${SERVER_IP}:${SERVER_PORT}/api/trpc`;
 const WS_URL = IS_DEV
   ? 'ws://localhost:3001'
-  : process.env.NEXT_PUBLIC_WEBSOCKET_CLIENT_ADDRESS ?? 'ws://localhost:3000';
+  : `ws://${SERVER_IP}:${SERVER_PORT}`;
 
 const getLoggerLink = () => {
   return loggerLink({
