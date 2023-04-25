@@ -53,15 +53,25 @@ class AnimeService {
   }
 
   static async getAnimeWithImagesInBase64<
-    T extends { coverImagePath: string; bannerImagePath: string }
+    T extends {
+      coverImagePath: string | null;
+      bannerImagePath: string | null;
+    }
   >(anime: T) {
-    const coverImage = await fsPromises.readFile(anime.coverImagePath, {
-      encoding: 'base64',
-    });
+    let coverImage = null;
+    let bannerImage = null;
 
-    const bannerImage = await fsPromises.readFile(anime.bannerImagePath, {
-      encoding: 'base64',
-    });
+    if (anime.coverImagePath) {
+      coverImage = await fsPromises.readFile(anime.coverImagePath, {
+        encoding: 'base64',
+      });
+    }
+
+    if (anime.bannerImagePath) {
+      bannerImage = await fsPromises.readFile(anime.bannerImagePath, {
+        encoding: 'base64',
+      });
+    }
 
     return {
       ...anime,
@@ -180,12 +190,7 @@ class AnimeService {
       const { anime, studios, format, status, genres, season, titles } =
         this.createInputFromAnilistAnime(anilistAnime, folderPath);
 
-      await downloadFile(
-        anilistAnime.coverImage.extraLarge,
-        anime.coverImagePath
-      );
-
-      await downloadFile(anilistAnime.bannerImage, anime.bannerImagePath);
+      await this.downloadImages(anilistAnime, anime.folderPath);
 
       const createdAnime = await AnimeRepository.createWithAllRelations({
         anime,
@@ -204,18 +209,40 @@ class AnimeService {
     return null;
   }
 
-  static createInputFromAnilistAnime(
+  private static async downloadImages(
     anilistAnime: AnilistAnime,
     folderPath: string
   ) {
+    const coverImagePath = path.join(folderPath, 'anime_cover.jpg');
+    const bannerImagePath = path.join(folderPath, 'anime_banner.jpg');
+
+    if (anilistAnime.coverImage.extraLarge) {
+      await downloadFile(anilistAnime.coverImage.extraLarge, coverImagePath);
+    }
+    if (anilistAnime.bannerImage) {
+      await downloadFile(anilistAnime.bannerImage, bannerImagePath);
+    }
+  }
+
+  private static createInputFromAnilistAnime(
+    anilistAnime: AnilistAnime,
+    folderPath: string
+  ) {
+    let coverImagePath = null;
+    let bannerImagePath = null;
     const releaseDate = createDateByDayMonthAndYear(
       anilistAnime.startDate.day,
       anilistAnime.startDate.month,
       anilistAnime.startDate.year
     );
 
-    const coverImagePath = path.join(folderPath, 'anime_cover.jpg');
-    const bannerImagePath = path.join(folderPath, 'anime_banner.jpg');
+    if (anilistAnime.bannerImage) {
+      bannerImagePath = path.join(folderPath, 'anime_banner.jpg');
+    }
+
+    if (anilistAnime.coverImage.extraLarge) {
+      coverImagePath = path.join(folderPath, 'anime_cover.jpg');
+    }
 
     const anime = {
       anilistId: anilistAnime.id,
@@ -269,7 +296,7 @@ class AnimeService {
     };
   }
 
-  static getTitlesFromAnilistTitle(title: AnilistAnimeTitle) {
+  private static getTitlesFromAnilistTitle(title: AnilistAnimeTitle) {
     const titles = [];
 
     for (const type in title) {

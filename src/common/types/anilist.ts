@@ -7,9 +7,9 @@ export type AnilistAnimeTitle = {
 export type AnilistAnime = {
   id: number;
   title: AnilistAnimeTitle;
-  bannerImage: string;
+  bannerImage?: string;
   coverImage: {
-    extraLarge: string;
+    extraLarge?: string;
   };
   siteUrl: string;
   description: string;

@@ -16,8 +16,8 @@ model Anime {
   anilistUrl       String
   genres           Genre[]
   titles           AnimeTitle[]
-  bannerImagePath  String
-  coverImagePath   String
+  bannerImagePath  String?
+  coverImagePath   String?
   description      String
   numberOfEpisodes Int?
   releaseDate      DateTime
