@@ -18,7 +18,7 @@ class LibraryService {
 
       if (libraryIsNotUpdating) {
         LibraryService.updateStatus('UPDATING');
-        if (await SettingsService.getByName('DELETE_INVALID_DATA')) {
+        if (await SettingsService.getByNameOrThrow('DELETE_INVALID_DATA')) {
           await DirectoryService.deleteInvalids();
           await AnimeService.deleteInvalids();
           await EpisodeService.deleteInvalids();

@@ -15,15 +15,12 @@ export const getFilesInDirectoryByExtensions = async (
       const filePath = path.join(folder, file);
       const fileStats = await fsPromises.stat(filePath);
       const isFile = fileStats.isFile();
-      const isDir = fileStats.isDirectory();
 
       if (isFile) {
         const fileExt = path.extname(filePath);
         if (extensions.includes(fileExt)) {
           return filePath;
         }
-      } else if (isDir) {
-        return getFilesInDirectoryByExtensions(filePath, extensions);
       }
     });
 

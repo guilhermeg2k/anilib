@@ -16,7 +16,7 @@ export const settingsRouter = createRouter({
     )
     .query(({ input }) => {
       const { setting } = input;
-      return SettingsService.getByName(setting);
+      return SettingsService.getByNameOrThrow(setting);
     }),
 
   update: procedure

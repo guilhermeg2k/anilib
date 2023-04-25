@@ -6,7 +6,7 @@ class SettingsService {
     return SettingsRepository.list();
   }
 
-  static getByName(setting: SettingName) {
+  static getByNameOrThrow(setting: SettingName) {
     return SettingsRepository.getByNameOrThrow(setting);
   }
 

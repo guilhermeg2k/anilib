@@ -123,7 +123,6 @@ class EpisodeService {
     const episodeFileExt = path.extname(episodeFilePath);
     const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
     const episodeTitle = this.buildEpisodeTitle(episodeFileName);
-    const episodeFileDir = path.dirname(episodeFilePath);
     const episodeCoverImagePath = await extractJpgImageFromVideo({
       videoFilePath: episodeFilePath,
       secondToExtract: EPISODE_IMAGE_COVER_SECOND,
@@ -140,12 +139,12 @@ class EpisodeService {
     };
 
     if (await this.episodeNeedsToBeConverted(episodeFilePath)) {
-      const shouldUseNVENC = await SettingsService.getByName('shouldUseNVENC');
+      const shouldUseNVENC = await SettingsService.getByNameOrThrow(
+        'USE_NVENC'
+      );
 
       const episodeFileMp4 = await convertVideoToMp4({
         videoFilePath: episodeFilePath,
-        outputDir: episodeFileDir,
-        outputFileName: `${episodeFileName} [ANILIB COMPATIBLE]`,
         shouldUseNVENC: shouldUseNVENC.value,
       });
 
