@@ -19,11 +19,10 @@ type Subtitle = {
 };
 
 const getDefaultOutputDir = (filePath: string) => {
-  const fileExt = path.extname(filePath);
   const fileCurrentDir = path.dirname(filePath);
-  const fileName = path.basename(filePath).replace(fileExt, '');
-  const fileOutputDir = path.join(fileCurrentDir, fileName);
+  const fileName = path.basename(filePath, path.extname(filePath));
 
+  const fileOutputDir = path.join(fileCurrentDir, fileName);
   return fileOutputDir;
 };
 

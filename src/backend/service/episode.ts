@@ -95,10 +95,10 @@ class EpisodeService {
   }
 
   private static async createFromAnime(anime: Anime) {
-    const episodeFilePaths = await getFilesInDirectoryByExtensions(
-      anime.folderPath,
-      EPISODE_FILES_EXTENSIONS
-    );
+    const episodeFilePaths = await getFilesInDirectoryByExtensions({
+      folder: anime.folderPath,
+      extensions: EPISODE_FILES_EXTENSIONS,
+    });
 
     const episodePromises = episodeFilePaths.map(async (episodeFilePath) => {
       const episodeDoesNotExists =

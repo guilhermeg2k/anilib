@@ -21,10 +21,10 @@ class EpisodePreviewService {
     const episodeImageCoverDir = path.dirname(episode.coverImagePath);
     const previewFolder = path.join(episodeImageCoverDir, PREVIEW_FOLDER_NAME);
 
-    const previewFiles = await getFilesInDirectoryByExtensions(
-      previewFolder,
-      PREVIEW_EXTENSIONS
-    );
+    const previewFiles = await getFilesInDirectoryByExtensions({
+      folder: previewFolder,
+      extensions: PREVIEW_EXTENSIONS,
+    });
 
     return previewFiles;
   }

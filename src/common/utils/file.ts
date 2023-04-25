@@ -3,14 +3,24 @@ import path from 'path';
 const fsPromises = fs.promises;
 const { pipeline } = require('stream/promises');
 
-export const getFilesInDirectoryByExtensions = async (
-  folder: string,
-  extensions: Array<string>
-) => {
+export const getFilesInDirectoryByExtensions = async ({
+  folder,
+  extensions,
+  currentDepth = 0,
+  maxDepth = 0,
+}: {
+  folder: string;
+  extensions: Array<string>;
+  currentDepth?: number;
+  maxDepth?: number;
+}) => {
+  if (currentDepth > maxDepth) {
+    return [];
+  }
+
   const folderExists = fs.existsSync(folder);
   if (folderExists) {
     const directoryContents = await fsPromises.readdir(folder);
-
     const folderFilesPromises = directoryContents.map(async (file: string) => {
       const filePath = path.join(folder, file);
       const fileStats = await fsPromises.stat(filePath);
@@ -21,10 +31,18 @@ export const getFilesInDirectoryByExtensions = async (
         if (extensions.includes(fileExt)) {
           return filePath;
         }
+      } else if (fileStats.isDirectory()) {
+        return getFilesInDirectoryByExtensions({
+          folder: filePath,
+          extensions,
+          currentDepth: currentDepth + 1,
+          maxDepth,
+        });
       }
     });
 
     const directoryFiles = await Promise.all(folderFilesPromises);
+
     const flattedDirectoryFiles = directoryFiles.flat(
       Infinity
     ) as Array<string>;
@@ -46,17 +64,6 @@ export const getFileInBase64 = async (filePath: string) => {
     return fileBase64;
   }
   return null;
-};
-
-export const getFolderVttFilesByFileNamePrefix = async (
-  folder: string,
-  fileNamePrefix: string
-) => {
-  const vttFiles = await getFilesInDirectoryByExtensions(folder, ['.vtt']);
-  const matchedVttFiles = vttFiles.filter((vvtFile) =>
-    vvtFile.includes(fileNamePrefix)
-  );
-  return matchedVttFiles;
 };
 
 export const isPathRelativeToDir = (dir: string, relativePath: string) => {

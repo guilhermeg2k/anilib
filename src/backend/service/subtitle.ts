@@ -1,5 +1,5 @@
 import { Episode, Subtitle, SubtitleInput } from '@common/types/database';
-import { getFolderVttFilesByFileNamePrefix } from '@common/utils/file';
+import { getFilesInDirectoryByExtensions } from '@common/utils/file';
 import { extractSubtitlesFromVideo } from '@common/utils/video';
 import SubtitleRepository from 'backend/repository/subtitle';
 import fs from 'fs';
@@ -43,6 +43,7 @@ class SubtitleService {
 
   static async createFromEpisode(episode: Episode) {
     const createdSubtitles = Array<Subtitle>();
+
     const episodeSubtitles = await SubtitleRepository.listByEpisodeId(
       episode.id
     );
@@ -50,17 +51,16 @@ class SubtitleService {
 
     if (episodeDoesNotHaveSubtitles) {
       const parsedEpisodePath = path.parse(episode.filePath);
-      const episodeFolder = parsedEpisodePath.dir;
-      const episodeFileName = parsedEpisodePath.name;
 
-      const subtitleFiles = await getFolderVttFilesByFileNamePrefix(
-        episodeFolder,
-        episodeFileName
-      );
+      const subtitleFiles = await getFilesInDirectoryByExtensions({
+        folder: path.join(parsedEpisodePath.dir, parsedEpisodePath.name),
+        extensions: ['.vtt'],
+        maxDepth: 2,
+      });
 
-      const episodeHasVttFiles = subtitleFiles.length > 0;
+      const episodeFolderHasVttFiles = subtitleFiles.length > 0;
 
-      if (episodeHasVttFiles) {
+      if (episodeFolderHasVttFiles) {
         const createdFromFiles = await this.createFromVttFiles(
           subtitleFiles,
           episode.id!
