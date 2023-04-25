@@ -37,9 +37,9 @@ const Watch = () => {
     isLoading: isEpisodesLoading,
     isError: hasEpisodesLoadingFailed,
   } = trpc.episode.listByAnimeId.useQuery(
-    { animeId: String(episode?.animeID) },
+    { animeId: String(episode?.animeId) },
     {
-      enabled: Boolean(episode?.animeID),
+      enabled: Boolean(episode?.animeId),
     }
   );
 

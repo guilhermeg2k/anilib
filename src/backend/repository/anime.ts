@@ -115,7 +115,7 @@ class AnimeRepository {
         studios: {
           connectOrCreate: studios.map((studio) => ({
             where: {
-              anilistID: studio.anilistID,
+              anilistId: studio.anilistId,
             },
             create: studio,
           })),
@@ -180,7 +180,7 @@ class AnimeRepository {
         studios: {
           connectOrCreate: studios.map((studio) => ({
             where: {
-              anilistID: studio.anilistID,
+              anilistId: studio.anilistId,
             },
             create: studio,
           })),

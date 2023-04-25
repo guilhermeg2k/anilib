@@ -84,7 +84,7 @@ class AnimeService {
     const anime = await this.getWithAllRelationsById(animeId);
     if (!anime) return;
 
-    const anilistAnime = await AnilistService.getAnimeById(anime.anilistID);
+    const anilistAnime = await AnilistService.getAnimeById(anime.anilistId);
 
     const {
       anime: updateAnime,
@@ -218,7 +218,7 @@ class AnimeService {
     const bannerImagePath = path.join(folderPath, 'anime_banner.jpg');
 
     const anime = {
-      anilistID: anilistAnime.id,
+      anilistId: anilistAnime.id,
       description: anilistAnime.description,
       numberOfEpisodes: anilistAnime.episodes,
       averageScore: anilistAnime.averageScore,
@@ -228,7 +228,7 @@ class AnimeService {
       folderPath,
       bannerImagePath,
       coverImagePath,
-      anilistURL: anilistAnime.siteUrl,
+      anilistUrl: anilistAnime.siteUrl,
     };
 
     const season: SeasonInput = {
@@ -241,8 +241,8 @@ class AnimeService {
     }));
 
     const studios: StudioInput[] = anilistAnime.studios.nodes.map((studio) => ({
-      anilistID: studio.id,
-      anilistURL: studio.siteUrl,
+      anilistId: studio.id,
+      anilistUrl: studio.siteUrl,
       name: studio.name,
     }));
 

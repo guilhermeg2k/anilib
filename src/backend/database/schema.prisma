@@ -12,8 +12,8 @@ datasource db {
 
 model Anime {
   id               String       @id @default(uuid())
-  anilistID        Int
-  anilistURL       String
+  anilistId        Int
+  anilistUrl       String
   genres           Genre[]
   titles           AnimeTitle[]
   bannerImagePath  String
@@ -68,8 +68,8 @@ model Genre {
 
 model Studio {
   id         Int     @id @default(autoincrement())
-  anilistID  Int     @unique
-  anilistURL String
+  anilistId  Int     @unique
+  anilistUrl String
   name       String
   animes     Anime[]
 }
@@ -88,8 +88,8 @@ model Episode {
   filePath         String     @unique
   originalFilePath String?    @unique
   coverImagePath   String
-  anime            Anime      @relation(fields: [animeID], references: [id], onDelete: Cascade)
-  animeID          String
+  anime            Anime      @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  animeId          String
   subtitles        Subtitle[]
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
@@ -100,8 +100,8 @@ model Subtitle {
   filePath  String
   language  String
   label     String
-  episode   Episode  @relation(fields: [episodeID], references: [id], onDelete: Cascade)
-  episodeID String
+  episode   Episode  @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episodeId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

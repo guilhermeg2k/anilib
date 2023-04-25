@@ -6,10 +6,10 @@ class EpisodeRepository {
     return prisma.episode.findMany();
   }
 
-  static listByAnimeId(animeID: string) {
+  static listByAnimeId(animeId: string) {
     return prisma.episode.findMany({
       where: {
-        animeID,
+        animeId,
       },
     });
   }
@@ -65,7 +65,7 @@ class EpisodeRepository {
   static deleteByAnimeId(animeId: string) {
     return prisma.episode.deleteMany({
       where: {
-        animeID: animeId,
+        animeId: animeId,
       },
     });
   }

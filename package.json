@@ -7,7 +7,7 @@
     "dev": "run-p dev:*",
     "dev:next": "next dev",
     "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
-    "prisma-migrate-dev": "prisma migrate dev --name init && prisma generate",
+    "db-migrate-dev": "prisma migrate dev --name init && prisma generate",
     "db-nuke": "rm -rf ./data/",
     "db-seed": "tsx src/backend/database/seeds/settings.ts",
     "build": "run-p build:*",

@@ -6,10 +6,10 @@ class SubtitleRepository {
     return prisma.subtitle.findMany();
   }
 
-  static listByEpisodeId(episodeID: string) {
+  static listByEpisodeId(episodeId: string) {
     return prisma.subtitle.findMany({
       where: {
-        episodeID,
+        episodeId,
       },
     });
   }
@@ -36,7 +36,7 @@ class SubtitleRepository {
 
   static deleteByEpisodeId(episodeId: string) {
     return prisma.subtitle.deleteMany({
-      where: { episodeID: episodeId },
+      where: { episodeId: episodeId },
     });
   }
 }

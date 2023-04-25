@@ -133,7 +133,7 @@ class EpisodeService {
 
     const newEpisode: EpisodeInput = {
       title: episodeTitle,
-      animeID: anime.id,
+      animeId: anime.id,
       coverImagePath: episodeCoverImagePath,
       filePath: episodeFilePath,
       originalFilePath: null,
