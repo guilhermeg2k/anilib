@@ -4,59 +4,49 @@ import Page from '@components/page';
 import Spinner from '@components/spinner';
 import { VideoPlayer } from '@components/video-player/video-player';
 import { trpc } from 'common/utils/trpc';
+import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
-const Watch = () => {
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const id = params?.id ? String(params?.id) : '';
+
+  return {
+    props: {
+      id,
+    },
+  };
+};
+
+const Watch = ({ id }: { id: string }) => {
   const router = useRouter();
-  const id = router.query.id ? String(router.query.id) : null;
 
   const {
     data: episode,
     isLoading: isLoadingEpisode,
     isError: hasEpisodeLoadingFailed,
-  } = trpc.episode.getById.useQuery(
-    { id: String(id) },
-    {
-      enabled: !!id,
-    }
-  );
+  } = trpc.episode.getById.useQuery({ id });
 
   const {
     data: subtitles,
     isLoading: isLoadingSubtitles,
     isError: loadSubtitleError,
-  } = trpc.subtitle.listByEpisodeId.useQuery(
-    {
-      episodeId: String(id),
-    },
-    {
-      enabled: !!id,
-    }
-  );
+  } = trpc.subtitle.listByEpisodeId.useQuery({
+    episodeId: id,
+  });
 
   const {
     data: previews,
     isLoading: isLoadingPreviews,
     isError: hasPreviewsLoadingFailed,
-  } = trpc.episodePreview.listByEpisodeId.useQuery(
-    {
-      episodeId: String(id),
-    },
-    {
-      enabled: !!id,
-    }
-  );
+  } = trpc.episodePreview.listByEpisodeId.useQuery({
+    episodeId: id,
+  });
 
   const {
     data: episodes,
     isLoading: isEpisodesLoading,
     isError: hasEpisodesLoadingFailed,
-  } = trpc.episode.listByAnimeId.useQuery(
-    { animeId: String(id) },
-    {
-      enabled: !!id,
-    }
-  );
+  } = trpc.episode.listByAnimeId.useQuery({ animeId: id });
 
   if (
     isLoadingEpisode ||
