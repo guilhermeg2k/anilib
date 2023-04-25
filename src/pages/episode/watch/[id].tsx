@@ -8,38 +8,53 @@ import { useRouter } from 'next/router';
 
 const Watch = () => {
   const router = useRouter();
-  const id = String(router.query.id);
+  const id = router.query.id ? String(router.query.id) : null;
 
   const {
     data: episode,
     isLoading: isLoadingEpisode,
     isError: hasEpisodeLoadingFailed,
-  } = trpc.episode.getById.useQuery({ id });
+  } = trpc.episode.getById.useQuery(
+    { id: String(id) },
+    {
+      enabled: !!id,
+    }
+  );
 
   const {
     data: subtitles,
     isLoading: isLoadingSubtitles,
     isError: loadSubtitleError,
-  } = trpc.subtitle.listByEpisodeId.useQuery({
-    episodeId: id,
-  });
+  } = trpc.subtitle.listByEpisodeId.useQuery(
+    {
+      episodeId: String(id),
+    },
+    {
+      enabled: !!id,
+    }
+  );
 
   const {
     data: previews,
     isLoading: isLoadingPreviews,
     isError: hasPreviewsLoadingFailed,
-  } = trpc.episodePreview.listByEpisodeId.useQuery({
-    episodeId: id,
-  });
+  } = trpc.episodePreview.listByEpisodeId.useQuery(
+    {
+      episodeId: String(id),
+    },
+    {
+      enabled: !!id,
+    }
+  );
 
   const {
     data: episodes,
     isLoading: isEpisodesLoading,
     isError: hasEpisodesLoadingFailed,
   } = trpc.episode.listByAnimeId.useQuery(
-    { animeId: String(episode?.animeId) },
+    { animeId: String(id) },
     {
-      enabled: Boolean(episode?.animeId),
+      enabled: !!id,
     }
   );
 
