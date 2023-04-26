@@ -31,6 +31,7 @@ class EpisodePreviewService {
 
   static async listInBase64ByEpisodeId(episodeId: string) {
     const previews = await this.listByEpisodeId(episodeId);
+
     const previewsInBase64Promises = previews
       .sort((previewFilePathA: string, previewFilePathB: string) => {
         const previewFileNameA = path.basename(previewFilePathA);
@@ -61,6 +62,13 @@ class EpisodePreviewService {
   }
 
   private static async createFromEpisode(episode: Episode) {
+    const episodePreviews = await this.listByEpisodeId(episode.id);
+    const episodeHasPreviews = episodePreviews.length > 0;
+
+    if (episodeHasPreviews) {
+      return [];
+    }
+
     const createFromFramePromises = Array<Promise<string>>();
     const createFromFramePromisesLimiter = pLimit(6);
     const episodeDurationInSeconds = await getVideoDurationInSeconds(
@@ -89,6 +97,7 @@ class EpisodePreviewService {
         )
       );
     }
+
     const createdPreviews = await Promise.all(createFromFramePromises);
     return createdPreviews;
   }
