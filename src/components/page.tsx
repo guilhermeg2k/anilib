@@ -24,7 +24,7 @@ const Page: React.FC<PageProps> = ({
         <title>{title}</title>
       </Head>
       <Navbar />
-      <div className={mergedClassName}>{children}</div>;
+      <div className={mergedClassName}>{children}</div>
     </>
   );
 };
