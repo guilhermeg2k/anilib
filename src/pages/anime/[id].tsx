@@ -7,7 +7,7 @@ import Page from '@components/page';
 import Spinner from '@components/spinner';
 import { Menu } from '@headlessui/react';
 import { getDisplayTitle } from 'common/utils/anime';
-import { removeHTMLTags } from 'common/utils/string';
+import { removeHTMLTags, sortByStringNumbersSum } from 'common/utils/string';
 import { trpc } from 'common/utils/trpc';
 import { format } from 'date-fns';
 import { GetServerSideProps } from 'next';
@@ -164,15 +164,17 @@ const Anime = ({ id }: { id: string }) => {
                 Available Episodes
               </h2>
               <div className="flex max-h-max flex-col gap-2 overflow-auto pr-2">
-                {anime.episodes.map((episode) => (
-                  <EpisodeCard
-                    className="w-full"
-                    key={episode.id}
-                    episodeId={episode.id}
-                  >
-                    {episode.title}
-                  </EpisodeCard>
-                ))}
+                {anime.episodes
+                  .sort((a, b) => sortByStringNumbersSum(a.title, b.title))
+                  .map((episode) => (
+                    <EpisodeCard
+                      className="w-full"
+                      key={episode.id}
+                      episodeId={episode.id}
+                    >
+                      {episode.title}
+                    </EpisodeCard>
+                  ))}
               </div>
             </div>
           </div>

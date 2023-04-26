@@ -34,7 +34,6 @@ class EpisodeService {
 
   static async listByAnimeId(animeId: string) {
     const episodes = await EpisodeRepository.listByAnimeId(animeId);
-    episodes.sort(this.sortByStringNumbersSum);
     return episodes;
   }
 

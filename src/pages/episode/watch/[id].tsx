@@ -1,3 +1,4 @@
+import { sortByStringNumbersSum } from '@common/utils/string';
 import { toastError } from '@common/utils/toastify';
 import EpisodeCard from '@components/episode-card';
 import Page from '@components/page';
@@ -107,16 +108,18 @@ const Watch = ({ id }: { id: string }) => {
             Episodes
           </h1>
           <div className="flex flex-col gap-2">
-            {episodes.map((episodeItem) => (
-              <EpisodeCard
-                className={`w-full`}
-                key={episodeItem.id}
-                episodeId={episodeItem.id!}
-                active={episode.id === episodeItem.id}
-              >
-                {episodeItem.title}
-              </EpisodeCard>
-            ))}
+            {episodes
+              .sort((a, b) => sortByStringNumbersSum(a.title, b.title))
+              .map((episodeItem) => (
+                <EpisodeCard
+                  className={`w-full`}
+                  key={episodeItem.id}
+                  episodeId={episodeItem.id!}
+                  active={episode.id === episodeItem.id}
+                >
+                  {episodeItem.title}
+                </EpisodeCard>
+              ))}
           </div>
         </aside>
       </main>
