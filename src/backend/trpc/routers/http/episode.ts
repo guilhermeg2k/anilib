@@ -10,8 +10,10 @@ export const episodeRouter = createRouter({
       return EpisodeService.listByAnimeId(animeId);
     }),
 
-  getById: procedure.input(z.object({ id: z.string() })).query(({ input }) => {
-    const { id } = input;
-    return EpisodeService.getById(id);
-  }),
+  getByIdWithSubtitles: procedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(({ input }) => {
+      const { id } = input;
+      return EpisodeService.getByIdWithSubtitles(id);
+    }),
 });

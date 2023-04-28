@@ -25,15 +25,7 @@ const Watch = ({ id }: { id: string }) => {
     data: episode,
     isLoading: isLoadingEpisode,
     isError: hasEpisodeLoadingFailed,
-  } = trpc.episode.getById.useQuery({ id });
-
-  const {
-    data: subtitles,
-    isLoading: isLoadingSubtitles,
-    isError: loadSubtitleError,
-  } = trpc.subtitle.listByEpisodeId.useQuery({
-    episodeId: id,
-  });
+  } = trpc.episode.getByIdWithSubtitles.useQuery({ id });
 
   const {
     data: previews,
@@ -54,12 +46,7 @@ const Watch = ({ id }: { id: string }) => {
     }
   );
 
-  if (
-    isLoadingEpisode ||
-    isLoadingSubtitles ||
-    isLoadingPreviews ||
-    isEpisodesLoading
-  ) {
+  if (isLoadingEpisode || isLoadingPreviews || isEpisodesLoading) {
     return (
       <Page>
         <main className="h-full w-full flex items-center justify-center">
@@ -71,7 +58,6 @@ const Watch = ({ id }: { id: string }) => {
 
   if (
     hasEpisodeLoadingFailed ||
-    loadSubtitleError ||
     hasEpisodesLoadingFailed ||
     hasPreviewsLoadingFailed
   ) {
@@ -97,8 +83,8 @@ const Watch = ({ id }: { id: string }) => {
           <VideoPlayer
             episodeTitle={episode.title}
             videoUrl={`/api/episode-video-stream/${episode.id}`}
-            coverImageBase64={episode.coverImage || ''}
-            subtitles={subtitles}
+            coverImageBase64={episode.coverImage}
+            subtitles={episode.subtitles}
             previews={previews}
             onNextEpisode={onNextEpisodeHandler}
           />

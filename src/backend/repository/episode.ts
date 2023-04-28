@@ -32,6 +32,17 @@ class EpisodeRepository {
     });
   }
 
+  static getByIdWithSubtitles(id: string) {
+    return prisma.episode.findUniqueOrThrow({
+      where: {
+        id,
+      },
+      include: {
+        subtitles: true,
+      },
+    });
+  }
+
   static getByFilePath(path: string) {
     return prisma.episode.findUnique({
       where: {

@@ -8,14 +8,14 @@ export const animeRouter = createRouter({
   }),
 
   getWithAllRelationsById: procedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string().uuid() }))
     .query(({ input }) => {
       const { id } = input;
       return AnimeService.getWithAllRelationsById(id);
     }),
 
   syncDataWithAnilistById: procedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.string().uuid() }))
     .mutation(({ input }) => {
       const { id } = input;
       return AnimeService.syncDataWithAnilistById(id);

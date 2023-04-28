@@ -38,7 +38,11 @@ class EpisodeService {
   }
 
   static async getById(id: string) {
-    const episode = await EpisodeRepository.getById(id);
+    return EpisodeRepository.getById(id);
+  }
+
+  static async getByIdWithSubtitles(id: string) {
+    const episode = await EpisodeRepository.getByIdWithSubtitles(id);
     const coverImage = await fsPromises.readFile(episode?.coverImagePath, {
       encoding: 'base64',
     });
