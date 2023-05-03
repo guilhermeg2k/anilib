@@ -210,18 +210,21 @@ export const extractSubtitlesFromVideo = async (
       const language =
         subtitleStream.tags?.language || `Language ${subtitlesCount}`;
 
+      const languageTitle = subtitleStream.tags?.title || language;
+
       const vttFileName = path
         .basename(videoFilePath)
-        .replace(fileExt, `-${subtitleIndex}-${language}.vtt`);
+        .replace(fileExt, `-${subtitleIndex}-${languageTitle}.vtt`);
       const vttFilePath = path.join(outputDir, vttFileName);
 
       ffmpegExecCommand += ` -map 0:${subtitleIndex} "${vttFilePath}"`;
 
       const subtitle = <Subtitle>{
         filePath: vttFilePath,
-        title: subtitleStream.tags?.title || language,
+        title: languageTitle,
         language,
       };
+
       subtitles.push(subtitle);
       subtitlesCount += 1;
     }
