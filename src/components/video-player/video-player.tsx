@@ -370,28 +370,26 @@ const SubtitleButton = () => {
         </Tab.List>
         <Tab.Panels>
           <Tab.Panel>
-            <div className="flex flex-col py-2">
-              <>
-                <SubtitleOptionButton
-                  key="disable-option"
-                  onClick={disableSubtitles}
-                  active={currentSubtitleId === ''}
-                >
-                  Disabled
-                </SubtitleOptionButton>
-                {video &&
-                  Array.from(video.textTracks).map((trackText) => {
-                    return (
-                      <SubtitleOptionButton
-                        key={trackText.id}
-                        onClick={() => changeSubtitle(trackText.id)}
-                        active={currentSubtitleId === trackText.id}
-                      >
-                        {trackText.label}
-                      </SubtitleOptionButton>
-                    );
-                  })}
-              </>
+            <div className="flex flex-col py-2 overflow-y-scroll overflow-x-hidden max-h-52">
+              {video &&
+                Array.from(video.textTracks).map((trackText) => {
+                  return (
+                    <SubtitleOptionButton
+                      key={trackText.id}
+                      onClick={() => changeSubtitle(trackText.id)}
+                      active={currentSubtitleId === trackText.id}
+                    >
+                      {trackText.label}
+                    </SubtitleOptionButton>
+                  );
+                })}
+              <SubtitleOptionButton
+                key="disable-option"
+                onClick={disableSubtitles}
+                active={currentSubtitleId === ''}
+              >
+                Disabled
+              </SubtitleOptionButton>
             </div>
           </Tab.Panel>
           <Tab.Panel>
@@ -499,9 +497,10 @@ const SubtitleOptionButton = ({
     <button
       onClick={onClick}
       className={clsx(
-        `mb-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold uppercase  hover:text-rose-700`,
+        `w-full text-ellipsis whitespace-nowrap mb-1 text-left font-semibold uppercase hover:text-rose-700`,
         active ? 'text-white' : 'text-neutral-400'
       )}
+      autoFocus={active}
     >
       {children}
     </button>
