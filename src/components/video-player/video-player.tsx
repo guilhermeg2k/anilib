@@ -493,14 +493,26 @@ const SubtitleOptionButton = ({
   active: boolean;
   children: ReactNode;
 }) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (active && buttonRef.current) {
+      buttonRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      });
+    }
+  }, [active]);
+
   return (
     <button
+      ref={buttonRef}
       onClick={onClick}
       className={clsx(
         `w-full text-ellipsis whitespace-nowrap mb-1 text-left font-semibold uppercase hover:text-rose-700`,
         active ? 'text-white' : 'text-neutral-400'
       )}
-      autoFocus={active}
     >
       {children}
     </button>
