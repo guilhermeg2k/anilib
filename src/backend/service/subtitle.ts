@@ -50,7 +50,9 @@ class SubtitleService {
     const episodeDoesNotHaveSubtitles = episodeSubtitles.length === 0;
 
     if (episodeDoesNotHaveSubtitles) {
-      const parsedEpisodePath = path.parse(episode.filePath);
+      const parsedEpisodePath = path.parse(
+        episode.originalFilePath ?? episode.filePath
+      );
 
       const subtitleFiles = await getFilesInDirectoryByExtensions({
         folder: path.join(parsedEpisodePath.dir, parsedEpisodePath.name),
@@ -63,17 +65,15 @@ class SubtitleService {
       if (episodeFolderHasVttFiles) {
         const createdFromFiles = await this.createFromVttFiles(
           subtitleFiles,
-          episode.id!
+          episode.id
         );
         createdSubtitles.push(...createdFromFiles);
       } else {
-        if (episode.originalFilePath) {
-          const createdFromVideo = await this.createFromVideo(
-            episode.originalFilePath,
-            episode.id!
-          );
-          createdSubtitles.push(...createdFromVideo);
-        }
+        const createdFromVideo = await this.createFromVideo(
+          episode.originalFilePath ?? episode.filePath,
+          episode.id
+        );
+        createdSubtitles.push(...createdFromVideo);
       }
     }
 
