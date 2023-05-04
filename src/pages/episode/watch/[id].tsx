@@ -12,6 +12,7 @@ import SuperJSON from 'superjson';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? String(params?.id) : '';
+
   const helpers = createProxySSGHelpers({
     router: httpRouter,
     ctx: {},

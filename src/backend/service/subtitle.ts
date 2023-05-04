@@ -92,7 +92,9 @@ class SubtitleService {
 
     for (const subtitleFile of vttFiles) {
       const subtitleFileName = path.basename(subtitleFile);
+
       const lang = subtitleFileName.match(/.*-(.*)\.vtt/);
+
       if (lang && lang[1]) {
         const newSubtitle: SubtitleInput = {
           label: lang[1],
@@ -100,7 +102,9 @@ class SubtitleService {
           filePath: subtitleFile,
           episodeId,
         };
+
         const createdEpisode = await this.create(newSubtitle);
+
         createdSubtitles.push(createdEpisode);
       }
     }

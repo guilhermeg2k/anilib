@@ -379,7 +379,10 @@ const SubtitleButton = () => {
                       onClick={() => changeSubtitle(trackText.id)}
                       active={currentSubtitleId === trackText.id}
                     >
-                      {trackText.label}
+                      {trackText.language}
+                      {trackText.label !== trackText.language
+                        ? `-${trackText.label}`
+                        : ''}
                     </SubtitleOptionButton>
                   );
                 })}
@@ -498,7 +501,7 @@ const SubtitleOptionButton = ({
   useEffect(() => {
     if (active && buttonRef.current) {
       buttonRef.current.scrollIntoView({
-        behavior: 'smooth',
+        behavior: 'auto',
         block: 'center',
         inline: 'center',
       });
