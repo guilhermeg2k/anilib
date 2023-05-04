@@ -1,66 +1,58 @@
+import { httpRouter } from '@backend/trpc/routers/http';
 import { sortByStringNumbersSum } from '@common/utils/string';
 import { toastError } from '@common/utils/toastify';
 import EpisodeCard from '@components/episode-card';
 import Page from '@components/page';
-import Spinner from '@components/spinner';
 import { VideoPlayer } from '@components/video-player/video-player';
+import { createProxySSGHelpers } from '@trpc/react-query/ssg';
 import { trpc } from 'common/utils/trpc';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
+import SuperJSON from 'superjson';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? String(params?.id) : '';
+  const helpers = createProxySSGHelpers({
+    router: httpRouter,
+    ctx: {},
+    transformer: SuperJSON,
+  });
+
+  await helpers.episode.getByIdWithSubtitles.prefetch({ id });
 
   return {
     props: {
       id,
+      trpcState: helpers.dehydrate(),
     },
   };
 };
 
-const Watch = ({ id }: { id: string }) => {
+const Watch = ({
+  id,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
 
-  const {
-    data: episode,
-    isLoading: isLoadingEpisode,
-    isError: hasEpisodeLoadingFailed,
-  } = trpc.episode.getByIdWithSubtitles.useQuery({ id });
+  const { data: episode } = trpc.episode.getByIdWithSubtitles.useQuery({ id });
 
-  const {
-    data: previews,
-    isLoading: isLoadingPreviews,
-    isError: hasPreviewsLoadingFailed,
-  } = trpc.episodePreview.listByEpisodeId.useQuery({
-    episodeId: id,
-  });
-
-  const {
-    data: episodes,
-    isLoading: isEpisodesLoading,
-    isError: hasEpisodesLoadingFailed,
-  } = trpc.episode.listByAnimeId.useQuery(
-    { animeId: episode?.animeId ?? '' },
+  const { data: previews } = trpc.episodePreview.listByEpisodeId.useQuery(
     {
-      enabled: !!episode?.animeId,
+      episodeId: id,
+    },
+    {
+      initialData: [],
     }
   );
 
-  if (isLoadingEpisode || isLoadingPreviews || isEpisodesLoading) {
-    return (
-      <Page>
-        <main className="h-full w-full flex items-center justify-center">
-          <Spinner />
-        </main>
-      </Page>
-    );
-  }
+  const { data: episodes } = trpc.episode.listByAnimeId.useQuery(
+    { animeId: episode?.animeId ?? '' },
+    {
+      enabled: Boolean(episode?.animeId),
+      initialData: [],
+    }
+  );
 
-  if (
-    hasEpisodeLoadingFailed ||
-    hasEpisodesLoadingFailed ||
-    hasPreviewsLoadingFailed
-  ) {
+  if (!episode) {
     router.push('/');
     toastError('Failed to load episode');
     return null;
@@ -70,6 +62,7 @@ const Watch = ({ id }: { id: string }) => {
     const currentEpisodeIndex = episodes.findIndex(
       (episodeItem) => episodeItem.id === episode.id
     );
+
     if (episodes.length > currentEpisodeIndex + 1) {
       const nextEpisode = episodes[currentEpisodeIndex + 1];
       router.push(`/episode/watch/${nextEpisode.id}`);
