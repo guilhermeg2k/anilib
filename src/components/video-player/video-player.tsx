@@ -160,7 +160,6 @@ export const VideoPlayer = ({
         }}
         poster={coverImage}
         preload="auto"
-        onClick={() => togglePlay(video)}
         onLoadedMetadata={onLoadMetadataHandler}
         onPause={() => setIsPlaying(false)}
         onPlay={() => setIsPlaying(true)}
