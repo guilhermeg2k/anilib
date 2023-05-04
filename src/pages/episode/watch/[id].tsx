@@ -4,16 +4,16 @@ import { toastError } from '@common/utils/toastify';
 import EpisodeCard from '@components/episode-card';
 import Page from '@components/page';
 import { VideoPlayer } from '@components/video-player/video-player';
-import { createProxySSGHelpers } from '@trpc/react-query/ssg';
 import { trpc } from 'common/utils/trpc';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
 import SuperJSON from 'superjson';
+import { createServerSideHelpers } from '@trpc/react-query/server';
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const id = params?.id ? String(params?.id) : '';
 
-  const helpers = createProxySSGHelpers({
+  const helpers = createServerSideHelpers({
     router: httpRouter,
     ctx: {},
     transformer: SuperJSON,
