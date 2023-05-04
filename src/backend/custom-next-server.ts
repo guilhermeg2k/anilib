@@ -1,4 +1,3 @@
-// THIS CUSTOM SERVER IS USED ONLY ON THE PRODUCTION BUILD
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
@@ -10,6 +9,13 @@ import { wsRouter } from './trpc/routers/ws';
 
 const NODE_ENV = process.env.NODE_ENV ?? 'development';
 const IS_DEV = NODE_ENV !== 'production';
+
+if (IS_DEV) {
+  console.log(
+    'This server is only used for production builds. And you are running in development mode. Change it by changing NODE_ENV to production. Exiting...'
+  );
+  process.exit(1);
+}
 
 const PORT = process.env.NEXT_PUBLIC_PORT
   ? parseInt(process.env.NEXT_PUBLIC_PORT, 10)
