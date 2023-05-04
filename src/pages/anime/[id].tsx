@@ -88,7 +88,7 @@ const Anime = ({ id }: { id: string }) => {
 
   const imageCover = (
     <Image
-      src={`data:image/png;base64,${anime.coverImage}`}
+      src={`/api/anime/cover-image/${id}`}
       alt={`${getDisplayTitle(anime.titles)} Cover Image`}
       layout="intrinsic"
       width={415}

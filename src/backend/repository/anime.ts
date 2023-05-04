@@ -41,6 +41,14 @@ class AnimeRepository {
     });
   }
 
+  static getById(id: string) {
+    return prisma.anime.findUniqueOrThrow({
+      where: {
+        id,
+      },
+    });
+  }
+
   static getWithAllRelationsById(id: string) {
     return prisma.anime.findUniqueOrThrow({
       where: {

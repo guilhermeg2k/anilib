@@ -29,55 +29,19 @@ class AnimeService {
   }
 
   static async listWithAllRelations() {
-    const animes = await AnimeRepository.listWithAllRelations();
+    return AnimeRepository.listWithAllRelations();
+  }
 
-    const animesWithImagesInBase64 = await Promise.all(
-      animes.map(async (anime) => await this.getAnimeWithImagesInBase64(anime))
-    );
-
-    return animesWithImagesInBase64;
+  static async getById(id: string) {
+    return AnimeRepository.getById(id);
   }
 
   static async getWithAllRelationsById(id: string) {
-    const anime = await AnimeRepository.getWithAllRelationsById(id);
-
-    const animeWithImagesInBase64 = await this.getAnimeWithImagesInBase64(
-      anime
-    );
-
-    return animeWithImagesInBase64;
+    return AnimeRepository.getWithAllRelationsById(id);
   }
 
   static getByPath(path: string) {
     return AnimeRepository.listByPath(path);
-  }
-
-  static async getAnimeWithImagesInBase64<
-    T extends {
-      coverImagePath: string | null;
-      bannerImagePath: string | null;
-    }
-  >(anime: T) {
-    let coverImage = null;
-    let bannerImage = null;
-
-    if (anime.coverImagePath) {
-      coverImage = await fsPromises.readFile(anime.coverImagePath, {
-        encoding: 'base64',
-      });
-    }
-
-    if (anime.bannerImagePath) {
-      bannerImage = await fsPromises.readFile(anime.bannerImagePath, {
-        encoding: 'base64',
-      });
-    }
-
-    return {
-      ...anime,
-      coverImage,
-      bannerImage,
-    };
   }
 
   static async deleteInvalids() {

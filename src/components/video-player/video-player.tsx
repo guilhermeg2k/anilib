@@ -158,7 +158,7 @@ export const VideoPlayer = ({
         ref={(video) => {
           setVideo(video);
         }}
-        poster={`data:image/png;base64,${coverImage}`}
+        poster={coverImage}
         preload="auto"
         onClick={() => togglePlay(video)}
         onLoadedMetadata={onLoadMetadataHandler}

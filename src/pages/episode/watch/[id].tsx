@@ -76,8 +76,8 @@ const Watch = ({
         <section className="w-full">
           <VideoPlayer
             episodeTitle={episode.title}
-            videoUrl={`/api/episode-video-stream/${episode.id}`}
-            coverImageBase64={episode.coverImage}
+            videoUrl={`/api/episode/video-stream/${episode.id}`}
+            coverImageBase64={`/api/episode/cover-image/${episode.id}`}
             subtitles={episode.subtitles}
             previews={previews}
             onNextEpisode={onNextEpisodeHandler}

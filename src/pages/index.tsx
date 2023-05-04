@@ -109,7 +109,7 @@ const Home = () => {
               <AnimeCard
                 key={anime.id}
                 id={anime.id!}
-                imageBase64={anime.coverImage ?? ''}
+                imageURL={`/api/anime/cover-image/${anime.id}`}
                 name={getDisplayTitle(anime.titles)}
               />
             ))
