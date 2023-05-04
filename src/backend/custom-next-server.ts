@@ -1,4 +1,6 @@
 // THIS CUSTOM SERVER IS USED ONLY ON THE PRODUCTION BUILD
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { applyWSSHandler } from '@trpc/server/adapters/ws';
 import http from 'http';
 import next from 'next';
@@ -6,9 +8,14 @@ import { parse } from 'url';
 import ws from 'ws';
 import { wsRouter } from './trpc/routers/ws';
 
-const port = parseInt(process.env.NEXT_PUBLIC_SERVER_PORT || '3000', 10);
-const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
+const NODE_ENV = process.env.NODE_ENV ?? 'development';
+const IS_DEV = NODE_ENV !== 'production';
+
+const PORT = process.env.NEXT_PUBLIC_PORT
+  ? parseInt(process.env.NEXT_PUBLIC_PORT, 10)
+  : 3000;
+
+const app = next({ dev: IS_DEV });
 const handle = app.getRequestHandler();
 
 void app.prepare().then(() => {
@@ -25,11 +32,11 @@ void app.prepare().then(() => {
     handler.broadcastReconnectNotification();
   });
 
-  server.listen(port);
+  server.listen(PORT);
 
   console.log(
-    `> Server listening at http://localhost:${port} as ${
-      dev ? 'development' : process.env.NODE_ENV
+    `> Server listening at http://localhost:${PORT} as ${
+      IS_DEV ? 'development' : process.env.NODE_ENV
     }`
   );
 });
