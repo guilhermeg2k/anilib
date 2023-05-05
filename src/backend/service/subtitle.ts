@@ -91,14 +91,20 @@ class SubtitleService {
     const createdSubtitles: Subtitle[] = [];
 
     for (const subtitleFile of vttFiles) {
-      const subtitleFileName = path.basename(subtitleFile);
+      const subtitleFileName = path.basename(subtitleFile, '.vtt');
+      const languageFromFileName = subtitleFileName.split('-');
+      const languageStrSplit =
+        languageFromFileName[languageFromFileName.length - 1].split(' ');
 
-      const lang = subtitleFileName.match(/.*-(.*)\.vtt/);
+      console.log(languageStrSplit, 'booozao');
 
-      if (lang && lang[1]) {
+      const lang = languageStrSplit[0];
+      const title = languageStrSplit[1] || lang;
+
+      if (lang) {
         const newSubtitle: SubtitleInput = {
-          label: lang[1],
-          language: lang[1],
+          label: title,
+          language: lang,
           filePath: subtitleFile,
           episodeId,
         };

@@ -793,4 +793,4 @@ const toggleFullscreen = (videoPlayerDiv: HTMLDivElement | null) => {
 const getDefaultSubtitle = (subtitles: Array<Subtitle>) =>
   subtitles.length === 1
     ? subtitles[0].id
-    : subtitles.find((subtitle) => subtitle.language === 'por')?.id;
+    : subtitles.find((subtitle) => subtitle.language === 'POR')?.id;
