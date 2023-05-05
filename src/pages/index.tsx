@@ -14,8 +14,8 @@ const sortAndFilterAnimes = <T extends { id: string; titles: AnimeTitle[] }>(
   animes: T[],
   searchText: string
 ) => {
-  const minSimilarityRate = 0.2;
-  const shouldFilterBySearchText = searchText.length > 3;
+  const shouldFilterBySearchText = searchText.length > 2;
+  const minSimilarityRate = 0.15;
 
   if (shouldFilterBySearchText) {
     const similaritiesRate = new Map<string, number>();
