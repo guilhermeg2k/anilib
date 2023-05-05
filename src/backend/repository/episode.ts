@@ -60,7 +60,7 @@ class EpisodeRepository {
   }
 
   static async create(episode: EpisodeInput) {
-    await prisma.episode.create({
+    return prisma.episode.create({
       data: episode,
     });
   }

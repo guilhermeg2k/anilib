@@ -4,6 +4,7 @@ import {
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
 } from '@common/constants/regex';
+import { Anime, EpisodeInput } from '@common/types/database';
 import { getFilesInDirectoryByExtensions } from '@common/utils/file';
 import {
   convertVideoToMp4,
@@ -13,16 +14,15 @@ import {
   isVideoContainerSupported,
 } from '@common/utils/video';
 import EpisodeRepository from 'backend/repository/episode';
-import { getNumbersSumFromString } from 'common/utils/string';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import SettingsService from './settings';
-import { Anime, Episode, EpisodeInput } from '@common/types/database';
 
 const fsPromises = fs.promises;
 
 const EPISODE_FILES_EXTENSIONS = ['.mp4', '.mkv'];
+const REENCODED_FILE_MARK = '[reencoded]';
 const EPISODE_IMAGE_COVER_SECOND = 5;
 
 class EpisodeService {
@@ -96,16 +96,33 @@ class EpisodeService {
       extensions: EPISODE_FILES_EXTENSIONS,
     });
 
+    //TODO: Refactor
     const episodePromises = episodeFilePaths.map(async (episodeFilePath) => {
+      const fileExt = path.extname(episodeFilePath);
+
+      if (fileExt === '.mp4') {
+        const episodeFileIsFromConverted =
+          episodeFilePath.includes(REENCODED_FILE_MARK) &&
+          fs.existsSync(
+            episodeFilePath.replace(`${REENCODED_FILE_MARK}.mp4`, '.mkv')
+          );
+
+        if (episodeFileIsFromConverted) {
+          return;
+        }
+      }
+
       const episodeDoesNotExists =
         !(await this.getByPath(episodeFilePath)) &&
         !(await this.getByOriginalPath(episodeFilePath));
 
-      if (episodeDoesNotExists) {
-        return this.createFromAnimeAndFilePathPromiseLimiter(() =>
-          this.createFromAnimeAndFilePath(anime, episodeFilePath)
-        );
+      if (!episodeDoesNotExists) {
+        return;
       }
+
+      return this.createFromAnimeAndFilePathPromiseLimiter(() =>
+        this.createFromAnimeAndFilePath(anime, episodeFilePath)
+      );
     });
 
     const createdEpisodes = await Promise.all(episodePromises);
@@ -116,8 +133,10 @@ class EpisodeService {
     anime: Anime,
     episodeFilePath: string
   ) {
-    const episodeFileExt = path.extname(episodeFilePath);
-    const episodeFileName = path.basename(episodeFilePath, episodeFileExt);
+    const episodeFileName = path.basename(
+      episodeFilePath,
+      path.extname(episodeFilePath)
+    );
     const episodeTitle = this.buildEpisodeTitle(episodeFileName);
     const episodeCoverImagePath = await extractJpgImageFromVideo({
       videoFilePath: episodeFilePath,
@@ -141,6 +160,11 @@ class EpisodeService {
 
       const episodeFileMp4 = await convertVideoToMp4({
         videoFilePath: episodeFilePath,
+        outputDir: anime.folderPath,
+        outputFileName: `${path.basename(
+          episodeFilePath,
+          path.extname(episodeFilePath)
+        )}${REENCODED_FILE_MARK}`,
         shouldUseNVENC: shouldUseNVENC.value,
       });
 
@@ -163,15 +187,6 @@ class EpisodeService {
       .replaceAll(NOT_ALPHANUMERIC_REGEX, ' ')
       .trim();
     return episodeTitle;
-  };
-
-  private static sortByStringNumbersSum = (
-    episodeA: Episode,
-    episodeB: Episode
-  ) => {
-    const episodeANumbersSum = getNumbersSumFromString(episodeA.title);
-    const episodeBNumbersSum = getNumbersSumFromString(episodeB.title);
-    return episodeANumbersSum > episodeBNumbersSum ? 1 : -1;
   };
 
   private static async episodeNeedsToBeConverted(episodeFilePath: string) {
