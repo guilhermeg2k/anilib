@@ -1,5 +1,5 @@
 import { prisma } from '@backend/database/prisma';
-import { SubtitleInput } from '@common/types/database';
+import { SubtitleInput, SubtitleLanguageInput } from '@common/types/database';
 
 class SubtitleRepository {
   static list() {
@@ -22,9 +22,24 @@ class SubtitleRepository {
     });
   }
 
-  static create(subtitle: SubtitleInput) {
+  static create(subtitle: SubtitleInput, language: SubtitleLanguageInput) {
     return prisma.subtitle.create({
-      data: subtitle,
+      data: {
+        filePath: subtitle.filePath,
+        episode: {
+          connect: {
+            id: subtitle.episodeId,
+          },
+        },
+        language: {
+          connectOrCreate: {
+            where: {
+              code_name: language,
+            },
+            create: language,
+          },
+        },
+      },
     });
   }
 

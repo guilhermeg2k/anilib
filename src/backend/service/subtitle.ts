@@ -1,4 +1,9 @@
-import { Episode, Subtitle, SubtitleInput } from '@common/types/database';
+import {
+  Episode,
+  Subtitle,
+  SubtitleInput,
+  SubtitleLanguageInput,
+} from '@common/types/database';
 import { getFilesInDirectoryByExtensions } from '@common/utils/file';
 import { extractSubtitlesFromVideo } from '@common/utils/video';
 import SubtitleRepository from 'backend/repository/subtitle';
@@ -80,8 +85,11 @@ class SubtitleService {
     return createdSubtitles;
   }
 
-  private static async create(subtitle: SubtitleInput) {
-    return SubtitleRepository.create(subtitle);
+  private static async create(
+    subtitle: SubtitleInput,
+    language: SubtitleLanguageInput
+  ) {
+    return SubtitleRepository.create(subtitle, language);
   }
 
   private static async createFromVttFiles(
@@ -96,21 +104,23 @@ class SubtitleService {
       const languageStrSplit =
         languageFromFileName[languageFromFileName.length - 1].split(' ');
 
-      console.log(languageStrSplit, 'booozao');
+      const code = languageStrSplit[0].toUpperCase();
+      const name = languageStrSplit[1]
+        ? languageStrSplit[1].toUpperCase()
+        : code;
 
-      const lang = languageStrSplit[0];
-      const title = languageStrSplit[1] || lang;
-
-      if (lang) {
+      if (code) {
         const newSubtitle: SubtitleInput = {
-          label: title,
-          language: lang,
           filePath: subtitleFile,
           episodeId,
         };
 
-        const createdEpisode = await this.create(newSubtitle);
+        const language: SubtitleLanguageInput = {
+          code,
+          name,
+        };
 
+        const createdEpisode = await this.create(newSubtitle, language);
         createdSubtitles.push(createdEpisode);
       }
     }
@@ -128,12 +138,16 @@ class SubtitleService {
       const videoSubtitles = await extractSubtitlesFromVideo(videoFilePath);
       for (const subtitle of videoSubtitles) {
         const newSubtitle: SubtitleInput = {
-          label: subtitle.title,
-          language: subtitle.language,
           filePath: subtitle.filePath,
           episodeId,
         };
-        const createdEpisode = await this.create(newSubtitle);
+
+        const language: SubtitleLanguageInput = {
+          code: subtitle.name,
+          name: subtitle.code,
+        };
+
+        const createdEpisode = await this.create(newSubtitle, language);
         createdSubtitles.push(createdEpisode);
       }
     }

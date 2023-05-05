@@ -13,8 +13,8 @@ const AUDIO_SUPPORTED_CODECS = ['aac', 'flac'];
 const UNSUPPORTED_SUBTITLE_CODECS = ['hdmv_pgs_subtitle'];
 
 type Subtitle = {
-  title: string;
-  language: string;
+  code: string;
+  name: string;
   filePath: string;
 };
 
@@ -207,14 +207,15 @@ export const extractSubtitlesFromVideo = async (
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
 
-      const language =
+      const code =
         subtitleStream.tags?.language?.toUpperCase() ||
-        `Language ${subtitlesCount}`;
-      const languageTitle = subtitleStream.tags?.title;
+        `Lang ${subtitlesCount}`;
 
-      const vttFileName = languageTitle
-        ? `${subtitlesCount}-${language} ${languageTitle}.vtt`
-        : `${subtitlesCount}-${language}.vtt`;
+      const name = subtitleStream.tags?.title;
+
+      const vttFileName = name
+        ? `${subtitlesCount}-${code} ${name}.vtt`
+        : `${subtitlesCount}-${code}.vtt`;
 
       const vttFilePath = path.join(outputDir, vttFileName);
 
@@ -222,8 +223,8 @@ export const extractSubtitlesFromVideo = async (
 
       const subtitle: Subtitle = {
         filePath: vttFilePath,
-        title: languageTitle || language,
-        language,
+        code,
+        name: name ?? code,
       };
 
       subtitles.push(subtitle);

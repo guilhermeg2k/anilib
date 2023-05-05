@@ -175,8 +175,8 @@ export const VideoPlayer = ({
               id={subtitle.id}
               key={subtitle.id}
               src={`/api/subtitle-vtt-file/${subtitle.id}`}
-              srcLang={subtitle.language}
-              label={subtitle.label}
+              srcLang={subtitle.languageCode}
+              label={subtitle.languageName}
               kind="subtitles"
               default={isSubtitleDefault}
             />
@@ -793,4 +793,4 @@ const toggleFullscreen = (videoPlayerDiv: HTMLDivElement | null) => {
 const getDefaultSubtitle = (subtitles: Array<Subtitle>) =>
   subtitles.length === 1
     ? subtitles[0].id
-    : subtitles.find((subtitle) => subtitle.language === 'POR')?.id;
+    : subtitles.find((subtitle) => subtitle.languageCode === 'POR')?.id;

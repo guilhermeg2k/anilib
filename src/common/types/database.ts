@@ -9,6 +9,7 @@ import {
   Studio as DBStudio,
   Subtitle as DBSubtitle,
   Directory as DBDirectory,
+  SubtitleLanguage as DBSubtitleLanguage,
   Prisma,
 } from '@prisma/client';
 import { z } from 'zod';
@@ -23,6 +24,7 @@ export type Genre = DBGenre;
 export type Season = DBSeason;
 export type Studio = DBStudio;
 export type Directory = DBDirectory;
+export type SubtitleLanguage = DBSubtitleLanguage;
 
 export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
 export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
@@ -31,6 +33,7 @@ export type GenreInput = Prisma.GenreCreateInput;
 export type SeasonInput = Prisma.SeasonCreateInput;
 export type StudioInput = Prisma.StudioCreateInput;
 export type DirectoryInput = Prisma.DirectoryCreateInput;
+export type SubtitleLanguageInput = Prisma.SubtitleLanguageCreateInput;
 
 export type AnimeWithAllRelations = Anime & {
   season: Season;
@@ -59,7 +62,10 @@ export type AnimeUpdateInputWithoutRelations =
 
 export type EpisodeInput = Omit<Episode, 'id' | 'createdAt' | 'updatedAt'>;
 
-export type SubtitleInput = Omit<Subtitle, 'id' | 'createdAt' | 'updatedAt'>;
+export type SubtitleInput = Omit<
+  Subtitle,
+  'id' | 'languageCode' | 'languageName' | 'createdAt' | 'updatedAt'
+>;
 
 export const ZSettingName = z.enum([
   'DELETE_INVALID_DATA',
