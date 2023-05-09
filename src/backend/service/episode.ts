@@ -1,6 +1,5 @@
 import {
   BRACES_CONTENT_REGEX,
-  NOT_ALPHANUMERIC_REGEX,
   PARENTHESES_CONTENT_REGEX,
   SQUARE_BRACKET_CONTENT_REGEX,
 } from '@common/constants/regex';
@@ -180,12 +179,15 @@ class EpisodeService {
   }
 
   private static buildEpisodeTitle = (episodeFileName: string) => {
+    const NOT_ALLOWED_CHARACTERS_REGEX = /[^A-Za-zÀ-ÿ0-9%&]/gi; //Non Alphanumeric character except for % and &
+
     const episodeTitle = episodeFileName
       .replaceAll(SQUARE_BRACKET_CONTENT_REGEX, '')
       .replaceAll(PARENTHESES_CONTENT_REGEX, '')
       .replaceAll(BRACES_CONTENT_REGEX, '')
-      .replaceAll(NOT_ALPHANUMERIC_REGEX, ' ')
+      .replaceAll(NOT_ALLOWED_CHARACTERS_REGEX, ' ')
       .trim();
+
     return episodeTitle;
   };
 
