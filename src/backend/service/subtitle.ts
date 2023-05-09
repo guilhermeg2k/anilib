@@ -143,8 +143,8 @@ class SubtitleService {
         };
 
         const language: SubtitleLanguageInput = {
-          code: subtitle.name,
-          name: subtitle.code,
+          code: subtitle.code,
+          name: subtitle.name,
         };
 
         const createdEpisode = await this.create(newSubtitle, language);
