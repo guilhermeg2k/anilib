@@ -280,25 +280,26 @@ const Subtitles = () => {
 
   return (
     <div
-      className={`absolute ${
-        isShowingControls ? 'bottom-16' : 'bottom-0'
-      } flex w-full select-none flex-col items-center gap-2   px-4 py-2`}
+      className={clsx(
+        'absolute flex w-full select-none flex-col items-center gap-2 px-4 py-2',
+        isShowingControls ? 'bottom-16' : 'bottom-5'
+      )}
     >
       {activeCues.length > 0 && (
-        <div className={`px-4 py-1 ${backgroundClassName}`}>
+        <div className={`px-4 py-1 max-w-[80%] ${backgroundClassName}`}>
           {activeCues.map((cue) => {
             return (
               <div
                 key={`${cue.startTime}-${cue.endTime}-${cue.text}`}
+                className={`${textClassName} text-center font-subtitle font-bold antialiased`}
                 style={{
                   textShadow:
                     background === 'transparent'
                       ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
                       : '',
                 }}
-                className={`${textClassName} text-center font-subtitle font-bold antialiased`}
               >
-                {parserSubtitleText(cue.text)}
+                {parseSubtitleText(cue.text)}
               </div>
             );
           })}
@@ -691,10 +692,11 @@ const PlayerButton = ({
   );
 };
 
-const parserSubtitleText = (subtitle: string) => {
+const parseSubtitleText = (subtitle: string) => {
   const subtitleWithoutComments = subtitle.replaceAll(BRACES_CONTENT_REGEX, '');
-  const parsedText = HTMLParser(subtitleWithoutComments);
-  return parsedText;
+  const subtitleWithNewLines = subtitleWithoutComments.replaceAll('\n', '<br>');
+  const parsedSubtitle = HTMLParser(subtitleWithNewLines);
+  return parsedSubtitle;
 };
 
 const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
