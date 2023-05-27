@@ -8,14 +8,13 @@
     "dev:next": "next dev",
     "dev:wss": "tsx watch src/backend/ws-dev-server.ts -tsconfig tsconfig.server.json",
     "db-migrate": "prisma migrate dev --name init && prisma generate",
-    "db-nuke": "rm -rf ./data/",
     "db-seed": "tsx src/backend/database/seeds/settings.ts",
     "build": "run-p build:*",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
-    "start": "node ./build/backend/custom-next-server.js",
     "lint": "next lint --dir src",
-    "postinstall": "prisma generate"
+    "start": "node ./build/backend/custom-next-server.js",
+    "postinstall": "prisma generate && npm run db-seed"
   },
   "dependencies": {
     "@formkit/auto-animate": "^1.0.0-beta.1",
