@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:../../../data/database.db"
+  url      = "file:../../../data/database.db?connection_limit=1"
 }
 
 model Anime {

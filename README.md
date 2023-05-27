@@ -4,7 +4,7 @@ This a local anime streaming platform, that uses [AniList API](https://anilist.g
 
 It was created using next with typescript and tailwind
 
-It's on very early stage so expect to found some bugs >)
+It's on early stage and it's a moving target so use it with a lot love and care with your library
 
 You can see the figma prototype [here](https://www.figma.com/file/LqfsWrDChSkTKCXEL0EBQA/Anilib)
 
