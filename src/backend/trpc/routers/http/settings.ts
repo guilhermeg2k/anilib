@@ -8,7 +8,7 @@ export const settingsRouter = createRouter({
     return SettingsService.list();
   }),
 
-  get: procedure
+  getByName: procedure
     .input(
       z.object({
         setting: ZSettingName,

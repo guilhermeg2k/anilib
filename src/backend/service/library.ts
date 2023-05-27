@@ -41,10 +41,10 @@ class LibraryService {
         await EpisodePreviewService.createFromEpisodes(episodes);
         console.log('Episode previews updated!');
 
-        // if (SettingsService.get('isToDeleteConvertedData')) {
-        //   await EpisodeService.deleteConverted();
-        //   console.log('Converted episodes deleted!');
-        // }
+        if (await SettingsService.getByNameOrThrow('DELETE_CONVERTED_DATA')) {
+          await EpisodeService.deleteConverted();
+          console.log('Converted episodes deleted!');
+        }
 
         this.updateStatus('UPDATED');
       }

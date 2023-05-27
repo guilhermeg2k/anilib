@@ -45,7 +45,7 @@ class SubtitleService {
     const createdSubtitles = await Promise.all(createEpisodesPromises);
     return createdSubtitles.flat(Infinity);
   }
-
+  //TOdo: For sure needs a refactor
   static async createFromEpisode(episode: Episode) {
     const createdSubtitles = Array<Subtitle>();
 

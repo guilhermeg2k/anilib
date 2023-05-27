@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 
-type BadgeProps = {
+const Badge = ({
+  children,
+  className = '',
+}: {
   className?: string;
   children: ReactNode;
-};
-
-const Badge: React.FC<BadgeProps> = ({ children, className = '' }) => {
+}) => {
   return (
     <div
       className={`${className} flex justify-center uppercase p-1 px-3 font-bold text-xs  font-roboto rounded-sm w-min-20`}

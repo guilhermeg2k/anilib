@@ -32,8 +32,7 @@ class EpisodeService {
   }
 
   static async listByAnimeId(animeId: string) {
-    const episodes = await EpisodeRepository.listByAnimeId(animeId);
-    return episodes;
+    return EpisodeRepository.listByAnimeId(animeId);
   }
 
   static async getById(id: string) {
@@ -100,13 +99,13 @@ class EpisodeService {
       const fileExt = path.extname(episodeFilePath);
 
       if (fileExt === '.mp4') {
-        const episodeFileIsFromConverted =
+        const episodeFileIsConverted =
           episodeFilePath.includes(REENCODED_FILE_MARK) &&
           fs.existsSync(
             episodeFilePath.replace(`${REENCODED_FILE_MARK}.mp4`, '.mkv')
           );
 
-        if (episodeFileIsFromConverted) {
+        if (episodeFileIsConverted) {
           return;
         }
       }
@@ -157,13 +156,15 @@ class EpisodeService {
         'USE_NVENC'
       );
 
+      const outputFileName = `${path.basename(
+        episodeFilePath,
+        path.extname(episodeFilePath)
+      )}${REENCODED_FILE_MARK}`;
+
       const episodeFileMp4 = await convertVideoToMp4({
         videoFilePath: episodeFilePath,
         outputDir: anime.folderPath,
-        outputFileName: `${path.basename(
-          episodeFilePath,
-          path.extname(episodeFilePath)
-        )}${REENCODED_FILE_MARK}`,
+        outputFileName,
         shouldUseNVENC: shouldUseNVENC.value,
       });
 

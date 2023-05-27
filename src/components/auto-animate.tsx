@@ -5,11 +5,11 @@ type AutoAnimateProps = {
   as?: ElementType;
 } & HTMLAttributes<HTMLUListElement>;
 
-const AutoAnimate: React.FC<AutoAnimateProps> = ({
+const AutoAnimate = ({
   as: Tag = 'div',
   children,
   ...rest
-}) => {
+}: AutoAnimateProps) => {
   const [ref] = useAutoAnimate<HTMLUListElement>();
 
   return (

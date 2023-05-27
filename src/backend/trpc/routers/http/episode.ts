@@ -4,7 +4,7 @@ import EpisodeService from '@backend/service/episode';
 
 export const episodeRouter = createRouter({
   listByAnimeId: procedure
-    .input(z.object({ animeId: z.string() }))
+    .input(z.object({ animeId: z.string().uuid() }))
     .query(({ input }) => {
       const { animeId } = input;
       return EpisodeService.listByAnimeId(animeId);

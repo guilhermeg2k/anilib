@@ -42,7 +42,6 @@ const LibraryStatus = () => {
 
   const onCloseHandler = () => {
     toastId.current = null;
-    1;
   };
 
   const updatedToastOptions = {

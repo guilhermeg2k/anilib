@@ -20,7 +20,7 @@ class DirectoryRepository {
         path,
       },
     });
-    await AnimeRepository.deleteByDirectory(path);
+    return AnimeRepository.deleteByDirectory(path);
   }
 }
 

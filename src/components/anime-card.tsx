@@ -1,13 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-type AnimeCardProps = {
+const AnimeCard = ({
+  id,
+  name,
+  imageURL,
+}: {
   id: string;
   name: string;
   imageURL: string;
-};
-
-const AnimeCard: React.FC<AnimeCardProps> = ({ id, name, imageURL }) => {
+}) => {
   return (
     <Link
       href={{

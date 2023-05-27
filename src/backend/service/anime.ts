@@ -49,9 +49,7 @@ class AnimeService {
       (anime) => !fs.existsSync(anime.folderPath)
     );
 
-    return await AnimeRepository.deleteByIds(
-      invalidAnimes.map((anime) => anime.id)
-    );
+    return AnimeRepository.deleteByIds(invalidAnimes.map((anime) => anime.id));
   }
 
   static async syncDataWithAnilistById(animeId: string) {
@@ -67,7 +65,7 @@ class AnimeService {
       status,
       genres,
       season,
-    } = this.createInputFromAnilistAnime(anilistAnime, anime.folderPath);
+    } = this.createAnimeInputFromAnilistAnime(anilistAnime, anime.folderPath);
 
     return AnimeRepository.updateWithAllRelations({
       anime: updateAnime,
@@ -152,7 +150,7 @@ class AnimeService {
 
     if (anilistAnime) {
       const { anime, studios, format, status, genres, season, titles } =
-        this.createInputFromAnilistAnime(anilistAnime, folderPath);
+        this.createAnimeInputFromAnilistAnime(anilistAnime, folderPath);
 
       await this.downloadImages(anilistAnime, anime.folderPath);
 
@@ -188,7 +186,7 @@ class AnimeService {
     }
   }
 
-  private static createInputFromAnilistAnime(
+  private static createAnimeInputFromAnilistAnime(
     anilistAnime: AnilistAnime,
     folderPath: string
   ) {

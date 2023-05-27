@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { ReactNode } from 'react';
 import { twMerge } from 'tailwind-merge';
-import Navbar from './navbar';
+import Navbar from './navbar/navbar';
 
 type PageProps = {
   className?: string;
