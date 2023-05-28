@@ -25,6 +25,7 @@
     "@trpc/next": "^10.24.0",
     "@trpc/react-query": "^10.24.0",
     "@trpc/server": "^10.24.0",
+    "ass-compiler": "^0.1.8",
     "clsx": "^1.2.1",
     "date-fns": "^2.29.3",
     "ffprobe": "^1.1.2",

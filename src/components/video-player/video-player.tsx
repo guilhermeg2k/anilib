@@ -25,6 +25,7 @@ import {
 import HTMLParser from 'html-react-parser';
 import { BRACES_CONTENT_REGEX } from '@common/constants/regex';
 import { Subtitle } from '@common/types/database';
+import { SubtitlesV2 } from './subtitles';
 
 export const VideoPlayer = ({
   videoUrl,
@@ -183,7 +184,8 @@ export const VideoPlayer = ({
           );
         })}
       </video>
-      <Subtitles />
+      {/* <Subtitles /> */}
+      <SubtitlesV2 />
       <FadeTransition key="video-controls" show={shouldShowControls}>
         <div
           id="video-top-controls"
