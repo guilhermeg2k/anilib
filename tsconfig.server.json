@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "build",
+    "lib": ["DOM", "ES2022"],
+    "target": "ES2022",
+    "isolatedModules": false,
+    "noEmit": false
+  },
+  "include": ["src/backend/custom-next-server.ts"]
+}

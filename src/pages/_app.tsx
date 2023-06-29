@@ -1,20 +1,11 @@
-import LibraryStatus from '@components/LibraryStatus';
-import axiosClient from 'library/axios';
+import LibraryStatus from '@components/library-status';
 import type { AppProps } from 'next/app';
-import { useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
-import '../styles/globals.css';
+import '@styles/globals.css';
+import { trpc } from 'common/utils/trpc';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const startWebSocketServer = async () => {
-    await axiosClient.get('ws/');
-  };
-
-  useEffect(() => {
-    startWebSocketServer();
-  }, []);
-
   return (
     <>
       <LibraryStatus />
@@ -24,4 +15,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default MyApp;
+export default trpc.withTRPC(MyApp);

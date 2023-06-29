@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -37,3 +38,11 @@ yarn-error.log*
 yarn.lock
 
 data.json
+
+#pnpm
+pnpm-lock.yaml
+
+#DB Prisma
+data/*
+src/backend/database/migrations/*
+

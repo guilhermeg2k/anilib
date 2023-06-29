@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../../../data/database.db?connection_limit=1"
+}
+
+model Anime {
+  id               String        @id @default(uuid())
+  anilistId        Int
+  anilistUrl       String
+  genres           Genre[]
+  titles           AnimeTitle[]
+  bannerImagePath  String?
+  coverImagePath   String?
+  description      String
+  numberOfEpisodes Int?
+  releaseDate      DateTime
+  status           AnimeStatus   @relation(fields: [statusId], references: [id])
+  statusId         Int
+  trailer          AnimeTrailer? @relation(fields: [trailerId], references: [id])
+  trailerId        Int?
+  format           AnimeFormat   @relation(fields: [formatId], references: [id])
+  formatId         Int
+  folderPath       String        @unique
+  directory        Directory     @relation(fields: [directoryId], references: [id], onDelete: Cascade)
+  directoryId      Int
+  meanScore        Int
+  averageScore     Int
+  popularity       Int
+  episodes         Episode[]
+  season           Season        @relation(fields: [seasonName, seasonYear], references: [name, year])
+  seasonName       String
+  seasonYear       Int
+  studios          Studio[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model AnimeFormat {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Anime Anime[]
+}
+
+model AnimeStatus {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Anime Anime[]
+}
+
+model AnimeTitle {
+  id      Int     @id @default(autoincrement())
+  name    String
+  type    String
+  Anime   Anime?  @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  animeId String?
+}
+
+model AnimeTrailer {
+  id               Int              @id @default(autoincrement())
+  site             String
+  idOnSite         String
+  thumbnailUrl     String
+  animeTrailerSite AnimeTrailerSite @relation(fields: [site], references: [name])
+  Anime            Anime[]
+}
+
+model AnimeTrailerSite {
+  name         String         @unique
+  AnimeTrailer AnimeTrailer[]
+
+  @@id([name])
+}
+
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  animes Anime[]
+}
+
+model Studio {
+  id         Int     @id @default(autoincrement())
+  anilistId  Int     @unique
+  anilistUrl String
+  name       String
+  animes     Anime[]
+}
+
+model Season {
+  name  String
+  year  Int
+  Anime Anime[]
+
+  @@id([name, year])
+}
+
+model Episode {
+  id               String     @id @default(uuid())
+  title            String
+  filePath         String     @unique
+  originalFilePath String?    @unique
+  coverImagePath   String
+  anime            Anime      @relation(fields: [animeId], references: [id], onDelete: Cascade)
+  animeId          String
+  subtitles        Subtitle[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Subtitle {
+  id           String           @id @default(uuid())
+  filePath     String
+  language     SubtitleLanguage @relation(fields: [languageCode, languageName], references: [code, name])
+  languageCode String
+  languageName String
+  episode      Episode          @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episodeId    String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model SubtitleLanguage {
+  code     String
+  name     String
+  Subtitle Subtitle[]
+
+  @@id([code, name])
+}
+
+model Directory {
+  id    Int     @id @default(autoincrement())
+  path  String  @unique
+  Anime Anime[]
+}
+
+model UpdateLibrarySetting {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  value Boolean @default(true)
+}
