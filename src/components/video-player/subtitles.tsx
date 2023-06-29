@@ -82,10 +82,24 @@ import {
   SubtitleSize,
   useVideoPlayerStore,
 } from './video-player-store';
+import { BRACES_CONTENT_REGEX } from '@common/constants/regex';
+import HTMLReactParser from 'html-react-parser';
 
 const compiledASS = compile(ass, {});
 const decompiledText = decompile(compiledASS);
 const parsedASS = parse(decompiledText);
+
+console.log('🚀 ~ file: subtitles.tsx:91 ~ parsedASS:', parsedASS);
+
+const parseSubtitleText = (subtitle: string) => {
+  const subtitleWithoutComments = subtitle.replaceAll(BRACES_CONTENT_REGEX, '');
+  const subtitleWithNewLines = subtitleWithoutComments
+    .replaceAll('\n', '<br>')
+    .replaceAll('\\N', '<br>');
+
+  const parsedSubtitle = HTMLReactParser(subtitleWithNewLines);
+  return parsedSubtitle;
+};
 
 const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
   const colorClass = buildSubtitlesColor(color);
@@ -149,41 +163,6 @@ export const SubtitlesV2 = () => {
   const px = parseInt(parsedASS.info.PlayResX);
   const py = parseInt(parsedASS.info.PlayResY);
 
-  const renderSub = (sub: ParsedASSEvent) => {
-    return (
-      <>
-        {sub.Text.parsed.map((text) => {
-          const pos = text.tags.find((tag) => tag.pos);
-          return (
-            <div
-              className={clsx(
-                `${textClassName} text-center font-subtitle font-bold antialiased ${backgroundClassName}`
-              )}
-              // style={{
-              //   textShadow:
-              //     background === 'transparent'
-              //       ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
-              //       : '',
-              // }}
-              style={
-                pos
-                  ? {
-                      position: 'absolute',
-                      left: `${(100 * pos.pos![0]) / px}%`,
-                      top: `${(100 * pos.pos![1]) / py}%`,
-                    }
-                  : {}
-              }
-              key={text.text}
-            >
-              {text.text}
-            </div>
-          );
-        })}
-      </>
-    );
-  };
-
   useEffect(() => {
     console.log(currentTime);
   }, [currentTime]);
@@ -218,7 +197,9 @@ export const SubtitlesV2 = () => {
               }
               key={text.text}
             >
-              {text.text}
+              {text.text.split('\\N').map((line) => (
+                <div key={line}>{line}</div>
+              ))}
             </div>
           );
         })
@@ -237,7 +218,13 @@ export const SubtitlesV2 = () => {
       >
         {subtitles.map((sub) =>
           sub.Text.parsed.map((text) => {
-            return <div key={text.text}>{text.text}</div>;
+            return (
+              <div key={text.text}>
+                {text.text.split('\\N').map((line) => (
+                  <div key={line}>{line}</div>
+                ))}
+              </div>
+            );
           })
         )}
       </div>
