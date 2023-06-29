@@ -18,7 +18,12 @@ class LibraryService {
 
       if (libraryIsNotUpdating) {
         LibraryService.updateStatus('UPDATING');
-        if (await SettingsService.getByNameOrThrow('DELETE_INVALID_DATA')) {
+
+        const shouldDeleteInvalidData = (
+          await SettingsService.getByNameOrThrow('DELETE_INVALID_DATA')
+        ).value;
+
+        if (shouldDeleteInvalidData) {
           await DirectoryService.deleteInvalids();
           await AnimeService.deleteInvalids();
           await EpisodeService.deleteInvalids();
@@ -41,7 +46,11 @@ class LibraryService {
         await EpisodePreviewService.createFromEpisodes(episodes);
         console.log('Episode previews updated!');
 
-        if (await SettingsService.getByNameOrThrow('DELETE_CONVERTED_DATA')) {
+        const shouldDeleteConvertedData = await (
+          await SettingsService.getByNameOrThrow('DELETE_CONVERTED_DATA')
+        ).value;
+
+        if (shouldDeleteConvertedData) {
           await EpisodeService.deleteConverted();
           console.log('Converted episodes deleted!');
         }
