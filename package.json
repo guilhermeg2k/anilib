@@ -1,7 +1,7 @@
 {
   "name": "anilib",
   "version": "0.8.0",
-  "versionName": "Tokoyami-dev",
+  "versionName": "Tokoyami",
   "private": true,
   "scripts": {
     "dev": "run-p dev:*",
