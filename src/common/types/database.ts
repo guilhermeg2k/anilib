@@ -3,6 +3,7 @@ import {
   AnimeFormat as DBAnimeFormat,
   AnimeStatus as DBAnimeStatus,
   AnimeTitle as DBAnimeTitle,
+  AnimeTrailer as DBAnimeTrailer,
   Episode as DBEpisode,
   Genre as DBGenre,
   Season as DBSeason,
@@ -25,6 +26,9 @@ export type Season = DBSeason;
 export type Studio = DBStudio;
 export type Directory = DBDirectory;
 export type SubtitleLanguage = DBSubtitleLanguage;
+export type AnimeTrailer = DBAnimeTrailer;
+
+export type AnimeTrailerWithoutId = Omit<DBAnimeTrailer, 'id'>;
 
 export type AnimeFormatInput = Prisma.AnimeFormatCreateInput;
 export type AnimeStatusInput = Prisma.AnimeStatusCreateInput;
@@ -34,6 +38,7 @@ export type SeasonInput = Prisma.SeasonCreateInput;
 export type StudioInput = Prisma.StudioCreateInput;
 export type DirectoryInput = Prisma.DirectoryCreateInput;
 export type SubtitleLanguageInput = Prisma.SubtitleLanguageCreateInput;
+export type AnimeTrailerInput = Prisma.AnimeTrailerSelect;
 
 export type AnimeWithAllRelations = Anime & {
   season: Season;
@@ -49,6 +54,7 @@ export type AnimeCreateInputWithoutRelations = Omit<
   Prisma.AnimeCreateInput,
   | 'format'
   | 'status'
+  | 'trailer'
   | 'season'
   | 'titles'
   | 'studios'

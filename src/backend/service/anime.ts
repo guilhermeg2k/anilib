@@ -5,11 +5,13 @@ import {
   AnimeFormatInput,
   AnimeStatusInput,
   AnimeTitleInput,
+  AnimeTrailerWithoutId,
   Directory,
   GenreInput,
   SeasonInput,
   StudioInput,
 } from '@common/types/database';
+import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anilist';
 import { createDateByDayMonthAndYear } from '@common/utils/date';
 import { downloadFile } from '@common/utils/file';
 import AnimeRepository from 'backend/repository/anime';
@@ -17,7 +19,6 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
 import AnilistService from './anilist';
-import { getAnimeWithMostSimilarTitleToText } from '@common/utils/anilist';
 
 const fsPromises = fs.promises;
 
@@ -149,13 +150,22 @@ class AnimeService {
     );
 
     if (anilistAnime) {
-      const { anime, studios, format, status, genres, season, titles } =
-        this.createAnimeInputFromAnilistAnime(anilistAnime, folderPath);
+      const {
+        anime,
+        studios,
+        format,
+        status,
+        genres,
+        season,
+        titles,
+        trailer,
+      } = this.createAnimeInputFromAnilistAnime(anilistAnime, folderPath);
 
       await this.downloadImages(anilistAnime, anime.folderPath);
 
       const createdAnime = await AnimeRepository.createWithAllRelations({
         anime,
+        trailer,
         directory,
         studios,
         format,
@@ -247,6 +257,12 @@ class AnimeService {
       name: anilistAnime.status,
     };
 
+    const trailer: AnimeTrailerWithoutId = anilistAnime.trailer && {
+      idOnSite: anilistAnime.trailer?.id,
+      thumbnailUrl: anilistAnime.trailer?.thumbnail,
+      site: anilistAnime.trailer?.site,
+    };
+
     return {
       anime,
       studios,
@@ -255,6 +271,7 @@ class AnimeService {
       genres,
       season,
       titles,
+      trailer,
     };
   }
 
