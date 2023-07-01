@@ -19,7 +19,7 @@ export default async function handler(
             const { size } = fs.statSync(vttFilePath);
 
             res.writeHead(200, {
-              'Content-Type': 'ass',
+              'Content-Type': 'text/plain',
               'Content-Length': size,
             });
 
