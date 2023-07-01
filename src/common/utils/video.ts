@@ -179,6 +179,7 @@ export const extractJpgImageFromVideo = async ({
   return jpgFilePath;
 };
 
+//Todo: Refactor
 export const extractSubtitlesFromVideo = async (
   videoFilePath: string,
   outputDir = path.join(getDefaultOutputDir(videoFilePath), 'subtitles')
@@ -203,7 +204,7 @@ export const extractSubtitlesFromVideo = async (
 
   if (subtitleStreams.length > 0) {
     let subtitlesCount = 1;
-    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath}" -f webvtt`;
+    let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath}" -f ass`;
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
 
@@ -213,16 +214,16 @@ export const extractSubtitlesFromVideo = async (
 
       const name = subtitleStream.tags?.title;
 
-      const vttFileName = name
-        ? `${subtitlesCount}-${code} ${name}.vtt`
-        : `${subtitlesCount}-${code}.vtt`;
+      const subFileName = name
+        ? `${subtitlesCount}-${code} ${name}.ass`
+        : `${subtitlesCount}-${code}.ass`;
 
-      const vttFilePath = path.join(outputDir, vttFileName);
+      const subFilePath = path.join(outputDir, subFileName);
 
-      ffmpegExecCommand += ` -map 0:${subtitleIndex} "${vttFilePath}"`;
+      ffmpegExecCommand += ` -map 0:${subtitleIndex} "${subFilePath}"`;
 
       const subtitle: Subtitle = {
-        filePath: vttFilePath,
+        filePath: subFilePath,
         code,
         name: name ?? code,
       };
@@ -255,4 +256,34 @@ export const getVideoDurationInSeconds = async (videoPath: string) => {
   }
 
   throw new Error(`Duration not found on stream[0] of the video ${videoPath}`);
+};
+
+export const convertSubtitleToAss = async (
+  subtitleFilePath: string,
+  episodeFilePath: string
+) => {
+  const outputDir = path.join(
+    getDefaultOutputDir(episodeFilePath),
+    'subtitles'
+  );
+
+  const outputDirDoesNotExists = !fs.existsSync(outputDir);
+  if (outputDirDoesNotExists) {
+    await fsPromises.mkdir(outputDir);
+  }
+
+  const assFileName = path.basename(
+    subtitleFilePath,
+    path.extname(subtitleFilePath)
+  );
+  const outputFilePath = path.join(outputDir, assFileName);
+
+  const ffmpegCommand = `ffmpeg -y -i "${subtitleFilePath}" "${outputFilePath}.ass"`;
+  const { error } = await exec(ffmpegCommand);
+
+  if (error) {
+    throw new Error(`Error to convert ${subtitleFilePath} to ass`);
+  }
+
+  return outputFilePath;
 };

@@ -5,11 +5,17 @@ import {
   SubtitleLanguageInput,
 } from '@common/types/database';
 import { getFilesInDirectoryByExtensions } from '@common/utils/file';
-import { extractSubtitlesFromVideo } from '@common/utils/video';
+import {
+  convertSubtitleToAss,
+  extractSubtitlesFromVideo,
+} from '@common/utils/video';
 import SubtitleRepository from 'backend/repository/subtitle';
 import fs from 'fs';
 import pLimit from 'p-limit';
 import path from 'path';
+
+const SUBTITLE_EXTENSIONS = ['.ass', '.vtt', '.srt'];
+const SUPPORTED_SUBTITLE_EXTENSIONS = ['.ass'];
 
 class SubtitleService {
   private static createFromEpisodePromiseLimiter = pLimit(6);
@@ -45,41 +51,42 @@ class SubtitleService {
     const createdSubtitles = await Promise.all(createEpisodesPromises);
     return createdSubtitles.flat(Infinity);
   }
-  //TOdo: For sure needs a refactor
+
+  //Todo: Refactor
   static async createFromEpisode(episode: Episode) {
     const createdSubtitles = Array<Subtitle>();
 
     const episodeSubtitles = await SubtitleRepository.listByEpisodeId(
       episode.id
     );
-    const episodeDoesNotHaveSubtitles = episodeSubtitles.length === 0;
 
-    if (episodeDoesNotHaveSubtitles) {
-      const parsedEpisodePath = path.parse(
-        episode.originalFilePath ?? episode.filePath
+    const doesEpisodeAlreadyHasSubtitles = episodeSubtitles.length !== 0;
+    if (doesEpisodeAlreadyHasSubtitles) return createdSubtitles;
+
+    const parsedEpisodePath = path.parse(
+      episode.originalFilePath ?? episode.filePath
+    );
+
+    const subtitleFiles = await getFilesInDirectoryByExtensions({
+      folder: path.join(parsedEpisodePath.dir, parsedEpisodePath.name),
+      extensions: SUBTITLE_EXTENSIONS,
+      maxDepth: 2,
+    });
+
+    const episodeFolderHasSubtitleFiles = subtitleFiles.length > 0;
+
+    if (episodeFolderHasSubtitleFiles) {
+      const createdFromFiles = await this.createFromSubtitleFiles(
+        subtitleFiles,
+        episode
       );
-
-      const subtitleFiles = await getFilesInDirectoryByExtensions({
-        folder: path.join(parsedEpisodePath.dir, parsedEpisodePath.name),
-        extensions: ['.vtt'],
-        maxDepth: 2,
-      });
-
-      const episodeFolderHasVttFiles = subtitleFiles.length > 0;
-
-      if (episodeFolderHasVttFiles) {
-        const createdFromFiles = await this.createFromVttFiles(
-          subtitleFiles,
-          episode.id
-        );
-        createdSubtitles.push(...createdFromFiles);
-      } else {
-        const createdFromVideo = await this.createFromVideo(
-          episode.originalFilePath ?? episode.filePath,
-          episode.id
-        );
-        createdSubtitles.push(...createdFromVideo);
-      }
+      createdSubtitles.push(...createdFromFiles);
+    } else {
+      const createdFromVideo = await this.createFromVideo(
+        episode.originalFilePath ?? episode.filePath,
+        episode.id
+      );
+      createdSubtitles.push(...createdFromVideo);
     }
 
     return createdSubtitles;
@@ -92,14 +99,28 @@ class SubtitleService {
     return SubtitleRepository.create(subtitle, language);
   }
 
-  private static async createFromVttFiles(
+  //Todo: Refactor
+  private static async createFromSubtitleFiles(
     vttFiles: Array<string>,
-    episodeId: string
+    episode: Episode
   ) {
     const createdSubtitles: Subtitle[] = [];
 
     for (const subtitleFile of vttFiles) {
-      const subtitleFileName = path.basename(subtitleFile, '.vtt');
+      const subtitleFileExtension = path.extname(subtitleFile);
+      const subtitleFileName = path.basename(
+        subtitleFile,
+        subtitleFileExtension
+      );
+      let subtitleFilePath = subtitleFile;
+
+      if (!SUPPORTED_SUBTITLE_EXTENSIONS.includes(subtitleFileExtension)) {
+        subtitleFilePath = await convertSubtitleToAss(
+          subtitleFile,
+          episode.originalFilePath ?? episode.filePath
+        );
+      }
+
       const languageFromFileName = subtitleFileName.split('-');
       const languageStrSplit =
         languageFromFileName[languageFromFileName.length - 1].split(' ');
@@ -111,8 +132,8 @@ class SubtitleService {
 
       if (code) {
         const newSubtitle: SubtitleInput = {
-          filePath: subtitleFile,
-          episodeId,
+          filePath: subtitleFilePath,
+          episodeId: episode.id,
         };
 
         const language: SubtitleLanguageInput = {
@@ -134,6 +155,7 @@ class SubtitleService {
   ) {
     const createdSubtitles: Subtitle[] = [];
     const fileExists = fs.existsSync(videoFilePath);
+
     if (fileExists) {
       const videoSubtitles = await extractSubtitlesFromVideo(videoFilePath);
       for (const subtitle of videoSubtitles) {
