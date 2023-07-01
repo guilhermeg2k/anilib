@@ -4,6 +4,7 @@ import {
   AnimeFormatInput,
   AnimeStatusInput,
   AnimeTitleInput,
+  AnimeTrailerWithoutId,
   AnimeUpdateInputWithoutRelations,
   Directory,
   GenreInput,
@@ -63,6 +64,7 @@ class AnimeRepository {
     directory,
     titles,
     format,
+    trailer,
     status,
     season,
     genres,
@@ -72,6 +74,7 @@ class AnimeRepository {
     directory: Directory;
     titles: AnimeTitleInput[];
     format: AnimeFormatInput;
+    trailer?: AnimeTrailerWithoutId;
     status: AnimeStatusInput;
     season: SeasonInput;
     genres: GenreInput[];
@@ -96,6 +99,24 @@ class AnimeRepository {
             create: format,
           },
         },
+        trailer: trailer
+          ? {
+              create: {
+                idOnSite: trailer.idOnSite,
+                thumbnailUrl: trailer.thumbnailUrl,
+                animeTrailerSite: {
+                  connectOrCreate: {
+                    where: {
+                      name: trailer.site,
+                    },
+                    create: {
+                      name: trailer.site,
+                    },
+                  },
+                },
+              },
+            }
+          : undefined,
         status: {
           connectOrCreate: {
             where: {

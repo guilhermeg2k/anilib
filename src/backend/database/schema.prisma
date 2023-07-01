@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Anime {
-  id               String       @id @default(uuid())
+  id               String        @id @default(uuid())
   anilistId        Int
   anilistUrl       String
   genres           Genre[]
@@ -21,23 +21,25 @@ model Anime {
   description      String
   numberOfEpisodes Int?
   releaseDate      DateTime
-  status           AnimeStatus  @relation(fields: [statusId], references: [id])
+  status           AnimeStatus   @relation(fields: [statusId], references: [id])
   statusId         Int
-  format           AnimeFormat  @relation(fields: [formatId], references: [id])
+  trailer          AnimeTrailer? @relation(fields: [trailerId], references: [id])
+  trailerId        Int?
+  format           AnimeFormat   @relation(fields: [formatId], references: [id])
   formatId         Int
-  folderPath       String       @unique
-  directory        Directory    @relation(fields: [directoryId], references: [id], onDelete: Cascade)
+  folderPath       String        @unique
+  directory        Directory     @relation(fields: [directoryId], references: [id], onDelete: Cascade)
   directoryId      Int
   meanScore        Int
   averageScore     Int
   popularity       Int
   episodes         Episode[]
-  season           Season       @relation(fields: [seasonName, seasonYear], references: [name, year])
+  season           Season        @relation(fields: [seasonName, seasonYear], references: [name, year])
   seasonName       String
   seasonYear       Int
   studios          Studio[]
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 model AnimeFormat {
@@ -58,6 +60,22 @@ model AnimeTitle {
   type    String
   Anime   Anime?  @relation(fields: [animeId], references: [id], onDelete: Cascade)
   animeId String?
+}
+
+model AnimeTrailer {
+  id               Int              @id @default(autoincrement())
+  site             String
+  idOnSite         String
+  thumbnailUrl     String
+  animeTrailerSite AnimeTrailerSite @relation(fields: [site], references: [name])
+  Anime            Anime[]
+}
+
+model AnimeTrailerSite {
+  name         String         @unique
+  AnimeTrailer AnimeTrailer[]
+
+  @@id([name])
 }
 
 model Genre {

@@ -101,9 +101,12 @@ class EpisodeService {
       if (fileExt === '.mp4') {
         const episodeFileIsConverted =
           episodeFilePath.includes(REENCODED_FILE_MARK) &&
-          fs.existsSync(
+          (fs.existsSync(
             episodeFilePath.replace(`${REENCODED_FILE_MARK}.mp4`, '.mkv')
-          );
+          ) ||
+            fs.existsSync(
+              episodeFilePath.replace(`${REENCODED_FILE_MARK}.mp4`, '.mp4')
+            ));
 
         if (episodeFileIsConverted) {
           return;
