@@ -490,7 +490,7 @@ const TimeLine = ({ previews }: { previews: (string | null)[] }) => {
   );
 };
 
-export const Subtitles = () => {
+const Subtitles = () => {
   const {
     currentTime,
     currentSubtitleId,
@@ -498,13 +498,13 @@ export const Subtitles = () => {
     shouldShowControls: isShowingControls,
   } = useVideoPlayerStore();
   const { color, background, size } = subtitleConfig;
-  const [subtitleBinary, setSubtitleBinary] = useState('');
+  const [subtitleFileAsText, setSubtitleAsText] = useState('');
 
   const parsedSubtitle = useMemo(() => {
-    const compiledASS = compile(subtitleBinary, {});
-    const decompiledText = decompile(compiledASS);
-    return parse(decompiledText);
-  }, [subtitleBinary]);
+    const compiledASS = compile(subtitleFileAsText, {});
+    const decompiledASSText = decompile(compiledASS);
+    return parse(decompiledASSText);
+  }, [subtitleFileAsText]);
 
   const textClassName = buildSubtitleTextClass(color, size);
   const backgroundClassName = buildSubtitlesBackgroundColor(background);
@@ -525,8 +525,10 @@ export const Subtitles = () => {
   const py = parseInt(parsedSubtitle.info.PlayResY);
 
   const loadSubtitleBinary = async (subtitleId: string) => {
-    const subtitle = await getSubtitleFileAsText(subtitleId);
-    setSubtitleBinary(subtitle);
+    if (subtitleId) {
+      const subtitle = await getSubtitleFileAsText(subtitleId);
+      setSubtitleAsText(subtitle);
+    }
   };
 
   useEffect(() => {
