@@ -206,14 +206,15 @@ export const extractSubtitlesFromVideo = async (
   if (subtitleStreams.length > 0) {
     let subtitlesCount = 1;
     let ffmpegExecCommand = `ffmpeg -y -i "${videoFilePath}" -f ass`;
+
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
 
-      const code = (
-        subtitleStream.tags?.language?.toUpperCase() || `Lang ${subtitlesCount}`
-      ).replaceAll('-', '');
+      const code =
+        subtitleStream.tags?.language?.toUpperCase() ||
+        `Lang ${subtitlesCount}`;
 
-      const name = subtitleStream.tags?.title?.replaceAll('-', '');
+      const name = subtitleStream.tags?.title;
 
       const subFileName = parseFileName(
         name

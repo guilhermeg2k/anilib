@@ -88,7 +88,11 @@ class SubtitleService {
     );
 
     const subtitleFiles = await getFilesInDirectoryByExtensions({
-      folder: path.join(parsedEpisodePath.dir, parsedEpisodePath.name),
+      folder: path.join(
+        parsedEpisodePath.dir,
+        parsedEpisodePath.name,
+        'subtitles'
+      ),
       extensions: SUBTITLE_EXTENSIONS,
       maxDepth: 2,
     });
