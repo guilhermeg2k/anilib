@@ -16,6 +16,7 @@ import path from 'path';
 
 const SUBTITLE_EXTENSIONS = ['.ass', '.vtt', '.srt'];
 const SUPPORTED_SUBTITLE_EXTENSIONS = ['.ass'];
+const fsPromises = fs.promises;
 
 class SubtitleService {
   private static createFromEpisodePromiseLimiter = pLimit(6);
@@ -40,6 +41,25 @@ class SubtitleService {
     for await (const invalidSubtitle of invalidSubtitles) {
       await SubtitleRepository.deleteById(invalidSubtitle.id);
     }
+  }
+
+  static async deleteConverted() {
+    const convertedSubtitles = await SubtitleRepository.listConverted();
+
+    const deleteConvertedEpisodesPromises = convertedSubtitles.map(
+      async (episode) => {
+        if (episode.originalFilePath) {
+          const fileExists = fs.existsSync(episode.originalFilePath);
+
+          if (fileExists) {
+            return fsPromises.unlink(episode.originalFilePath);
+          }
+        }
+      }
+    );
+
+    //TODO: Change this promise.all to p-promise
+    await Promise.all(deleteConvertedEpisodesPromises);
   }
 
   static async createFromEpisodes(episodes: Array<Episode>) {
@@ -101,17 +121,18 @@ class SubtitleService {
 
   //Todo: Refactor
   private static async createFromSubtitleFiles(
-    vttFiles: Array<string>,
+    subtitleFiles: Array<string>,
     episode: Episode
   ) {
     const createdSubtitles: Subtitle[] = [];
 
-    for (const subtitleFile of vttFiles) {
+    for (const subtitleFile of subtitleFiles) {
       const subtitleFileExtension = path.extname(subtitleFile);
       const subtitleFileName = path.basename(
         subtitleFile,
         subtitleFileExtension
       );
+      let wasConverted = false;
       let subtitleFilePath = subtitleFile;
 
       if (!SUPPORTED_SUBTITLE_EXTENSIONS.includes(subtitleFileExtension)) {
@@ -119,6 +140,7 @@ class SubtitleService {
           subtitleFile,
           episode.originalFilePath ?? episode.filePath
         );
+        wasConverted = true;
       }
 
       const languageFromFileName = subtitleFileName.split('-');
@@ -133,6 +155,7 @@ class SubtitleService {
       if (code) {
         const newSubtitle: SubtitleInput = {
           filePath: subtitleFilePath,
+          originalFilePath: wasConverted ? subtitleFile : null,
           episodeId: episode.id,
         };
 
@@ -161,6 +184,7 @@ class SubtitleService {
       for (const subtitle of videoSubtitles) {
         const newSubtitle: SubtitleInput = {
           filePath: subtitle.filePath,
+          originalFilePath: null,
           episodeId,
         };
 

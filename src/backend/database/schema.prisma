@@ -114,15 +114,16 @@ model Episode {
 }
 
 model Subtitle {
-  id           String           @id @default(uuid())
-  filePath     String
-  language     SubtitleLanguage @relation(fields: [languageCode, languageName], references: [code, name])
-  languageCode String
-  languageName String
-  episode      Episode          @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  episodeId    String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  filePath         String
+  originalFilePath String?
+  language         SubtitleLanguage @relation(fields: [languageCode, languageName], references: [code, name])
+  languageCode     String
+  languageName     String
+  episode          Episode          @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episodeId        String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model SubtitleLanguage {

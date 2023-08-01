@@ -1,7 +1,7 @@
 {
   "name": "anilib",
   "version": "0.9.0",
-  "versionName": "Ai-dev",
+  "versionName": "Komi-San-dev",
   "private": true,
   "scripts": {
     "dev": "run-p dev:*",
@@ -10,7 +10,7 @@
     "db-migrate": "prisma migrate dev --name init && prisma generate",
     "db-seed": "tsx src/backend/database/seeds/settings.ts",
     "db-studio": "prisma studio",
-    "build": "run-p build:*",
+    "build": "run-p build:* && run-s db-migrate",
     "build:next": "next build",
     "build:custom-server": "tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
     "lint": "next lint --dir src",

@@ -275,13 +275,12 @@ export const convertSubtitleToAss = async (
     await fsPromises.mkdir(outputDir);
   }
 
-  const assFileName = path.basename(
-    subtitleFilePath,
-    path.extname(subtitleFilePath)
-  );
+  const assFileName =
+    path.basename(subtitleFilePath, path.extname(subtitleFilePath)) + '.ass';
+
   const outputFilePath = path.join(outputDir, assFileName);
 
-  const ffmpegCommand = `ffmpeg -y -i "${subtitleFilePath}" "${outputFilePath}.ass"`;
+  const ffmpegCommand = `ffmpeg -y -i "${subtitleFilePath}" "${outputFilePath}"`;
   const { error } = await exec(ffmpegCommand);
 
   if (error) {
