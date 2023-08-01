@@ -30,9 +30,9 @@ model Anime {
   folderPath       String        @unique
   directory        Directory     @relation(fields: [directoryId], references: [id], onDelete: Cascade)
   directoryId      Int
-  meanScore        Int
-  averageScore     Int
-  popularity       Int
+  meanScore        Int?
+  averageScore     Int?
+  popularity       Int?
   episodes         Episode[]
   season           Season        @relation(fields: [seasonName, seasonYear], references: [name, year])
   seasonName       String

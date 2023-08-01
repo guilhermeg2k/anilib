@@ -69,7 +69,7 @@ class AnimeService {
     } = this.createAnimeInputFromAnilistAnime(anilistAnime, anime.folderPath);
 
     return AnimeRepository.updateWithAllRelations({
-      anime: updateAnime,
+      anime: { id: animeId, ...updateAnime },
       studios,
       format,
       status,

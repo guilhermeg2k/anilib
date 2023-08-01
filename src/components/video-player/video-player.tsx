@@ -521,8 +521,8 @@ const Subtitles = () => {
     sub.Text.parsed.some((s) => !s.tags.some((t) => t.pos))
   );
 
-  const px = parseInt(parsedSubtitle.info.PlayResX);
-  const py = parseInt(parsedSubtitle.info.PlayResY);
+  const playerResX = parseInt(parsedSubtitle.info.PlayResX);
+  const playerResY = parseInt(parsedSubtitle.info.PlayResY);
 
   const loadSubtitleBinary = async (subtitleId: string) => {
     if (subtitleId) {
@@ -545,17 +545,22 @@ const Subtitles = () => {
       {floatingCaptions.map((sub) =>
         sub.Text.parsed.map((text) => {
           const pos = text.tags.find((tag) => tag.pos);
+          const left = pos && pos.pos && (100 * pos.pos[0]) / playerResX;
+          const top = pos && pos.pos && (100 * pos.pos[1]) / playerResY;
+
           return (
             <div
               className={clsx(
-                `${textClassName} text-center font-subtitle font-bold antialiased ${backgroundClassName}`
+                textClassName,
+                backgroundClassName,
+                'text-center font-subtitle font-bold antialiased'
               )}
               style={
                 pos
                   ? {
                       position: 'absolute',
-                      left: `${(100 * pos.pos![0]) / px}%`,
-                      top: `${(100 * pos.pos![1]) / py}%`,
+                      left: `${left}%`,
+                      top: `${top}%`,
                       textShadow:
                         background === 'transparent'
                           ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
@@ -574,8 +579,9 @@ const Subtitles = () => {
       )}
       <div
         className={clsx(
-          `${textClassName} absolute text-center font-subtitle font-bold antialiased ${backgroundClassName}`,
-          isShowingControls ? 'bottom-16' : 'bottom-4'
+          `${textClassName} absolute text-center font-subtitle font-bold antialiased  ${backgroundClassName}`,
+          isShowingControls ? 'bottom-16' : 'bottom-4',
+          subtitles.length > 0 && 'p-1'
         )}
         style={{
           textShadow:
