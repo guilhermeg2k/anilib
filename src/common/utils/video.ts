@@ -3,6 +3,7 @@ import ffprobeStatic from 'ffprobe-static';
 import fs from 'fs';
 import path from 'path';
 import util from 'util';
+import { parseFileName } from './file';
 
 const exec = util.promisify(require('child_process').exec);
 const fsPromises = fs.promises;
@@ -208,15 +209,17 @@ export const extractSubtitlesFromVideo = async (
     for (const subtitleStream of subtitleStreams) {
       const subtitleIndex = subtitleStream.index;
 
-      const code =
-        subtitleStream.tags?.language?.toUpperCase() ||
-        `Lang ${subtitlesCount}`;
+      const code = (
+        subtitleStream.tags?.language?.toUpperCase() || `Lang ${subtitlesCount}`
+      ).replaceAll('-', '');
 
-      const name = subtitleStream.tags?.title;
+      const name = subtitleStream.tags?.title?.replaceAll('-', '');
 
-      const subFileName = name
-        ? `${subtitlesCount}-${code} ${name}.ass`
-        : `${subtitlesCount}-${code}.ass`;
+      const subFileName = parseFileName(
+        name
+          ? `${subtitlesCount}-${code} ${name}.ass`
+          : `${subtitlesCount}-${code}.ass`
+      );
 
       const subFilePath = path.join(outputDir, subFileName);
 
