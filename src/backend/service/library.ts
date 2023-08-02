@@ -52,6 +52,7 @@ class LibraryService {
 
         if (shouldDeleteConvertedData) {
           await EpisodeService.deleteConverted();
+          await SubtitleService.deleteConverted();
           console.log('Converted episodes deleted!');
         }
 

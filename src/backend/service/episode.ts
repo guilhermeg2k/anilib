@@ -66,6 +66,7 @@ class EpisodeService {
       }
     );
 
+    //TODO: Change this promise.all to p-promise
     await Promise.all(deleteConvertedEpisodesPromises);
   }
 

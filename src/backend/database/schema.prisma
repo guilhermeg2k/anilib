@@ -30,9 +30,9 @@ model Anime {
   folderPath       String        @unique
   directory        Directory     @relation(fields: [directoryId], references: [id], onDelete: Cascade)
   directoryId      Int
-  meanScore        Int
-  averageScore     Int
-  popularity       Int
+  meanScore        Int?
+  averageScore     Int?
+  popularity       Int?
   episodes         Episode[]
   season           Season        @relation(fields: [seasonName, seasonYear], references: [name, year])
   seasonName       String
@@ -114,15 +114,16 @@ model Episode {
 }
 
 model Subtitle {
-  id           String           @id @default(uuid())
-  filePath     String
-  language     SubtitleLanguage @relation(fields: [languageCode, languageName], references: [code, name])
-  languageCode String
-  languageName String
-  episode      Episode          @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  episodeId    String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  filePath         String           @unique
+  originalFilePath String?          @unique
+  language         SubtitleLanguage @relation(fields: [languageCode, languageName], references: [code, name])
+  languageCode     String
+  languageName     String
+  episode          Episode          @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  episodeId        String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model SubtitleLanguage {

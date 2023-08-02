@@ -6,10 +6,28 @@ class SubtitleRepository {
     return prisma.subtitle.findMany();
   }
 
+  static listByPath(path: string) {
+    return prisma.subtitle.findMany({
+      where: {
+        OR: [{ filePath: path }, { originalFilePath: path }],
+      },
+    });
+  }
+
   static listByEpisodeId(episodeId: string) {
     return prisma.subtitle.findMany({
       where: {
         episodeId,
+      },
+    });
+  }
+
+  static listConverted() {
+    return prisma.subtitle.findMany({
+      where: {
+        NOT: {
+          originalFilePath: null,
+        },
       },
     });
   }
@@ -26,6 +44,7 @@ class SubtitleRepository {
     return prisma.subtitle.create({
       data: {
         filePath: subtitle.filePath,
+        originalFilePath: subtitle.originalFilePath,
         episode: {
           connect: {
             id: subtitle.episodeId,
