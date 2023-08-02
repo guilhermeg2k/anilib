@@ -76,13 +76,6 @@ class SubtitleService {
   static async createFromEpisode(episode: Episode) {
     const createdSubtitles = Array<Subtitle>();
 
-    const episodeSubtitles = await SubtitleRepository.listByEpisodeId(
-      episode.id
-    );
-
-    const doesEpisodeAlreadyHasSubtitles = episodeSubtitles.length !== 0;
-    if (doesEpisodeAlreadyHasSubtitles) return createdSubtitles;
-
     const parsedEpisodePath = path.parse(
       episode.originalFilePath ?? episode.filePath
     );
@@ -136,8 +129,17 @@ class SubtitleService {
         subtitleFile,
         subtitleFileExtension
       );
-      let wasConverted = false;
+
       let subtitleFilePath = subtitleFile;
+
+      const subtitlesByPath = await SubtitleRepository.listByPath(
+        subtitleFilePath
+      );
+
+      const subtitleAlreadyExists = subtitlesByPath.length > 0;
+      if (subtitleAlreadyExists) continue;
+
+      let wasConverted = false;
 
       if (!SUPPORTED_SUBTITLE_EXTENSIONS.includes(subtitleFileExtension)) {
         subtitleFilePath = await convertSubtitleToAss(

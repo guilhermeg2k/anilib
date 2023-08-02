@@ -6,6 +6,14 @@ class SubtitleRepository {
     return prisma.subtitle.findMany();
   }
 
+  static listByPath(path: string) {
+    return prisma.subtitle.findMany({
+      where: {
+        OR: [{ filePath: path }, { originalFilePath: path }],
+      },
+    });
+  }
+
   static listByEpisodeId(episodeId: string) {
     return prisma.subtitle.findMany({
       where: {

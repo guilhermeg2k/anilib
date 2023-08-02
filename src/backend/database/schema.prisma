@@ -115,8 +115,8 @@ model Episode {
 
 model Subtitle {
   id               String           @id @default(uuid())
-  filePath         String
-  originalFilePath String?
+  filePath         String           @unique
+  originalFilePath String?          @unique
   language         SubtitleLanguage @relation(fields: [languageCode, languageName], references: [code, name])
   languageCode     String
   languageName     String
