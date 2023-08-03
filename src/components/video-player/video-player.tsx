@@ -321,7 +321,7 @@ const SubtitleControlButton = ({ subtitles }: { subtitles: Subtitle[] }) => {
                     onClick={() => setCurrentSubtitleId(subtitle.id)}
                     active={currentSubtitleId === subtitle.id}
                   >
-                    {subtitle.languageName ?? subtitle.languageCode}
+                    {`${subtitle.languageCode}-${subtitle.languageName}`}
                   </SubtitleOptionButton>
                 );
               })}
@@ -340,6 +340,8 @@ const SubtitleControlButton = ({ subtitles }: { subtitles: Subtitle[] }) => {
                 <SubtitleSettingTitle>Text Color</SubtitleSettingTitle>
                 <div className="flex gap-5">
                   <SubtitleColorButton
+                    run-s
+                    db-migrateSubtitleColorButton
                     onClick={() => changeTextColor('white')}
                     active={color === 'white'}
                   >
