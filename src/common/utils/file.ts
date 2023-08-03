@@ -87,3 +87,6 @@ export const downloadFile = async (imageURL: string, destFilePath: string) => {
   await pipeline(response.body, fileStream);
   fileStream.close();
 };
+
+export const parseFileName = (name: string) =>
+  name.replaceAll('/', '').replaceAll('\\', '');

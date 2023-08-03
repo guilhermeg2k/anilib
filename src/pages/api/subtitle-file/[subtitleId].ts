@@ -11,15 +11,15 @@ export default async function handler(
   switch (method) {
     case 'GET':
       try {
-        const { id } = req.query;
-        if (id && typeof id === 'string') {
-          const subtitle = await SubtitleService.getById(id);
+        const { subtitleId } = req.query;
+        if (subtitleId && typeof subtitleId === 'string') {
+          const subtitle = await SubtitleService.getById(subtitleId);
           if (subtitle) {
             const vttFilePath = subtitle.filePath;
             const { size } = fs.statSync(vttFilePath);
 
             res.writeHead(200, {
-              'Content-Type': 'vtt',
+              'Content-Type': 'text/plain',
               'Content-Length': size,
             });
 
