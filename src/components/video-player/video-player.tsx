@@ -582,7 +582,7 @@ const Subtitles = () => {
       <div
         className={clsx(
           `${textClassName} absolute text-center font-subtitle font-bold antialiased  ${backgroundClassName}`,
-          isShowingControls ? 'bottom-16' : 'bottom-4',
+          isShowingControls ? 'bottom-16' : 'bottom-2',
           subtitles.length > 0 && 'p-1'
         )}
         style={{
