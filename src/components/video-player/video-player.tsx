@@ -1,7 +1,9 @@
+import { Subtitle } from '@common/types/database';
 import { Popover } from '@components/popover';
 import { Tab } from '@headlessui/react';
-import { formatSecondsInTime } from 'common/utils/time';
+import { compile, decompile, parse } from 'ass-compiler';
 import { clsx } from 'clsx';
+import { formatSecondsInTime } from 'common/utils/time';
 import { useEventListener } from 'hooks/use-event-listener';
 import Image from 'next/image';
 import React, {
@@ -16,13 +18,24 @@ import FadeTransition from '../fade-transition';
 import MaterialIcon from '../material-icon';
 import Slider from '../slider';
 import {
-  useVideoPlayerStore,
   SubtitleBackground,
   SubtitleColor,
   SubtitleSize,
+  useVideoPlayerStore,
 } from './video-player-store';
-import { Subtitle } from '@common/types/database';
-import { compile, decompile, parse } from 'ass-compiler';
+
+enum SubtitleAlign {
+  Default = 0,
+  BottomLeft = 1,
+  BottomCenter = 2,
+  BottomRight = 3,
+  MiddleLeft = 4,
+  MiddleCenter = 5,
+  MiddleRight = 6,
+  TopLeft = 7,
+  TopCenter = 8,
+  TopRight = 9,
+}
 
 const buildSubtitleTextClass = (color: SubtitleColor, size: SubtitleSize) => {
   const colorClass = buildSubtitlesColor(color);
@@ -148,6 +161,48 @@ const PlayerControlButton = ({
 
 const SubtitleSettingTitle = ({ children }: { children: ReactNode }) => {
   return <span className="text-xs font-bold">{children}</span>;
+};
+
+const buildSubtitleAlignClassName = (
+  align: SubtitleAlign = 0,
+  isShowingControls: boolean
+) => {
+  switch (align) {
+    case SubtitleAlign.BottomLeft:
+      return clsx(isShowingControls ? 'bottom-16' : 'bottom-2', ' left-0');
+
+    case SubtitleAlign.BottomCenter:
+      return clsx(
+        isShowingControls ? 'bottom-16' : 'bottom-2',
+        ' left-1/2 transform -translate-x-1/2'
+      );
+
+    case SubtitleAlign.BottomRight:
+      return clsx(isShowingControls ? 'bottom-16' : 'bottom-2', ' right-0');
+
+    case SubtitleAlign.MiddleLeft:
+      return 'left-0 top-1/2 transform -translate-y-1/2';
+
+    case SubtitleAlign.MiddleCenter:
+      return 'left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2';
+
+    case SubtitleAlign.MiddleRight:
+      return 'right-0 top-1/2 transform translate-y-1/2';
+    case SubtitleAlign.TopLeft:
+      return clsx(isShowingControls ? 'top-16' : 'top-2', ' left-0');
+
+    case SubtitleAlign.TopCenter:
+      return clsx(
+        isShowingControls ? 'top-16' : 'top-2',
+        ' left-1/2 transform -translate-x-1/2'
+      );
+
+    case SubtitleAlign.TopRight:
+      return clsx(isShowingControls ? 'top-16' : 'top-2', ' right-0');
+
+    default:
+      return isShowingControls ? 'bottom-16' : 'bottom-2';
+  }
 };
 
 const SubtitleTab = ({
@@ -544,66 +599,76 @@ const Subtitles = () => {
       )}
       id="sub"
     >
-      {floatingCaptions.map((sub) =>
-        sub.Text.parsed.map((text) => {
-          const pos = text.tags.find((tag) => tag.pos);
-          const left = pos && pos.pos && (100 * pos.pos[0]) / playerResX;
-          const top = pos && pos.pos && (100 * pos.pos[1]) / playerResY;
+      {floatingCaptions.map((sub) => {
+        const text = sub.Text;
+        const pos = text.parsed[0].tags.find((tag) => tag.pos);
 
-          return (
-            <div
-              className={clsx(
-                textClassName,
-                backgroundClassName,
-                'text-center font-subtitle font-bold antialiased'
-              )}
-              style={
-                pos
-                  ? {
-                      position: 'absolute',
-                      left: `${left}%`,
-                      top: `${top}%`,
-                      textShadow:
-                        background === 'transparent'
-                          ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
-                          : '',
-                    }
-                  : {}
-              }
-              key={text.text}
-            >
-              {text.text.split('\\N').map((line) => (
-                <div key={line}>{line}</div>
+        const x = pos && pos.pos && pos.pos[0];
+        const y = pos && pos.pos && pos.pos[1];
+
+        if (x == null || y == null) return null;
+        if (x > playerResX || y > playerResY) return null;
+
+        const top = (y / playerResY) * 100;
+        const left = (x / playerResX) * 100;
+
+        return (
+          <div
+            id="floating-captions"
+            className={clsx(
+              textClassName,
+              backgroundClassName,
+              'text-center font-subtitle font-bold antialiased'
+            )}
+            style={
+              pos
+                ? {
+                    position: 'absolute',
+                    left: `${left > playerResX ? '0' : left}%`,
+                    top: `${top}%`,
+                    textShadow:
+                      background === 'transparent'
+                        ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
+                        : '',
+                  }
+                : {}
+            }
+            key={text.combined}
+          >
+            {text.combined.split('\\N').map((line) => (
+              <div key={line}>{line}</div>
+            ))}
+          </div>
+        );
+      })}
+      {subtitles.map((sub) => {
+        const text = sub.Text;
+        const align = sub.Text.parsed[0].tags.find((tag) => tag.an);
+
+        return (
+          <div
+            id="dialogs"
+            key={text.combined}
+            className={clsx(
+              `${textClassName} absolute text-center font-subtitle font-bold antialiased  ${backgroundClassName}`,
+              subtitles.length > 0 && 'p-1',
+              buildSubtitleAlignClassName(align?.an, isShowingControls)
+            )}
+            style={{
+              textShadow:
+                background === 'transparent'
+                  ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
+                  : '',
+            }}
+          >
+            <div>
+              {text.combined.split('\\N').map((line, i) => (
+                <div key={i}>{line}</div>
               ))}
             </div>
-          );
-        })
-      )}
-      <div
-        className={clsx(
-          `${textClassName} absolute text-center font-subtitle font-bold antialiased  ${backgroundClassName}`,
-          isShowingControls ? 'bottom-16' : 'bottom-2',
-          subtitles.length > 0 && 'p-1'
-        )}
-        style={{
-          textShadow:
-            background === 'transparent'
-              ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
-              : '',
-        }}
-      >
-        {subtitles.map((sub) =>
-          sub.Text.parsed.map((text) => {
-            return (
-              <div key={text.text}>
-                {text.text.split('\\N').map((line) => (
-                  <div key={line}>{line}</div>
-                ))}
-              </div>
-            );
-          })
-        )}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
