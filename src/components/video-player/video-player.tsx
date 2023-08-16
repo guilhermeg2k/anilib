@@ -165,11 +165,15 @@ const SubtitleSettingTitle = ({ children }: { children: ReactNode }) => {
 
 const buildSubtitleAlignClassName = (
   align: SubtitleAlign = 0,
-  isShowingControls: boolean
+  isShowingControls: boolean,
+  subIndex: number = 0
 ) => {
   switch (align) {
     case SubtitleAlign.BottomLeft:
-      return clsx(isShowingControls ? 'bottom-16' : 'bottom-2', ' left-0');
+      return clsx(
+        isShowingControls ? 'bottom-16' : 'bottom-2',
+        ' left-0 absolute'
+      );
 
     case SubtitleAlign.BottomCenter:
       return clsx(
@@ -178,30 +182,33 @@ const buildSubtitleAlignClassName = (
       );
 
     case SubtitleAlign.BottomRight:
-      return clsx(isShowingControls ? 'bottom-16' : 'bottom-2', ' right-0');
+      return clsx(
+        isShowingControls ? 'bottom-16' : 'bottom-2',
+        ' right-0 absolute'
+      );
 
     case SubtitleAlign.MiddleLeft:
       return 'left-0 top-1/2 transform -translate-y-1/2';
 
     case SubtitleAlign.MiddleCenter:
-      return 'left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2';
+      return 'left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 absolute';
 
     case SubtitleAlign.MiddleRight:
-      return 'right-0 top-1/2 transform translate-y-1/2';
+      return 'right-0 top-1/2 transform translate-y-1/2 absolute';
     case SubtitleAlign.TopLeft:
       return clsx(isShowingControls ? 'top-16' : 'top-2', ' left-0');
 
     case SubtitleAlign.TopCenter:
       return clsx(
         isShowingControls ? 'top-16' : 'top-2',
-        ' left-1/2 transform -translate-x-1/2'
+        ' left-1/2 transform -translate-x-1/2 absolute'
       );
 
     case SubtitleAlign.TopRight:
-      return clsx(isShowingControls ? 'top-16' : 'top-2', ' right-0');
+      return clsx(isShowingControls ? 'top-16' : 'top-2', ' right-0 absolute');
 
     default:
-      return isShowingControls ? 'bottom-16' : 'bottom-2';
+      return isShowingControls && subIndex === 0 ? 'mb-16' : 'mb-2';
   }
 };
 
@@ -641,34 +648,43 @@ const Subtitles = () => {
           </div>
         );
       })}
-      {subtitles.map((sub) => {
-        const text = sub.Text;
-        const align = sub.Text.parsed[0].tags.find((tag) => tag.an);
 
-        return (
-          <div
-            id="dialogs"
-            key={text.combined}
-            className={clsx(
-              `${textClassName} absolute text-center font-subtitle font-bold antialiased  ${backgroundClassName}`,
-              subtitles.length > 0 && 'p-1',
-              buildSubtitleAlignClassName(align?.an, isShowingControls)
-            )}
-            style={{
-              textShadow:
-                background === 'transparent'
-                  ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
-                  : '',
-            }}
-          >
-            <div>
-              {text.combined.split('\\N').map((line, i) => (
-                <div key={i}>{line}</div>
-              ))}
+      {subtitles
+        .sort((a, b) => a.Start - b.Start)
+        .map((sub, subIndex) => {
+          const text = sub.Text;
+          const align = sub.Text.parsed[0].tags.find((tag) => tag.an);
+          const italic = sub.Text.parsed[0].tags.find((tag) => tag.i);
+
+          return (
+            <div
+              id="dialogs"
+              key={text.combined}
+              className={clsx(
+                `${textClassName} text-center font-subtitle font-bold antialiased ${backgroundClassName}`,
+                italic && 'italic',
+                subtitles.length > 0 && 'p-1',
+                buildSubtitleAlignClassName(
+                  align?.an,
+                  isShowingControls,
+                  subIndex
+                )
+              )}
+              style={{
+                textShadow:
+                  background === 'transparent'
+                    ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
+                    : '',
+              }}
+            >
+              <div>
+                {text.combined.split('\\N').map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };
