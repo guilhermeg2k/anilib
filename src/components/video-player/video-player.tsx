@@ -554,6 +554,53 @@ const TimeLine = ({ previews }: { previews: (string | null)[] }) => {
   );
 };
 
+const FloatingSubtitleText = ({
+  textClass,
+  bgClass,
+  left,
+  top,
+  background,
+  lines,
+}: {
+  textClass: string;
+  bgClass: string;
+  left: number;
+  top: number;
+  background: SubtitleBackground;
+  lines: string[];
+}) => {
+  const container = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={container}
+      className={clsx(
+        textClass,
+        bgClass,
+        'text-center font-subtitle font-bold antialiased'
+      )}
+      style={{
+        position: 'absolute',
+        left: container.current?.clientWidth
+          ? `calc(${left}% - ${(container.current?.clientWidth ?? 0) / 2}px)`
+          : '-1000%',
+        top: container.current?.clientHeight
+          ? `calc(${top}% - ${container.current?.clientHeight}px)`
+          : '-1000%',
+        textShadow:
+          background === 'transparent'
+            ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
+            : '',
+      }}
+      key={lines.join('-')}
+    >
+      {lines.map((line) => (
+        <div key={line}>{line}</div>
+      ))}
+    </div>
+  );
+};
+
 const Subtitles = () => {
   const {
     currentTime,
@@ -620,32 +667,14 @@ const Subtitles = () => {
         const left = (x / playerResX) * 100;
 
         return (
-          <div
-            id="floating-captions"
-            className={clsx(
-              textClassName,
-              backgroundClassName,
-              'text-center font-subtitle font-bold antialiased'
-            )}
-            style={
-              pos
-                ? {
-                    position: 'absolute',
-                    left: `${left > playerResX ? '0' : left}%`,
-                    top: `${top}%`,
-                    textShadow:
-                      background === 'transparent'
-                        ? '#000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px, #000 0px 0px 3px'
-                        : '',
-                  }
-                : {}
-            }
-            key={text.combined}
-          >
-            {text.combined.split('\\N').map((line) => (
-              <div key={line}>{line}</div>
-            ))}
-          </div>
+          <FloatingSubtitleText
+            bgClass={backgroundClassName}
+            textClass={textClassName}
+            background={background}
+            left={left > playerResX ? 0 : left}
+            top={top}
+            lines={text.combined.split('\\N')}
+          />
         );
       })}
 
